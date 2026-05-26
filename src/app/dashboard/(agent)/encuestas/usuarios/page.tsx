@@ -22,20 +22,27 @@ interface PageProps {
 export default async function UserSurveysPage({ searchParams }: PageProps) {
   const session = await requireAgent();
   const params = await searchParams;
+  const isAdmin = session.user.role === "admin";
 
   const filters = {
     agentId: typeof params.agentId === "string" ? params.agentId : undefined,
+    areaId: typeof params.areaId === "string" ? params.areaId : undefined,
     dateFrom: typeof params.dateFrom === "string" ? params.dateFrom : undefined,
     dateTo: typeof params.dateTo === "string" ? params.dateTo : undefined,
   };
 
-  const [results, agents] = await Promise.all([
+  const [results, agents, allAreas] = await Promise.all([
     getSurveyResultsAction(filters),
     getAgentsWithSurveysAction(),
+    isAdmin
+      ? db.query.attentionAreas.findMany({
+          where: eq(attentionAreas.isActive, true),
+          columns: { id: true, name: true },
+        })
+      : Promise.resolve([]),
   ]);
 
   // Resolve area name for subtitle
-  const isAdmin = session.user.role === "admin";
   let areaName: string | null = null;
   if (!isAdmin && session.user.attentionAreaId) {
     const area = await db.query.attentionAreas.findFirst({
@@ -54,6 +61,7 @@ export default async function UserSurveysPage({ searchParams }: PageProps) {
   // Build download URL with current filters
   const downloadParams = new URLSearchParams();
   if (filters.agentId) downloadParams.set("agentId", filters.agentId);
+  if (filters.areaId) downloadParams.set("areaId", filters.areaId);
   if (filters.dateFrom) downloadParams.set("dateFrom", filters.dateFrom);
   if (filters.dateTo) downloadParams.set("dateTo", filters.dateTo);
   const downloadHref = `/dashboard/encuestas/usuarios/download${downloadParams.size > 0 ? `?${downloadParams}` : ""}`;
@@ -81,7 +89,7 @@ export default async function UserSurveysPage({ searchParams }: PageProps) {
       </div>
 
       {/* Filters */}
-      <SurveyFilters agents={agents} />
+      <SurveyFilters agents={agents} attentionAreas={allAreas} />
 
       {/* Results */}
       {"error" in results ? (

@@ -110,6 +110,7 @@ export async function getSurveyByTicketAction(ticketId: number) {
 
 export interface SurveyFilterParams {
   agentId?: string;
+  areaId?: string;
   dateFrom?: string;
   dateTo?: string;
 }
@@ -133,6 +134,11 @@ export async function getSurveyResultsAction(filters?: SurveyFilterParams) {
     // Area scoping
     if (!isAdmin && areaId) {
       conditions.push(eq(satisfactionSurveys.attentionAreaId, areaId));
+    }
+
+    // Admin area filter (when admin selects a specific area)
+    if (isAdmin && filters?.areaId) {
+      conditions.push(eq(satisfactionSurveys.attentionAreaId, Number(filters.areaId)));
     }
 
     // Date filters on survey creation date
@@ -205,6 +211,9 @@ export async function getSurveyResultsAction(filters?: SurveyFilterParams) {
     const resolvedTicketsConditions = [eq(tickets.status, "resolved")];
     if (!isAdmin && areaId) {
       resolvedTicketsConditions.push(eq(tickets.attentionAreaId, areaId));
+    }
+    if (isAdmin && filters?.areaId) {
+      resolvedTicketsConditions.push(eq(tickets.attentionAreaId, Number(filters.areaId)));
     }
 
     const [resolvedCount] = await db.select({ count: count() })
