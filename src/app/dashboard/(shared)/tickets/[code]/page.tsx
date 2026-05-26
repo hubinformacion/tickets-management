@@ -14,7 +14,7 @@ import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   FileIcon, ImageIcon, FileTextIcon, FileSpreadsheetIcon, FilmIcon, ExternalLinkIcon, PaperclipIcon,
-  MessageSquareIcon, FileText, ChevronDown, Monitor, User, Clock, Calendar, Hash, Tag, ArrowRight, Eye, Activity, Share2
+  MessageSquareIcon, FileText, ChevronDown, Monitor, User, Clock, Calendar, Hash, Tag, ArrowRight, Eye, Activity, Share2, History
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AdminTicketControls } from "@/components/tickets/admin-ticket-controls";
@@ -557,6 +557,48 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                   )}
                 </div>
               </div>
+
+              {/* Bitácora — solo visible para agentes y admins */}
+              {(isAdmin || isAgentForArea) && (() => {
+                const systemEvents = ticket.comments
+                  .filter(c => c.type === 'system')
+                  .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+                return (
+                  <div className="bg-sidebar border border-border/50 rounded-xl p-4 space-y-3">
+                    <label className="text-[11px] font-medium text-muted-foreground uppercase flex items-center gap-1.5">
+                      <History className="w-3 h-3" />
+                      Bitácora
+                    </label>
+                    <div className="space-y-0 relative">
+                      {/* Línea conectora */}
+                      {(systemEvents.length > 0) && (
+                        <div className="absolute left-[5px] top-2 bottom-2 w-px bg-border/60" />
+                      )}
+
+                      {/* Evento de creación */}
+                      <div className="relative pl-5 py-1.5 group">
+                        <div className="absolute left-0 top-[9px] h-[11px] w-[11px] rounded-full bg-primary/20 border-2 border-primary ring-2 ring-background" />
+                        <p className="text-xs text-foreground font-medium">Ticket creado</p>
+                        <p className="text-[10px] text-muted-foreground">{formatDate(ticket.createdAt)}</p>
+                      </div>
+
+                      {/* Eventos del sistema */}
+                      {systemEvents.map((event) => (
+                        <div key={event.id} className="relative pl-5 py-1.5 group">
+                          <div className="absolute left-0 top-[9px] h-[11px] w-[11px] rounded-full bg-muted border-2 border-muted-foreground/30 ring-2 ring-background" />
+                          <p className="text-xs text-foreground/90" dangerouslySetInnerHTML={{ __html: event.content }} />
+                          <p className="text-[10px] text-muted-foreground">{formatDate(event.createdAt)}</p>
+                        </div>
+                      ))}
+
+                      {systemEvents.length === 0 && (
+                        <p className="text-xs text-muted-foreground/60 italic pl-5">Sin cambios registrados</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Attachment Uploader — only for open tickets, not for Difusión */}
               {!isTicketClosed && ticket.attentionArea?.slug !== "DIF" && (
