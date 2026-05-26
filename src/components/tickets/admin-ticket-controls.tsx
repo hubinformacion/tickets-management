@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils/cn";
 const STATUS_OPTIONS: { value: TicketStatus; label: string }[] = [
   { value: "open", label: "Abierto" },
   { value: "in_progress", label: "En progreso" },
-  { value: "pending_validation", label: "Pendiente de validación" },
   { value: "resolved", label: "Resuelto" },
   { value: "voided", label: "Anulado" },
 ];
