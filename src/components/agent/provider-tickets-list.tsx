@@ -165,13 +165,21 @@ export function ProviderTicketsList({ providerTickets, providers, areaTickets }:
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }, [providerTickets]);
 
-  // Apply filters
+  // Apply filters + sort (cerrados al final, más recientes primero)
   const filteredTickets = useMemo(() => {
-    return providerTickets.filter((t) => {
-      if (filterProvider !== "all" && t.providerId !== Number(filterProvider)) return false;
-      if (filterStatus !== "all" && t.status !== filterStatus) return false;
-      return true;
-    });
+    return providerTickets
+      .filter((t) => {
+        if (filterProvider !== "all" && t.providerId !== Number(filterProvider)) return false;
+        if (filterStatus !== "all" && t.status !== filterStatus) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        // Cerrados al final
+        if (a.status === "cerrado" && b.status !== "cerrado") return 1;
+        if (a.status !== "cerrado" && b.status === "cerrado") return -1;
+        // Dentro del mismo grupo, más recientes primero
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
   }, [providerTickets, filterProvider, filterStatus]);
 
   // Delete handler
