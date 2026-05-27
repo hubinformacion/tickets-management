@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { tickets, comments, ticketCategories, ticketSubcategories, appSettings, users, attentionAreas } from "@/db/schema";
+import { tickets, comments, ticketCategories, ticketSubcategories, appSettings, users, attentionAreas, satisfactionSurveys } from "@/db/schema";
 import { eq, desc, sql, and, or, ilike, inArray, SQL, count as drizzleCount } from "drizzle-orm";
 import { STATUS_URL_TO_DB } from "@/lib/constants/tickets";
 import type { TicketStatus } from "@/types";
@@ -129,6 +129,7 @@ export function queryTickets(
       createdAt: tickets.createdAt,
       updatedAt: tickets.updatedAt,
       commentCount: sql<number>`cast(count(${comments.id}) as integer)`,
+      hasSurvey: sql<boolean>`exists(select 1 from satisfaction_survey where satisfaction_survey.ticket_id = ${tickets.id})`,
     })
     .from(tickets)
     .leftJoin(ticketCategories, eq(tickets.categoryId, ticketCategories.id))
@@ -185,6 +186,7 @@ export async function queryTicketsPaginated(
       createdAt: tickets.createdAt,
       updatedAt: tickets.updatedAt,
       commentCount: sql<number>`cast(count(${comments.id}) as integer)`,
+      hasSurvey: sql<boolean>`exists(select 1 from satisfaction_survey where satisfaction_survey.ticket_id = ${tickets.id})`,
     })
     .from(tickets)
     .leftJoin(ticketCategories, eq(tickets.categoryId, ticketCategories.id))

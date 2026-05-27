@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Plus, MessageCircle } from "lucide-react";
+import { Plus, MessageCircle, CheckCircle2, Circle } from "lucide-react";
 import { CopyLinkButton } from "./copy-link-button";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { PriorityBadge } from "@/components/shared/priority-badge";
@@ -38,6 +38,7 @@ interface Ticket {
   createdBy?: { id: string; name: string; image: string | null } | null;
 
   commentCount?: number;
+  hasSurvey?: boolean;
 }
 
 interface TicketsListProps {
@@ -147,6 +148,7 @@ export function TicketsList({
               <TableHead>Solicitante</TableHead>
               <TableHead>Asignado a</TableHead>
               <TableHead className="text-center w-[120px]">Comentarios</TableHead>
+              <TableHead className="text-center w-[90px]">Encuesta</TableHead>
               <TableHead className="text-right">Fecha de creación</TableHead>
               <TableHead className="text-center w-[100px]">Link</TableHead>
             </TableRow>
@@ -154,7 +156,7 @@ export function TicketsList({
           <TableBody>
             {tickets.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={10} className="h-24 text-center text-muted-foreground">
                   {(totalCount ?? tickets.length) === 0
                     ? isWatchedView
                       ? "No estás siguiendo ningún ticket."
@@ -207,6 +209,15 @@ export function TicketsList({
                       <MessageCircle className="h-3.5 w-3.5" />
                       <span className="text-xs">{ticket.commentCount || 0}</span>
                     </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {ticket.hasSurvey ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-500 mx-auto" />
+                    ) : ticket.status === "resolved" ? (
+                      <Circle className="h-4 w-4 text-muted-foreground/40 mx-auto" />
+                    ) : (
+                      <span className="text-muted-foreground text-xs">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground">
                     {formatDate(ticket.createdAt)}
