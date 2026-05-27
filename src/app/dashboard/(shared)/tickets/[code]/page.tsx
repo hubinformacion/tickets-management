@@ -655,18 +655,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                 </div>
               )}
 
-              {/* Closure Info (if applicable) */}
-              {ticket.status === 'resolved' && ticket.closedBy && (
-                <div className="rounded-md bg-green-500/10 border border-green-500/20 p-3 mt-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-xs font-bold text-green-700 dark:text-green-400">Resuelto</span>
-                  </div>
-                  <p className="text-xs text-green-600/80 dark:text-green-500/80">
-                    Cerrado por {ticket.closedBy === 'user' ? 'usuario' : ticket.closedBy === 'admin' ? 'admin' : 'sistema'} el {formatDate(ticket.closedAt!)}
-                  </p>
-                </div>
-              )}
             </div>
 
           </div>
