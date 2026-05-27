@@ -3,25 +3,32 @@
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { X, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 interface Agent {
   id: string;
   name: string;
 }
 
-interface SurveyFiltersProps {
-  agents: Agent[];
+interface AttentionArea {
+  id: number;
+  name: string;
 }
 
-export function SurveyFilters({ agents }: SurveyFiltersProps) {
+interface SurveyFiltersProps {
+  agents: Agent[];
+  attentionAreas?: AttentionArea[];
+}
+
+export function SurveyFilters({ agents, attentionAreas = [] }: SurveyFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const currentAgent = searchParams.get("agentId") ?? "";
+  const currentArea = searchParams.get("areaId") ?? "";
   const currentDateFrom = searchParams.get("dateFrom") ?? "";
   const currentDateTo = searchParams.get("dateTo") ?? "";
-  const hasFilters = currentAgent || currentDateFrom || currentDateTo;
+  const hasFilters = currentAgent || currentArea || currentDateFrom || currentDateTo;
 
   const updateParams = useCallback(
     (updates: Record<string, string>) => {
@@ -45,6 +52,28 @@ export function SurveyFilters({ agents }: SurveyFiltersProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-3">
+      {/* Area filter (admin only) */}
+      {attentionAreas.length > 0 && (
+        <div className="flex items-center gap-2">
+          <label htmlFor="area-filter" className="text-sm text-muted-foreground whitespace-nowrap">
+            Área
+          </label>
+          <select
+            id="area-filter"
+            value={currentArea}
+            onChange={(e) => updateParams({ areaId: e.target.value })}
+            className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring text-foreground"
+          >
+            <option value="">Todas las áreas</option>
+            {attentionAreas.map((a) => (
+              <option key={a.id} value={a.id.toString()}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Agent filter */}
       {agents.length > 0 && (
         <div className="flex items-center gap-2">
@@ -105,3 +134,4 @@ export function SurveyFilters({ agents }: SurveyFiltersProps) {
     </div>
   );
 }
+
