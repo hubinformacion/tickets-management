@@ -558,11 +558,57 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                 </div>
               </div>
 
+              {/* Attachment Uploader — only for open tickets, not for Difusión */}
+              {!isTicketClosed && ticket.attentionArea?.slug !== "DIF" && (
+                <div className="mb-4">
+                  <TicketAttachmentUploader ticketId={ticket.id} />
+                </div>
+              )}
+
               {/* Bitácora — solo visible para agentes y admins */}
               {(isAdmin || isAgentForArea) && (() => {
-                const systemEvents = ticket.comments
-                  .filter(c => c.type === 'system')
-                  .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                // Construir timeline a partir de los datos del ticket
+                const events: { label: string; date: Date; highlight?: boolean }[] = [
+                  { label: "Ticket creado", date: ticket.createdAt, highlight: true },
+                ];
+
+                // Asignación de agente
+                if (ticket.assignedTo) {
+                  events.push({
+                    label: `Asignado a ${ticket.assignedTo.name}`,
+                    date: ticket.updatedAt, // updatedAt se actualiza al asignar
+                  });
+                }
+
+                // Solicitud de validación
+                if (ticket.validationRequestedAt) {
+                  events.push({
+                    label: "Enviado a validación",
+                    date: ticket.validationRequestedAt,
+                  });
+                }
+
+                // Cierre del ticket
+                if (ticket.closedAt) {
+                  const closedByLabel = ticket.closedBy === 'user' ? 'usuario'
+                    : ticket.closedBy === 'admin' ? 'administrador'
+                    : 'sistema (48hrs)';
+                  events.push({
+                    label: `Cerrado por ${closedByLabel}`,
+                    date: ticket.closedAt,
+                  });
+                }
+
+                // Anulación
+                if (ticket.status === 'voided' && !ticket.closedAt) {
+                  events.push({
+                    label: "Ticket anulado",
+                    date: ticket.updatedAt,
+                  });
+                }
+
+                // Ordenar cronológicamente
+                events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
                 return (
                   <div className="bg-sidebar border border-border/50 rounded-xl p-4 space-y-3">
@@ -572,40 +618,26 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                     </label>
                     <div className="space-y-0 relative">
                       {/* Línea conectora */}
-                      {(systemEvents.length > 0) && (
+                      {events.length > 1 && (
                         <div className="absolute left-[5px] top-2 bottom-2 w-px bg-border/60" />
                       )}
 
-                      {/* Evento de creación */}
-                      <div className="relative pl-5 py-1.5 group">
-                        <div className="absolute left-0 top-[9px] h-[11px] w-[11px] rounded-full bg-primary/20 border-2 border-primary ring-2 ring-background" />
-                        <p className="text-xs text-foreground font-medium">Ticket creado</p>
-                        <p className="text-[10px] text-muted-foreground">{formatDate(ticket.createdAt)}</p>
-                      </div>
-
-                      {/* Eventos del sistema */}
-                      {systemEvents.map((event) => (
-                        <div key={event.id} className="relative pl-5 py-1.5 group">
-                          <div className="absolute left-0 top-[9px] h-[11px] w-[11px] rounded-full bg-muted border-2 border-muted-foreground/30 ring-2 ring-background" />
-                          <p className="text-xs text-foreground/90" dangerouslySetInnerHTML={{ __html: event.content }} />
-                          <p className="text-[10px] text-muted-foreground">{formatDate(event.createdAt)}</p>
+                      {events.map((event, idx) => (
+                        <div key={idx} className="relative pl-5 py-1.5">
+                          <div className={cn(
+                            "absolute left-0 top-[9px] h-[11px] w-[11px] rounded-full ring-2 ring-background",
+                            event.highlight
+                              ? "bg-primary/20 border-2 border-primary"
+                              : "bg-muted border-2 border-muted-foreground/30"
+                          )} />
+                          <p className="text-xs text-foreground/90 font-medium">{event.label}</p>
+                          <p className="text-[10px] text-muted-foreground">{formatDate(event.date)}</p>
                         </div>
                       ))}
-
-                      {systemEvents.length === 0 && (
-                        <p className="text-xs text-muted-foreground/60 italic pl-5">Sin cambios registrados</p>
-                      )}
                     </div>
                   </div>
                 );
               })()}
-
-              {/* Attachment Uploader — only for open tickets, not for Difusión */}
-              {!isTicketClosed && ticket.attentionArea?.slug !== "DIF" && (
-                <div className="mb-4">
-                  <TicketAttachmentUploader ticketId={ticket.id} />
-                </div>
-              )}
 
               {/* Cancellation Action for Creator */}
               {isCreator && !isTicketClosed && (
