@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { tickets, users, attentionAreas, comments } from "@/db/schema";
+import { tickets, users, comments } from "@/db/schema";
 import { requireAuth, requireAgent } from "@/lib/auth/helpers";
 import { eq, inArray, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";

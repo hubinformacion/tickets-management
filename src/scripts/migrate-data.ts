@@ -3,7 +3,7 @@ import { db } from "../db/index";
 import { 
   attentionAreas, ticketCategories, ticketSubcategories, 
   users, tickets, comments, ticketAttachments, ticketSequence,
-  priorityConfig, appSettings, providers, sessions, accounts, verifications
+  priorityConfig, appSettings, sessions, accounts, verifications
 } from "../db/schema";
 import { sql } from "drizzle-orm";
 import * as dotenv from "dotenv";
