@@ -4,17 +4,14 @@ import { tickets, comments, users, priorityConfig, providers, satisfactionSurvey
 import { requireAuth } from "@/lib/auth/helpers";
 import { notFound, redirect } from "next/navigation";
 import { eq, desc, and } from "drizzle-orm";
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { formatDate, formatDateShort, translatePriority, formatFileSize } from "@/lib/utils/format";
+import { formatDate, formatDateShort, formatFileSize } from "@/lib/utils/format";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { PriorityBadge } from "@/components/shared/priority-badge";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   FileIcon, ImageIcon, FileTextIcon, FileSpreadsheetIcon, FilmIcon, ExternalLinkIcon, PaperclipIcon,
-  MessageSquareIcon, FileText, ChevronDown, Monitor, User, Clock, Calendar, Hash, Tag, ArrowRight, Eye, Activity, Share2, History
+  MessageSquareIcon, FileText, ChevronDown, User, Clock, Calendar, Hash, Tag, ArrowRight, Eye, Activity, Share2, History
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AdminTicketControls } from "@/components/tickets/admin-ticket-controls";
@@ -37,7 +34,6 @@ import type { DerivationMetadata } from "@/types";
 
 // Client Components for interactivity
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 /* --- Helper Components --- */
 
@@ -172,14 +168,14 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
   return (
     <>
       {/* Floating Validation Controls (outside animated container to preserve fixed positioning) */}
-      {ticket.status === 'pending_validation' && ticket.createdById === session.user.id && (
+      {ticket.status === 'pending_validation' && ticket.createdById === session.user.id ? (
         <UserValidationControls ticketId={ticket.id} />
-      )}
+      ) : null}
 
       {/* Floating Survey (for resolved tickets without survey, creator only) */}
-      {ticket.status === "resolved" && isCreator && !hasSurvey && (
+      {ticket.status === "resolved" && isCreator && !hasSurvey ? (
         <FloatingSurvey ticketId={ticket.id} />
-      )}
+      ) : null}
 
       <div className="mx-auto max-w-[1600px] space-y-8 pb-36 animate-in fade-in duration-500">
 
@@ -203,7 +199,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <StatusBadge status={ticket.status} />
-                  {ticket.priority && <PriorityBadge priority={ticket.priority} />}
+                  {ticket.priority ? <PriorityBadge priority={ticket.priority} /> : null}
                   <CopyTicketButton ticketCode={ticket.ticketCode} title={ticket.title} />
                 </div>
                 <span className="flex items-center gap-1.5 font-mono text-xs bg-muted/50 px-2 py-0.5 rounded border">
@@ -238,7 +234,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                     />
                   </div>
                 </div>
-                {ticket.attachments && ticket.attachments.length > 0 && ticket.attentionArea?.slug !== "DIF" && (
+                {ticket.attachments && ticket.attachments.length > 0 && ticket.attentionArea?.slug !== "DIF" ? (
                   <>
                     <div className="mx-6 border-t border-border" />
                     <div className="px-6 pt-4 pb-6 space-y-3">
@@ -271,23 +267,23 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                                   <p className="text-xs text-muted-foreground">
                                     {formatFileSize(file.fileSize)}
                                   </p>
-                                  {file.uploadedBy && (
+                                  {file.uploadedBy ? (
                                     <p className="text-[10px] text-muted-foreground/80 truncate mt-0.5">
                                       Por <span className="font-medium">{file.uploadedBy.name}</span>
                                     </p>
-                                  )}
+                                  ) : null}
                                 </div>
                               </a>
 
                               {/* Actions Column */}
                               <div className="flex flex-col gap-1 pl-2 ml-2 border-l border-border/40 justify-center min-h-[40px]">
-                                {canDelete && (
+                                {canDelete ? (
                                   <DeleteAttachmentButton
                                     attachmentId={file.id}
                                     ticketId={ticket.id}
                                     fileName={file.fileName}
                                   />
-                                )}
+                                ) : null}
                                 <a
                                   href={file.driveViewLink}
                                   target="_blank"
@@ -304,7 +300,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                       </div>
                     </div>
                   </>
-                )}
+                ) : null}
               </div>
 
 
@@ -333,7 +329,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                 )}
               </div>
 
-              {ticket.comments.length > 0 && (
+              {ticket.comments.length > 0 ? (
                 <div className="pt-2">
                   <Collapsible defaultOpen className="space-y-6">
                     <div className="flex items-center justify-between">
@@ -349,9 +345,9 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                       {/* Timeline */}
                       <div className="space-y-6 relative pl-2">
                         {/* Line connector */}
-                        {ticket.comments.length > 0 && (
+                        {ticket.comments.length > 0 ? (
                           <div className="absolute left-[26px] top-4 bottom-4 w-px bg-linear-to-b from-border/80 via-border/40 to-transparent" />
-                        )}
+                        ) : null}
 
                         {ticket.comments.map((entry) => {
                           const entryType = (entry.type as string) || 'comment';
@@ -376,16 +372,16 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                                     </span>
                                     <span className="text-xs text-muted-foreground">{formatDate(entry.createdAt)}</span>
                                   </div>
-                                  {(meta?.note || meta?.estimatedDate) && (
+                                  {(meta?.note || meta?.estimatedDate) ? (
                                     <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-xl px-4 py-3 text-sm text-amber-800 dark:text-amber-300 group-hover:border-amber-300 dark:group-hover:border-amber-700 transition-colors space-y-1.5">
-                                      {meta?.estimatedDate && (
+                                      {meta?.estimatedDate ? (
                                         <p className="font-medium text-xs">Fecha estimada de atención: <strong>{formatDateShort(meta.estimatedDate)}</strong></p>
-                                      )}
-                                      {meta?.note && (
+                                      ) : null}
+                                      {meta?.note ? (
                                         <p className="leading-relaxed">{meta.note}</p>
-                                      )}
+                                      ) : null}
                                     </div>
-                                  )}
+                                  ) : null}
                                 </div>
                               </div>
                             );
@@ -449,10 +445,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                     </CollapsibleContent>
                   </Collapsible>
                 </div>
-              )}
+              ) : null}
 
               {/* Empty State */}
-              {ticket.comments.length === 0 && (
+              {ticket.comments.length === 0 ? (
                 <div className="text-center py-10 px-4 border border-dashed border-border/60 rounded-xl bg-muted/5">
                   <div className="mx-auto h-12 w-12 rounded-full bg-muted/30 flex items-center justify-center mb-3">
                     <Activity className="h-5 w-5 text-muted-foreground/50" />
@@ -462,7 +458,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                     Añade un comentario arriba para iniciar la conversación. Al enviarlo, se registrará aquí en el historial.
                   </p>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -523,29 +519,29 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                 </div>
               </div>
 
-              {/* Campos específicos de Difusión */}
-              {ticket.attentionArea?.slug === "DIF" && (ticket.activityStartDate || ticket.desiredDiffusionDate || ticket.targetAudience) && (
-                <div className="bg-sidebar border border-border/50 rounded-xl p-4 grid grid-cols-1 gap-y-4">
-                  {ticket.activityStartDate && (
-                    <div>
-                      <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Fecha de inicio de actividad</label>
-                      <div className="text-sm text-foreground">{formatDateShort(ticket.activityStartDate)}</div>
-                    </div>
-                  )}
-                  {ticket.desiredDiffusionDate && (
-                    <div>
-                      <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Fecha deseada de difusión</label>
-                      <div className="text-sm text-foreground">{formatDateShort(ticket.desiredDiffusionDate)}</div>
-                    </div>
-                  )}
-                  {ticket.targetAudience && (
-                    <div>
-                      <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Público objetivo</label>
-                      <div className="text-sm text-foreground">{ticket.targetAudience}</div>
-                    </div>
-                  )}
-                </div>
-              )}
+               {/* Campos específicos de Difusión */}
+               {ticket.attentionArea?.slug === "DIF" && (ticket.activityStartDate || ticket.desiredDiffusionDate || ticket.targetAudience) ? (
+                 <div className="bg-sidebar border border-border/50 rounded-xl p-4 grid grid-cols-1 gap-y-4">
+                   {ticket.activityStartDate ? (
+                     <div>
+                       <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Fecha de inicio de actividad</label>
+                       <div className="text-sm text-foreground">{formatDateShort(ticket.activityStartDate)}</div>
+                     </div>
+                   ) : null}
+                   {ticket.desiredDiffusionDate ? (
+                     <div>
+                       <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Fecha deseada de difusión</label>
+                       <div className="text-sm text-foreground">{formatDateShort(ticket.desiredDiffusionDate)}</div>
+                     </div>
+                   ) : null}
+                   {ticket.targetAudience ? (
+                     <div>
+                       <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Público objetivo</label>
+                       <div className="text-sm text-foreground">{ticket.targetAudience}</div>
+                     </div>
+                   ) : null}
+                 </div>
+               ) : null}
 
               {/* Watchers */}
               <div className="bg-sidebar border border-border/50 rounded-xl p-4 space-y-3">
@@ -554,14 +550,14 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                     <Eye className="w-3 h-3" />
                     Usuarios notificados
                   </label>
-                  {!isTicketClosed && (
+                  {!isTicketClosed ? (
                     <WatchersManager
                       ticketId={ticket.id}
                       currentWatchers={ticket.watchers || []}
                       currentUserId={session.user.id}
                       allUsers={allUsers}
                     />
-                  )}
+                  ) : null}
                 </div>
                 <div className="flex flex-col gap-2">
                   {watchersList.length > 0 ? watchersList.map(watcher => (
@@ -576,11 +572,11 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
               </div>
 
               {/* Attachment Uploader — only for open tickets, not for Difusión */}
-              {!isTicketClosed && ticket.attentionArea?.slug !== "DIF" && (
+              {!isTicketClosed && ticket.attentionArea?.slug !== "DIF" ? (
                 <div className="mb-4">
                   <TicketAttachmentUploader ticketId={ticket.id} />
                 </div>
-              )}
+              ) : null}
 
               {/* Bitácora — solo visible para agentes y admins */}
               {(isAdmin || isAgentForArea) && (() => {
@@ -635,9 +631,9 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                     </label>
                     <div className="space-y-0 relative">
                       {/* Línea conectora */}
-                      {events.length > 1 && (
+                      {events.length > 1 ? (
                         <div className="absolute left-[5px] top-2 bottom-2 w-px bg-border/60" />
-                      )}
+                      ) : null}
 
                       {events.map((event, idx) => (
                         <div key={idx} className="relative pl-5 py-1.5">
@@ -657,20 +653,20 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
               })()}
 
               {/* Cancellation Action for Creator */}
-              {isCreator && !isTicketClosed && (
+              {isCreator && !isTicketClosed ? (
                 <>
                   <div>
                     <CancelTicketButton ticketId={ticket.id} />
                   </div>
                 </>
-              )}
+              ) : null}
 
               {/* Delete Action for Admin */}
-              {isAdmin && (
+              {isAdmin ? (
                 <div className="pt-2">
                   <AdminDeleteTicketControl ticketId={ticket.id} isAdmin={isAdmin} />
                 </div>
-              )}
+              ) : null}
 
             </div>
 
@@ -679,7 +675,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
       </div >
 
       {/* Floating Action Bar - Agent Controls */}
-      {(!isAdmin && isAgentForArea) && (
+      {!isAdmin && isAgentForArea ? (
         <AgentManagementCollapsible>
           <AdminTicketControls
             ticketId={ticket.id}
@@ -704,7 +700,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
             }
           />
         </AgentManagementCollapsible>
-      )}
+      ) : null}
     </>
   );
 }

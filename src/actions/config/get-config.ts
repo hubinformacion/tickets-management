@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { ticketCategories, ticketSubcategories, attentionAreas, priorityConfig, providers } from "@/db/schema";
+import { priorityConfig, providers } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/helpers";
 import { eq } from "drizzle-orm";
 
