@@ -63,8 +63,9 @@ export function CollapsibleSection({
   useEffect(() => {
     const map = getCollapsedMap();
     if (id in map) {
-      setIsOpen(!map[id]);
+      setTimeout(() => setIsOpen(!map[id]), 0);
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHydrated(true);
   }, [id]);
 

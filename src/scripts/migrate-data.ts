@@ -137,7 +137,7 @@ async function migrate() {
         console.log("🎫 Migrando Tickets...");
         const { rows: oldTickets } = await oldPool.query("SELECT * FROM ticket ORDER BY created_at ASC");
         
-        let sequences: Record<string, number> = {}; // key: areaId_year -> maxNumber
+        const sequences: Record<string, number> = {}; // key: areaId_year -> maxNumber
 
         if (oldTickets.length > 0) {
             await db.insert(tickets).values(

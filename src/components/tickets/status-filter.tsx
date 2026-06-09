@@ -58,9 +58,8 @@ export function StatusFilter({ value, onChange }: StatusFilterProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="p-0"
+        className="p-0 w-[var(--radix-popover-trigger-width)] min-w-[200px]"
         align="start"
-        style={{ width: triggerRef.current?.offsetWidth ?? 200 }}
       >
         <Command>
           <CommandList>
