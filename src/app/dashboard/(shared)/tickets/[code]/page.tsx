@@ -72,8 +72,14 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
 /* --- Main Page Component --- */
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ code: string }> }) {
-  const session = await requireAuth();
-  const { code } = await params;
+  // 1. Parallelize initial context fetching
+  const [session, { code }, allUsers] = await Promise.all([
+    requireAuth(),
+    params,
+    db.select({
+      id: users.id, name: users.name, email: users.email, image: users.image,
+    }).from(users)
+  ]);
 
   const ticket = await db.query.tickets.findFirst({
     where: eq(tickets.ticketCode, code),
@@ -96,30 +102,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
 
   if (!ticket) notFound();
 
-  // Fetch SLA config for the ticket's priority + area (if both exist)
-  let slaInfo: { slaHours: number; description: string } | null = null;
-  if (ticket.priority && ticket.attentionAreaId) {
-    const config = await db.query.priorityConfig.findFirst({
-      where: and(
-        eq(priorityConfig.attentionAreaId, ticket.attentionAreaId),
-        eq(priorityConfig.priority, ticket.priority),
-      ),
-      columns: { slaHours: true, description: true },
-    });
-    slaInfo = config ?? null;
-  }
-
-  // Check if satisfaction survey exists (for resolved tickets)
-  let hasSurvey = false;
-  if (ticket.status === "resolved") {
-    const existingSurvey = await db.query.satisfactionSurveys.findFirst({
-      where: eq(satisfactionSurveys.ticketId, ticket.id),
-      columns: { id: true },
-    });
-    hasSurvey = !!existingSurvey;
-  }
-
-  // Permissions
+  // Permissions check
   const isCreator = ticket.createdById === session.user.id;
   const isWatcher = ticket.watchers?.includes(session.user.id) || false;
   const isAdmin = session.user.role === "admin";
@@ -129,21 +112,55 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
     redirect("/dashboard");
   }
 
-  // Data prep
-  const allUsers = await db.select({
-    id: users.id, name: users.name, email: users.email, image: users.image,
-  }).from(users);
+  // 2. Parallelize ticket-dependent lookups
+  let slaInfo: { slaHours: number; description: string } | null = null as { slaHours: number; description: string } | null;
+  let hasSurvey = false;
+  let areaProviders: { id: number; name: string }[] = [];
+
+  const dependentPromises: Promise<void>[] = [];
+
+  // Fetch SLA config
+  if (ticket.priority && ticket.attentionAreaId) {
+    dependentPromises.push(
+      db.query.priorityConfig.findFirst({
+        where: and(
+          eq(priorityConfig.attentionAreaId, ticket.attentionAreaId),
+          eq(priorityConfig.priority, ticket.priority),
+        ),
+        columns: { slaHours: true, description: true },
+      }).then(config => {
+        slaInfo = config ?? null;
+      })
+    );
+  }
+
+  // Check if satisfaction survey exists
+  if (ticket.status === "resolved") {
+    dependentPromises.push(
+      db.query.satisfactionSurveys.findFirst({
+        where: eq(satisfactionSurveys.ticketId, ticket.id),
+        columns: { id: true },
+      }).then(existingSurvey => {
+        hasSurvey = !!existingSurvey;
+      })
+    );
+  }
 
   // Fetch providers for derivation form (only for agents/admins)
-  let areaProviders: { id: number; name: string }[] = [];
   if ((isAdmin || isAgentForArea) && ticket.attentionAreaId) {
-    areaProviders = await db.select({ id: providers.id, name: providers.name })
-      .from(providers)
-      .where(and(
-        eq(providers.attentionAreaId, ticket.attentionAreaId),
-        eq(providers.isActive, true),
-      ));
+    dependentPromises.push(
+      db.select({ id: providers.id, name: providers.name })
+        .from(providers)
+        .where(and(
+          eq(providers.attentionAreaId, ticket.attentionAreaId),
+          eq(providers.isActive, true),
+        )).then(providersList => {
+          areaProviders = providersList;
+        })
+    );
   }
+
+  await Promise.all(dependentPromises);
 
   const watchersList = ticket.watchers?.length
     ? allUsers.filter(u => ticket.watchers!.includes(u.id))
@@ -490,7 +507,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                     <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Área</label>
                     <div className="text-sm text-foreground">{ticket.attentionArea?.name || "—"}</div>
                   </div>
-                  {slaInfo && (
+                  {slaInfo ? (
                     <div>
                       <label className="text-[11px] font-medium text-muted-foreground uppercase flex items-center gap-1.5 mb-1">
                         <Clock className="w-3 h-3" />
@@ -502,7 +519,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                           : `${Math.floor(slaInfo.slaHours / 24)} día${Math.floor(slaInfo.slaHours / 24) !== 1 ? "s" : ""}`}
                       </div>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
 
