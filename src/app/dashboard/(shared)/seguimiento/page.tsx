@@ -6,6 +6,7 @@ import { requireAuth } from "@/lib/auth/helpers";
 import { sql, and, not, eq, inArray } from "drizzle-orm";
 import { TicketsList } from "@/components/tickets/tickets-list";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -80,16 +81,18 @@ export default async function SeguimientoPage({ searchParams }: PageProps) {
         </p>
       </div>
 
-      <TicketsList
-        tickets={mergedTickets}
-        totalCount={paginatedResult.totalCount}
-        isAdmin={session.user.role === "admin"}
-        isWatchedView={true}
-        hideHeader={true}
-        assignedUsers={filterOptions.assignedUsers}
-        categories={filterOptions.categories}
-        subcategories={filterOptions.subcategories}
-      />
+      <Suspense fallback={<div className="h-64 animate-pulse bg-muted rounded-lg" />}>
+        <TicketsList
+          tickets={mergedTickets}
+          totalCount={paginatedResult.totalCount}
+          isAdmin={session.user.role === "admin"}
+          isWatchedView={true}
+          hideHeader={true}
+          assignedUsers={filterOptions.assignedUsers}
+          categories={filterOptions.categories}
+          subcategories={filterOptions.subcategories}
+        />
+      </Suspense>
     </div>
   );
 }

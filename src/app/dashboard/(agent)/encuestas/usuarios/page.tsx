@@ -9,6 +9,7 @@ import { eq } from "drizzle-orm";
 import { Button } from "@/components/ui/button";
 import { FileDown } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -89,7 +90,9 @@ export default async function UserSurveysPage({ searchParams }: PageProps) {
       </div>
 
       {/* Filters */}
-      <SurveyFilters agents={agents} attentionAreas={allAreas} />
+      <Suspense fallback={<div className="h-12 animate-pulse bg-muted rounded-lg" />}>
+        <SurveyFilters agents={agents} attentionAreas={allAreas} />
+      </Suspense>
 
       {/* Results */}
       {"error" in results ? (

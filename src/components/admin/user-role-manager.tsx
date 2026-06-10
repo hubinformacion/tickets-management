@@ -38,6 +38,15 @@ export function UserRoleManager({
   );
   const [isPending, startTransition] = useTransition();
 
+  // Reset state when dialog opens to reflect current prop values
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen) {
+      setSelectedRole(currentRole);
+      setSelectedAreaId(currentAttentionAreaId ? Number(currentAttentionAreaId) : undefined);
+    }
+  };
+
   const handleSave = () => {
     if (selectedRole === "agent" && !selectedAreaId) {
       toast.error("Debes seleccionar un área de atención para el agente");
@@ -56,7 +65,7 @@ export function UserRoleManager({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" disabled={disabled}>
           <Settings className="mr-2 h-4 w-4" />

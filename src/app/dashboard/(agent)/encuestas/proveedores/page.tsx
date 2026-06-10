@@ -6,6 +6,7 @@ import { requireAgent } from "@/lib/auth/helpers";
 import { Button } from "@/components/ui/button";
 import { FileDown } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -66,7 +67,9 @@ export default async function ProviderSurveysPage({ searchParams }: PageProps) {
       </div>
 
       {/* Filters */}
-      <SurveyFilters agents={agents} />
+      <Suspense fallback={<div className="h-12 animate-pulse bg-muted rounded-lg" />}>
+        <SurveyFilters agents={agents} />
+      </Suspense>
 
       {/* Results */}
       {"error" in results ? (

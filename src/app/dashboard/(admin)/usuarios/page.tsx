@@ -2,6 +2,7 @@ import { queryUsersPaginated } from "@/db/queries";
 import { getSession } from "@/lib/auth/helpers";
 import { RolesTable } from "@/components/admin/roles-table";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -39,12 +40,14 @@ export default async function UsuariosPage({ searchParams }: PageProps) {
         <p className="text-muted-foreground mt-1">Administra los roles de los usuarios del sistema</p>
       </div>
 
-      <RolesTable
-        users={paginatedUsers.rows}
-        totalCount={paginatedUsers.totalCount}
-        currentUserId={session.user.id}
-        attentionAreas={attentionAreas}
-      />
+      <Suspense fallback={<div className="h-24 animate-pulse bg-muted rounded-lg" />}>
+        <RolesTable
+          users={paginatedUsers.rows}
+          totalCount={paginatedUsers.totalCount}
+          currentUserId={session.user.id}
+          attentionAreas={attentionAreas}
+        />
+      </Suspense>
     </div>
   );
 }

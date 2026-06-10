@@ -46,6 +46,14 @@ export function WatchersManager({ ticketId, currentWatchers, allUsers, currentUs
   // Filter out current user from available watchers
   const availableUsers = allUsers.filter(user => user.id !== currentUserId);
 
+  // Reset state when dialog opens to reflect current prop values
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen) {
+      setSelectedWatchers(currentWatchers);
+    }
+  };
+
   const handleToggleWatcher = (userId: string) => {
     setSelectedWatchers(prev =>
       prev.includes(userId)
@@ -72,7 +80,7 @@ export function WatchersManager({ ticketId, currentWatchers, allUsers, currentUs
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground">
           <Plus className="h-3.5 w-3.5" />

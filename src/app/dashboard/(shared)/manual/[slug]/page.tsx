@@ -51,7 +51,11 @@ export default async function ManualPage({ params }: { params: Promise<{ slug: s
   let content: string;
   try {
     content = await fs.readFile(filePath, "utf-8");
-  } catch {
+  } catch (error) {
+    // Re-throw notFound errors, catch other errors and show 404
+    if (error && typeof error === "object" && "digest" in error) {
+      throw error;
+    }
     notFound();
   }
 
