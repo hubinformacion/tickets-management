@@ -97,9 +97,6 @@ export const updateProviderTicketSchema = z.object({
   priority: z.enum(["baja", "media", "alta", "critica"]).optional(),
 });
 
-type CreateProviderTicketSchema = z.infer<typeof createProviderTicketSchema>;
-type UpdateProviderTicketSchema = z.infer<typeof updateProviderTicketSchema>;
-
 // ─── Satisfaction Survey schemas ───
 
 const ratingField = z.coerce.number().min(1, "La calificación mínima es 1").max(5, "La calificación máxima es 5");
@@ -112,5 +109,3 @@ export const submitSurveySchema = z.object({
   overallRating: ratingField,
   improvementSuggestion: z.string().max(1000, "Máximo 1000 caracteres").optional(),
 });
-
-type SubmitSurveySchema = z.infer<typeof submitSurveySchema>;
