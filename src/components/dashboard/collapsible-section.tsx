@@ -57,16 +57,28 @@ export function CollapsibleSection({
   defaultCollapsed = false,
 }: CollapsibleSectionProps) {
   const [isOpen, setIsOpen] = useState(!defaultCollapsed);
-  const [hydrated, setHydrated] = useState(false);
 
-  // Hidratar estado desde localStorage después del mount
+  // Hidratar desde localStorage después del mount (solo en cliente)
   useEffect(() => {
     const map = getCollapsedMap();
     if (id in map) {
-      setTimeout(() => setIsOpen(!map[id]), 0);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Lectura legítima de localStorage (sistema externo)
+      setIsOpen(!map[id]);
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setHydrated(true);
+  }, [id]);
+
+  // Escuchar cambios de localStorage desde otras pestañas
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) {
+        const map = getCollapsedMap();
+        if (id in map) {
+          setIsOpen(!map[id]);
+        }
+      }
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
   }, [id]);
 
   const handleToggle = useCallback(
@@ -107,13 +119,7 @@ export function CollapsibleSection({
         ) : null}
       </div>
 
-      <CollapsibleContent
-        className={cn(
-          "overflow-hidden",
-          hydrated &&
-            "data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
-        )}
-      >
+      <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
         <div className="pt-3">{children}</div>
       </CollapsibleContent>
     </Collapsible>
