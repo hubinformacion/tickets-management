@@ -168,15 +168,15 @@ export async function deepDeleteTicketAction(ticketId: number) {
       return { error: "Ticket no encontrado" };
     }
 
-    // Eliminar archivos adjuntos de Google Drive
+    // Eliminar archivos adjuntos de Google Drive en paralelo
     if (targetTicket.attachments && targetTicket.attachments.length > 0) {
-      for (const file of targetTicket.attachments) {
-        try {
-          await deleteFileFromDrive(file.driveFileId);
-        } catch (driveErr) {
-          console.error("Failed to delete file from Drive:", driveErr);
-        }
-      }
+      await Promise.allSettled(
+        targetTicket.attachments.map((file) =>
+          deleteFileFromDrive(file.driveFileId).catch((driveErr) => {
+            console.error("Failed to delete file from Drive:", driveErr);
+          })
+        )
+      );
     }
 
     // Operaciones en la BD usando transacción

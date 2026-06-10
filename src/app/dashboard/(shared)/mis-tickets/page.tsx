@@ -21,9 +21,8 @@ interface PageProps {
 }
 
 export default async function MisTicketsPage({ searchParams }: PageProps) {
-  const session = await requireAuth();
+  const [session, params] = await Promise.all([requireAuth(), searchParams]);
 
-  const params = await searchParams;
   const filters: TicketFilterParams = {
     estado: typeof params.estado === "string" ? params.estado : undefined,
     asignado: typeof params.asignado === "string" ? params.asignado : undefined,

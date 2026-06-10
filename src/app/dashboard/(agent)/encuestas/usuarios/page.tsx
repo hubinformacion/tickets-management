@@ -21,8 +21,7 @@ interface PageProps {
 }
 
 export default async function UserSurveysPage({ searchParams }: PageProps) {
-  const session = await requireAgent();
-  const params = await searchParams;
+  const [session, params] = await Promise.all([requireAgent(), searchParams]);
   const isAdmin = session.user.role === "admin";
 
   const filters = {
