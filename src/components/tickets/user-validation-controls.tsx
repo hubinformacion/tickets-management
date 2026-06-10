@@ -81,8 +81,9 @@ export function UserValidationControls({ ticketId }: UserValidationControlsProps
       >
         {isExpanded ? (
           <>
-            <div
-              className="flex items-center justify-between px-5 py-3.5 border-b bg-muted/30 cursor-pointer"
+            <button
+              type="button"
+              className="flex items-center justify-between px-5 py-3.5 border-b bg-muted/30 cursor-pointer w-full"
               onClick={() => setIsExpanded(false)}
             >
               <div className="flex items-center gap-3">
@@ -94,7 +95,7 @@ export function UserValidationControls({ ticketId }: UserValidationControlsProps
                 </span>
               </div>
               <ChevronDown className="h-5 w-5 text-muted-foreground shrink-0" />
-            </div>
+            </button>
 
             <div className="px-5 py-4">
               <p className="text-sm text-muted-foreground mb-4 leading-relaxed">

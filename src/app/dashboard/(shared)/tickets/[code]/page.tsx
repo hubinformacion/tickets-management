@@ -475,10 +475,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
 
                 {/* Assigned To */}
                 <div className="bg-sidebar border border-border/50 rounded-xl p-4 group">
-                  <label className="text-[11px] font-medium text-muted-foreground uppercase flex items-center gap-1.5 mb-2">
+                  <span className="text-[11px] font-medium text-muted-foreground uppercase flex items-center gap-1.5 mb-2">
                     <User className="w-3 h-3" />
                     Responsable
-                  </label>
+                  </span>
                   {ticket.assignedTo ? (
                     <div className="flex items-center gap-2.5 rounded-md transition-colors cursor-default">
                       <UserAvatar name={ticket.assignedTo.name} image={ticket.assignedTo.image} size="xs" className="h-6 w-6" />
@@ -493,22 +493,22 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
               {/* Attributes Grid */}
               <div className="bg-sidebar border border-border/50 rounded-xl p-4 grid grid-cols-1 gap-y-4">
                 <div>
-                  <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Categoría</label>
+                  <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Categoría</span>
                   <div className="text-sm font-medium text-foreground">{ticket.category?.name || "—"}</div>
                   <div className="text-xs text-muted-foreground mt-0.5">{ticket.subcategory?.name}</div>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Área</label>
+                    <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Área</span>
                     <div className="text-sm text-foreground">{ticket.attentionArea?.name || "—"}</div>
                   </div>
                   {slaInfo ? (
                     <div>
-                      <label className="text-[11px] font-medium text-muted-foreground uppercase flex items-center gap-1.5 mb-1">
+                      <span className="text-[11px] font-medium text-muted-foreground uppercase flex items-center gap-1.5 mb-1">
                         <Clock className="w-3 h-3" />
                         SLA estimado
-                      </label>
+                      </span>
                       <div className="text-sm text-foreground">
                         {slaInfo.slaHours < 24
                           ? `${slaInfo.slaHours} hora${slaInfo.slaHours !== 1 ? "s" : ""}`
@@ -524,19 +524,19 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                  <div className="bg-sidebar border border-border/50 rounded-xl p-4 grid grid-cols-1 gap-y-4">
                    {ticket.activityStartDate ? (
                      <div>
-                       <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Fecha de inicio de actividad</label>
+                       <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Fecha de inicio de actividad</span>
                        <div className="text-sm text-foreground">{formatDateShort(ticket.activityStartDate)}</div>
                      </div>
                    ) : null}
                    {ticket.desiredDiffusionDate ? (
                      <div>
-                       <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Fecha deseada de difusión</label>
+                       <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Fecha deseada de difusión</span>
                        <div className="text-sm text-foreground">{formatDateShort(ticket.desiredDiffusionDate)}</div>
                      </div>
                    ) : null}
                    {ticket.targetAudience ? (
                      <div>
-                       <label className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Público objetivo</label>
+                       <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Público objetivo</span>
                        <div className="text-sm text-foreground">{ticket.targetAudience}</div>
                      </div>
                    ) : null}
@@ -546,10 +546,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
               {/* Watchers */}
               <div className="bg-sidebar border border-border/50 rounded-xl p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-medium text-muted-foreground uppercase flex items-center gap-1.5">
+                  <span className="text-[11px] font-medium text-muted-foreground uppercase flex items-center gap-1.5">
                     <Eye className="w-3 h-3" />
                     Usuarios notificados
-                  </label>
+                  </span>
                   {!isTicketClosed ? (
                     <WatchersManager
                       ticketId={ticket.id}

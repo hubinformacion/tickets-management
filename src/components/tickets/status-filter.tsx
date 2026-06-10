@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useId } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
@@ -25,6 +25,7 @@ interface StatusFilterProps {
 export function StatusFilter({ value, onChange }: StatusFilterProps) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const listboxId = useId();
 
   const toggleValue = (slug: string) => {
     if (value.includes(slug)) {
@@ -51,6 +52,7 @@ export function StatusFilter({ value, onChange }: StatusFilterProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          aria-controls={listboxId}
           className="w-[200px] justify-between bg-transparent font-normal"
         >
           <span className="truncate">{getLabel()}</span>
@@ -62,7 +64,7 @@ export function StatusFilter({ value, onChange }: StatusFilterProps) {
         align="start"
       >
         <Command>
-          <CommandList>
+          <CommandList id={listboxId}>
             <CommandGroup>
               {STATUS_OPTIONS.map((option) => {
                 const isSelected = value.includes(option.value);

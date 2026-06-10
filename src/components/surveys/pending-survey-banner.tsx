@@ -77,8 +77,9 @@ export function FloatingSurvey({ ticketId }: FloatingSurveyProps) {
         {isExpanded ? (
           <>
             {/* Header */}
-            <div
-              className="flex items-center justify-between px-5 py-3.5 border-b bg-emerald-50/50 dark:bg-emerald-950/20 cursor-pointer"
+            <button
+              type="button"
+              className="flex items-center justify-between px-5 py-3.5 border-b bg-emerald-50/50 dark:bg-emerald-950/20 cursor-pointer w-full"
               onClick={() => setIsExpanded(false)}
             >
               <div className="flex items-center gap-3">
@@ -90,7 +91,7 @@ export function FloatingSurvey({ ticketId }: FloatingSurveyProps) {
                 </span>
               </div>
               <ChevronDown className="h-5 w-5 text-muted-foreground shrink-0" />
-            </div>
+            </button>
 
             {/* Survey Body */}
             <div className="px-5 py-4 space-y-4">

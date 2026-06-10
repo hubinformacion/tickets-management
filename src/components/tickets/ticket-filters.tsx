@@ -217,23 +217,16 @@ export function TicketFilters({ assignedUsers, categories = EMPTY_ARRAY, subcate
               <span>Rango de fechas</span>
             )}
             {displayRange ? (
-              <span
-                role="button"
-                tabIndex={0}
+              <button
+                type="button"
                 className="ml-auto rounded-sm opacity-50 hover:opacity-100"
                 onClick={(e) => {
                   e.stopPropagation();
                   clearDateRange();
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.stopPropagation();
-                    clearDateRange();
-                  }
-                }}
               >
                 <X className="h-3.5 w-3.5" />
-              </span>
+              </button>
             ) : null}
           </Button>
         </PopoverTrigger>

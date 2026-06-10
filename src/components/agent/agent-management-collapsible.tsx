@@ -20,8 +20,9 @@ export function AgentManagementCollapsible({ children }: { children: React.React
       >
         {isExpanded ? (
           <>
-            <div
-              className="flex items-center justify-between px-5 py-3.5 bg-background cursor-pointer hover:bg-muted/30 transition-colors"
+            <button
+              type="button"
+              className="flex items-center justify-between px-5 py-3.5 bg-background cursor-pointer hover:bg-muted/30 transition-colors w-full"
               onClick={() => setIsExpanded(false)}
             >
               <div className="flex items-center gap-3">
@@ -33,7 +34,7 @@ export function AgentManagementCollapsible({ children }: { children: React.React
                 </span>
               </div>
               <ChevronDown className="h-5 w-5 text-muted-foreground shrink-0" />
-            </div>
+            </button>
 
             <div className="px-5 pb-5 pt-2 flex flex-col gap-3">
               {children}

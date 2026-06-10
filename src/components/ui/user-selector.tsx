@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useId } from "react";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ export function UserSelector({
   placeholder = "Seleccionar usuarios...",
 }: UserSelectorProps) {
   const [open, setOpen] = useState(false);
+  const listboxId = useId();
 
   const selectedUsers = useMemo(
     () => users.filter((user) => selectedUserIds.includes(user.id)),
@@ -64,6 +65,7 @@ export function UserSelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
+            aria-controls={listboxId}
             className="w-full justify-between text-xs bg-background hover:bg-[color-mix(in_oklab,var(--input)_50%,transparent)]"
           >
             <span className="truncate">
@@ -78,7 +80,7 @@ export function UserSelector({
           <Command>
             <CommandInput placeholder="Buscar usuario..." />
             <CommandEmpty>No se encontraron usuarios.</CommandEmpty>
-            <CommandGroup className="max-h-64 overflow-auto">
+            <CommandGroup id={listboxId} className="max-h-64 overflow-auto">
               {users.map((user) => (
                 <CommandItem
                   key={user.id}

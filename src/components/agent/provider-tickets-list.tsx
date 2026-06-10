@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useMemo } from "react";
+import { useState, useTransition, useMemo, useId } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -464,6 +464,7 @@ function TicketCombobox({
   onChange: (ticketId: number | null) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const listboxId = useId();
 
   const selectedTicket = tickets.find((t) => t.id === value);
 
@@ -475,6 +476,7 @@ function TicketCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          aria-controls={listboxId}
           className={cn(
             "w-full justify-between text-left font-normal text-sm",
             !value && "text-muted-foreground"
@@ -487,9 +489,9 @@ function TicketCombobox({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[400px] p-0" align="start">
-        <Command>
-          <CommandInput placeholder="Buscar ticket..." />
-          <CommandList>
+          <Command>
+            <CommandInput placeholder="Buscar ticket..." />
+            <CommandList id={listboxId}>
             <CommandEmpty>No se encontraron tickets.</CommandEmpty>
             <CommandGroup>
               {/* Option to clear selection */}
