@@ -18,21 +18,17 @@ import {
   Bell,
   Lightbulb,
   Paperclip,
-  CalendarIcon,
+  Info,
 } from "lucide-react";
 import { UserSelector } from "@/components/ui/user-selector";
 import Link from "next/link";
 import { RichTextEditor } from "@/components/shared/rich-text-editor";
 import { cn } from "@/lib/utils/cn";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { dayjs } from "@/lib/utils/date";
-import { es } from "react-day-picker/locale";
-import { PRIORITY_STYLES } from "@/lib/constants/ticket-display";
 import { PRIORITY_LABELS } from "@/lib/constants/tickets";
 import { PRIORITY_DEFINITIONS } from "@/lib/constants/priority-info";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info } from "lucide-react";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { PrioritySelector } from "@/components/tickets/priority-selector";
+import { DiffusionFields } from "@/components/tickets/diffusion-fields";
 import type { TicketPriority } from "@/types";
 
 
@@ -85,29 +81,6 @@ interface NewTicketFormProps {
 }
 
 const EMPTY_PRIORITY_CONFIGS: Array<PriorityConfigItem> = [];
-
-const PRIORITIES = (Object.keys(PRIORITY_STYLES) as TicketPriority[]).map((value) => {
-  const style = PRIORITY_STYLES[value];
-  return {
-    value,
-    label: PRIORITY_LABELS[value],
-    activeColor: `${style.bg} ${style.text} ${style.border}`,
-    inactiveColor: "bg-muted hover:bg-muted/80 text-muted-foreground border-transparent",
-    hover: style.hover,
-  };
-});
-
-// Opciones de público objetivo para Difusión
-const TARGET_AUDIENCE_OPTIONS = [
-  "Toda la comunidad Continental",
-  "Docentes de universidad",
-  "Docentes de instituto",
-  "Administrativos UC",
-  "Administrativos IC",
-  "Todos los estudiantes UC",
-  "Todos los estudiantes IC",
-  "Posgrado",
-] as const;
 
 interface SidebarContext {
   areaName: string;
@@ -554,34 +527,7 @@ export function NewTicketForm({
                               <p className="text-xs text-muted-foreground mb-2">
                                 Define la urgencia de tu solicitud para ayudar al equipo a priorizar
                               </p>
-                              <div className="grid grid-cols-4 gap-2">
-                                {PRIORITIES.map((priority) => (
-                                  <Tooltip key={priority.value}>
-                                    <TooltipTrigger asChild>
-                                      <button
-                                        type="button"
-                                        onClick={() => field.onChange(priority.value)}
-                                        className={cn(
-                                          "py-1.5 rounded-md border text-xs font-medium transition-all cursor-pointer text-center",
-                                          field.value === priority.value
-                                            ? priority.activeColor
-                                            : cn("bg-background text-muted-foreground border-input/30 hover:border-input", priority.hover)
-                                        )}
-                                      >
-                                        {priority.label}
-                                      </button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="bottom" className="text-xs max-w-[200px] p-3 space-y-1.5" align="center">
-                                      <p className="font-semibold opacity-90">{priority.label}</p>
-                                      <p className="opacity-70 leading-snug">{priorityInfo[priority.value].description}</p>
-                                      <div className="flex items-center gap-1.5 pt-1 border-t border-background/20 mt-1">
-                                        <span className="text-[10px] font-medium opacity-90">SLA:</span>
-                                        <span className="text-[10px] opacity-70">{priorityInfo[priority.value].sla}</span>
-                                      </div>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                ))}
-                              </div>
+                              <PrioritySelector value={field.value} onChange={field.onChange} />
                               <FormMessage />
                             </FormItem>
                           )}
@@ -591,152 +537,13 @@ export function NewTicketForm({
                       {isDiffusion && (
                         <>
                           <div className="mx-6 border-t border-border" />
-                          <div className="px-6 pb-5 pt-4 space-y-5">
-                            {/* Fechas en fila */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <FormField
-                                control={form.control}
-                                name="activityStartDate"
-                                render={({ field }) => (
-                                  <FormItem className="flex flex-col">
-                                    <FormLabel className="text-sm font-medium">
-                                      Fecha de inicio de la actividad <span className="text-muted-foreground">*</span>
-                                    </FormLabel>
-                                    <Popover>
-                                      <PopoverTrigger asChild>
-                                        <FormControl>
-                                          <Button
-                                            variant="outline"
-                                            className={cn(
-                                              "w-full justify-start text-left font-normal text-sm",
-                                              !field.value && "text-muted-foreground"
-                                            )}
-                                          >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {field.value
-                                              ? dayjs(field.value).format("D [de] MMMM [de] YYYY")
-                                              : "Selecciona una fecha"}
-                                          </Button>
-                                        </FormControl>
-                                      </PopoverTrigger>
-                                      <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                          locale={es}
-                                          mode="single"
-                                          selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
-                                          onSelect={(date) => {
-                                            field.onChange(date ? dayjs(date).format("YYYY-MM-DD") : "");
-                                          }}
-                                          disabled={{ before: new Date() }}
-                                          autoFocus
-                                        />
-                                      </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="desiredDiffusionDate"
-                                render={({ field }) => (
-                                  <FormItem className="flex flex-col">
-                                    <FormLabel className="text-sm font-medium">
-                                      Fecha deseada de difusión <span className="text-muted-foreground">*</span>
-                                    </FormLabel>
-                                    <Popover>
-                                      <PopoverTrigger asChild>
-                                        <FormControl>
-                                          <Button
-                                            variant="outline"
-                                            className={cn(
-                                              "w-full justify-start text-left font-normal text-sm",
-                                              !field.value && "text-muted-foreground"
-                                            )}
-                                          >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {field.value
-                                              ? dayjs(field.value).format("D [de] MMMM [de] YYYY")
-                                              : "Selecciona una fecha"}
-                                          </Button>
-                                        </FormControl>
-                                      </PopoverTrigger>
-                                      <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                          locale={es}
-                                          mode="single"
-                                          selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
-                                          onSelect={(date) => {
-                                            field.onChange(date ? dayjs(date).format("YYYY-MM-DD") : "");
-                                          }}
-                                          disabled={{ before: new Date() }}
-                                          autoFocus
-                                        />
-                                      </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            {/* Público objetivo */}
-                            <FormField
-                              control={form.control}
-                              name="targetAudience"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-sm font-medium">
-                                    Público objetivo <span className="text-muted-foreground">*</span>
-                                  </FormLabel>
-                                  <p className="text-xs text-muted-foreground mb-2">
-                                    Selecciona a quién va dirigida la difusión
-                                  </p>
-                                  <div className="space-y-3">
-                                    <Select
-                                      onValueChange={(val) => {
-                                        if (val === "__otro__") {
-                                          setTargetAudienceMode("custom");
-                                          field.onChange(customTargetAudience);
-                                        } else {
-                                          setTargetAudienceMode("preset");
-                                          setCustomTargetAudience("");
-                                          field.onChange(val);
-                                        }
-                                      }}
-                                      value={targetAudienceMode === "custom" ? "__otro__" : field.value || ""}
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger className="text-sm">
-                                          <SelectValue placeholder="Selecciona el público objetivo" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {TARGET_AUDIENCE_OPTIONS.map((option) => (
-                                          <SelectItem key={option} value={option}>
-                                            {option}
-                                          </SelectItem>
-                                        ))}
-                                        <SelectItem value="__otro__">Otro (especificar)</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-
-                                    {targetAudienceMode === "custom" && (
-                                      <Input
-                                        type="text"
-                                        placeholder="Especifica el público objetivo..."
-                                        value={customTargetAudience}
-                                        onChange={(e) => {
-                                          setCustomTargetAudience(e.target.value);
-                                          field.onChange(e.target.value);
-                                        }}
-                                        className="text-sm"
-                                      />
-                                    )}
-                                  </div>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
+                          <div className="px-6 pb-5 pt-4">
+                            <DiffusionFields
+                              form={form}
+                              targetAudienceMode={targetAudienceMode}
+                              setTargetAudienceMode={setTargetAudienceMode}
+                              customTargetAudience={customTargetAudience}
+                              setCustomTargetAudience={setCustomTargetAudience}
                             />
                           </div>
                         </>
