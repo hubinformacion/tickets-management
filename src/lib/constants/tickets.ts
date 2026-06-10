@@ -16,7 +16,7 @@ export const TICKET_STATUS: Record<string, TicketStatus> = {
 // Ticket Priority Constants
 // ============================================
 
-export const TICKET_PRIORITY: Record<string, TicketPriority> = {
+const TICKET_PRIORITY: Record<string, TicketPriority> = {
   LOW: 'low',
   MEDIUM: 'medium',
   HIGH: 'high',
@@ -98,7 +98,7 @@ export const VALID_STATUS_TRANSITIONS: Record<TicketStatus, readonly TicketStatu
 // Provider Ticket Constants
 // ============================================
 
-export const PROVIDER_TICKET_STATUS: Record<string, ProviderTicketStatus> = {
+const PROVIDER_TICKET_STATUS: Record<string, ProviderTicketStatus> = {
   EN_PROCESO: 'en_proceso',
   CERRADO: 'cerrado',
 } as const;
@@ -108,7 +108,7 @@ export const PROVIDER_TICKET_STATUS_LABELS: Record<ProviderTicketStatus, string>
   cerrado: "Cerrado",
 };
 
-export const PROVIDER_TICKET_PRIORITY: Record<string, ProviderTicketPriority> = {
+const PROVIDER_TICKET_PRIORITY: Record<string, ProviderTicketPriority> = {
   LOW: 'baja',
   MEDIUM: 'media',
   HIGH: 'alta',
@@ -133,13 +133,13 @@ export const PROVIDER_TICKET_PRIORITY_STYLES: Record<ProviderTicketPriority, str
 // Comment / Activity Type Constants
 // ============================================
 
-export const COMMENT_TYPE: Record<string, CommentType> = {
+const COMMENT_TYPE: Record<string, CommentType> = {
   COMMENT: 'comment',
   DERIVATION: 'derivation',
   SYSTEM: 'system',
 } as const;
 
-export const COMMENT_TYPE_LABELS: Record<CommentType, string> = {
+const COMMENT_TYPE_LABELS: Record<CommentType, string> = {
   comment: "Comentario",
   derivation: "Derivación",
   system: "Sistema",

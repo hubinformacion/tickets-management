@@ -1,7 +1,7 @@
 import { STATUS_LABELS, PRIORITY_LABELS, CLOSURE_TYPE_LABELS } from "@/lib/constants/tickets";
 import type { TicketStatus, TicketPriority, ClosedBy } from "@/types";
 
-export { formatDate, formatDateShort, formatRange, differenceInDays } from "./date";
+export { formatDate, formatDateShort } from "./date";
 
 export function translateStatus(status: string): string {
   return STATUS_LABELS[status as TicketStatus] || status;

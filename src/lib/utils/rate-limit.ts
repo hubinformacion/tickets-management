@@ -20,7 +20,7 @@ setInterval(() => {
   }
 }, 10 * 60 * 1000);
 
-export interface RateLimitResult {
+interface RateLimitResult {
   success: boolean;
   remaining: number;
   reset: number;
@@ -33,7 +33,7 @@ export interface RateLimitResult {
  * @param limit - Número máximo de requests
  * @param window - Ventana de tiempo en milisegundos
  */
-export function rateLimit(
+function rateLimit(
   identifier: string,
   limit: number,
   window: number
@@ -82,7 +82,7 @@ export function rateLimit(
 /**
  * Presets de rate limiting comunes
  */
-export const RateLimitPresets = {
+const RateLimitPresets = {
   /** 5 requests por minuto */
   STRICT: { limit: 5, window: 60 * 1000 },
   /** 10 requests por minuto */

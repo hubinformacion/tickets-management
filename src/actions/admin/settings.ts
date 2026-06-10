@@ -42,7 +42,7 @@ export async function getAppSettingAction(key: string): Promise<string | null> {
     return setting?.value ?? null;
 }
 
-export async function updateDisabledMessage(title: string, message: string) {
+async function updateDisabledMessage(title: string, message: string) {
     await requireAdmin();
 
     try {

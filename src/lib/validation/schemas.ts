@@ -27,8 +27,8 @@ export const createDiffusionTicketSchema = z.object({
   targetAudience: z.string().min(1, "El público objetivo es obligatorio"),
 });
 
-export type CreateTicketSchema = z.infer<typeof createTicketSchema>;
-export type CreateDiffusionTicketSchema = z.infer<typeof createDiffusionTicketSchema>;
+type CreateTicketSchema = z.infer<typeof createTicketSchema>;
+type CreateDiffusionTicketSchema = z.infer<typeof createDiffusionTicketSchema>;
 
 // ─── Client-side unified schema (para useForm único en el formulario) ───
 // Todos los campos opcionales específicos de área. La validación real ocurre
@@ -54,7 +54,7 @@ export const updatePriorityConfigSchema = z.object({
   slaHours: z.coerce.number().min(1, "El SLA debe ser al menos 1 hora"),
 });
 
-export type UpdatePriorityConfigSchema = z.infer<typeof updatePriorityConfigSchema>;
+type UpdatePriorityConfigSchema = z.infer<typeof updatePriorityConfigSchema>;
 
 // ─── Provider schemas (admin/agent config) ───
 
@@ -69,8 +69,8 @@ export const updateProviderSchema = z.object({
   isActive: z.boolean(),
 });
 
-export type CreateProviderSchema = z.infer<typeof createProviderSchema>;
-export type UpdateProviderSchema = z.infer<typeof updateProviderSchema>;
+type CreateProviderSchema = z.infer<typeof createProviderSchema>;
+type UpdateProviderSchema = z.infer<typeof updateProviderSchema>;
 
 // ─── Provider Ticket schemas (tickets derivados) ───
 
@@ -97,8 +97,8 @@ export const updateProviderTicketSchema = z.object({
   priority: z.enum(["baja", "media", "alta", "critica"]).optional(),
 });
 
-export type CreateProviderTicketSchema = z.infer<typeof createProviderTicketSchema>;
-export type UpdateProviderTicketSchema = z.infer<typeof updateProviderTicketSchema>;
+type CreateProviderTicketSchema = z.infer<typeof createProviderTicketSchema>;
+type UpdateProviderTicketSchema = z.infer<typeof updateProviderTicketSchema>;
 
 // ─── Satisfaction Survey schemas ───
 
@@ -113,4 +113,4 @@ export const submitSurveySchema = z.object({
   improvementSuggestion: z.string().max(1000, "Máximo 1000 caracteres").optional(),
 });
 
-export type SubmitSurveySchema = z.infer<typeof submitSurveySchema>;
+type SubmitSurveySchema = z.infer<typeof submitSurveySchema>;
