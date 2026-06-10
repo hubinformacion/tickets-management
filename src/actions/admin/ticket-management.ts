@@ -19,6 +19,7 @@ export async function assignTicketToSelf(ticketId: number) {
       .set({
         assignedToId: session.user.id,
         status: TICKET_STATUS.IN_PROGRESS,
+        assignedAt: new Date(),
         updatedAt: new Date()
       })
       .where(eq(tickets.id, ticketId));
@@ -101,6 +102,7 @@ export async function unassignTicket(ticketId: number) {
     await db.update(tickets)
       .set({
         assignedToId: null,
+        assignedAt: null,
         updatedAt: new Date()
       })
       .where(eq(tickets.id, ticketId));

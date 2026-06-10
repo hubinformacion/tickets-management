@@ -118,6 +118,9 @@ export const tickets = pgTable("ticket", {
 
   watchers: text("watchers").array(), // User IDs que monitorean el ticket
 
+  // Assignment tracking
+  assignedAt: timestamp("assigned_at"), // When the ticket was assigned to an agent
+
   // Validation tracking
   validationRequestedAt: timestamp("validation_requested_at"), // When validation was requested
 

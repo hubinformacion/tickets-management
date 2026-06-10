@@ -30,6 +30,7 @@ interface TicketSidebarProps {
     targetAudience?: string | null;
     createdAt: Date;
     updatedAt: Date;
+    assignedAt?: Date | null;
     validationRequestedAt?: Date | null;
     closedAt?: Date | null;
     closedBy?: string | null;
@@ -62,7 +63,7 @@ export function TicketSidebar({
   if (ticket.assignedTo) {
     events.push({
       label: `Asignado a ${ticket.assignedTo.name}`,
-      date: ticket.updatedAt,
+      date: ticket.assignedAt || ticket.updatedAt,
     });
   }
 
