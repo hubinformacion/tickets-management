@@ -36,8 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ManualPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const session = await requireAuth();
+  const [{ slug }, session] = await Promise.all([params, requireAuth()]);
   const userRole = (session.user as { role?: string }).role || "user";
 
   const manual = MANUALS[slug];

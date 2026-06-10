@@ -33,15 +33,13 @@ export async function deleteTicketAttachmentAction(attachmentId: string, ticketI
     return { error: "No tienes permiso para eliminar este archivo" };
   }
 
-  // Delete from Google Drive (best-effort)
-  try {
-    await deleteFileFromDrive(attachment.driveFileId);
-  } catch (driveError) {
-    console.error("Error eliminando de Drive (continuando con BD):", driveError);
-  }
-
-  // Delete from DB
-  await db.delete(ticketAttachments).where(eq(ticketAttachments.id, attachmentId));
+  // Delete from Google Drive and DB in parallel
+  await Promise.all([
+    deleteFileFromDrive(attachment.driveFileId).catch((err) =>
+      console.error("Error eliminando de Drive (continuando con BD):", err)
+    ),
+    db.delete(ticketAttachments).where(eq(ticketAttachments.id, attachmentId)),
+  ]);
 
   // Obtener ticketCode para revalidar la ruta correcta
   const ticket = await db.query.tickets.findFirst({

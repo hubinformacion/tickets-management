@@ -19,7 +19,9 @@ interface TicketFiltersProps {
   attentionAreas?: Array<{ id: number; name: string }>;
 }
 
-export function TicketFilters({ assignedUsers, categories = [], subcategories = [], attentionAreas = [] }: TicketFiltersProps) {
+const EMPTY_ARRAY: Array<never> = [];
+
+export function TicketFilters({ assignedUsers, categories = EMPTY_ARRAY, subcategories = EMPTY_ARRAY, attentionAreas = EMPTY_ARRAY }: TicketFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 

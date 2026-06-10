@@ -17,8 +17,7 @@ interface PageProps {
 }
 
 export default async function ProviderSurveysPage({ searchParams }: PageProps) {
-  const session = await requireAgent();
-  const params = await searchParams;
+  const [session, params] = await Promise.all([requireAgent(), searchParams]);
 
   const filters = {
     agentId: typeof params.agentId === "string" ? params.agentId : undefined,

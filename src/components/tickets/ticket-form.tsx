@@ -84,6 +84,8 @@ interface NewTicketFormProps {
   priorityConfigs?: PriorityConfigItem[];
 }
 
+const EMPTY_PRIORITY_CONFIGS: Array<PriorityConfigItem> = [];
+
 const PRIORITIES = (Object.keys(PRIORITY_STYLES) as TicketPriority[]).map((value) => {
   const style = PRIORITY_STYLES[value];
   return {
@@ -176,7 +178,7 @@ export function NewTicketForm({
   categories,
   attentionAreas,
   disabledMessage,
-  priorityConfigs = [],
+  priorityConfigs = EMPTY_PRIORITY_CONFIGS,
 }: NewTicketFormProps) {
   const [isPending, startTransition] = useTransition();
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);

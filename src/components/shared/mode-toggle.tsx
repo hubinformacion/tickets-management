@@ -12,13 +12,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function ModeToggle() {
-  const { setTheme } = useTheme();
+function useMounted() {
   const [mounted, setMounted] = React.useState(false);
-
   React.useEffect(() => {
     setMounted(true);
   }, []);
+  return mounted;
+}
+
+export function ModeToggle() {
+  const { setTheme } = useTheme();
+  const mounted = useMounted();
 
   if (!mounted) {
     return (

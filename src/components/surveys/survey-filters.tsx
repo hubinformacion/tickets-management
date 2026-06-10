@@ -20,7 +20,9 @@ interface SurveyFiltersProps {
   attentionAreas?: AttentionArea[];
 }
 
-export function SurveyFilters({ agents, attentionAreas = [] }: SurveyFiltersProps) {
+const EMPTY_ARRAY: Array<never> = [];
+
+export function SurveyFilters({ agents, attentionAreas = EMPTY_ARRAY }: SurveyFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
