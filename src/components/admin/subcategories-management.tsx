@@ -3,16 +3,13 @@
 import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
+import { SubcategoryFormDialog } from "./subcategory-form-dialog";
 import {
   createSubcategory,
   updateSubcategory,
@@ -62,7 +59,6 @@ export function SubcategoriesManagement({ initialSubcategories, categories }: Su
     return initialSubcategories.filter(sub => sub.categoryId.toString() === filterCategoryId);
   }, [initialSubcategories, filterCategoryId]);
 
-  // Pre-compute subcategories grouped by categoryId for O(1) lookup per row
   const subcategoriesByCategoryId = useMemo(() => {
     const map = new Map<number, Subcategory[]>();
     for (const sub of initialSubcategories) {
@@ -123,10 +119,6 @@ export function SubcategoriesManagement({ initialSubcategories, categories }: Su
         router.refresh();
       }
     });
-  };
-
-  const handleDelete = (id: number) => {
-    setDeleteId(id);
   };
 
   const confirmDelete = () => {
@@ -200,82 +192,22 @@ export function SubcategoriesManagement({ initialSubcategories, categories }: Su
             </SelectContent>
           </Select>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva subcategoría
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingSubcategory ? "Editar subcategoría" : "Nueva subcategoría"}
-              </DialogTitle>
-              <DialogDescription>
-                {editingSubcategory
-                  ? "Modifica los datos de la subcategoría"
-                  : "Crea una nueva subcategoría de tickets"}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="category">Categoría *</Label>
-                <Select
-                  value={formData.categoryId}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, categoryId: value }))}
-                >
-                  <SelectTrigger id="category">
-                    <SelectValue placeholder="Selecciona una categoría" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="name">Nombre *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Ej: Hardware"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Descripción</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Descripción opcional de la subcategoría"
-                  rows={3}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isActive"
-                  checked={formData.isActive}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
-                />
-                <Label htmlFor="isActive">Activo</Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSubmit} disabled={isPending}>
-                {editingSubcategory ? "Actualizar" : "Crear"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nueva subcategoría
+        </Button>
       </div>
+
+      <SubcategoryFormDialog
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        editingSubcategory={editingSubcategory}
+        formData={formData}
+        onFormDataChange={setFormData}
+        categories={categories}
+        onSubmit={handleSubmit}
+        isPending={isPending}
+      />
 
       <div className="border rounded-lg">
         <Table>
@@ -299,7 +231,7 @@ export function SubcategoriesManagement({ initialSubcategories, categories }: Su
                 </TableCell>
               </TableRow>
             ) : (
-              filteredSubcategories.map((subcategory, index) => {
+              filteredSubcategories.map((subcategory) => {
                 const categorySubcategories = subcategoriesByCategoryId.get(subcategory.categoryId) || [];
                 const indexInCategory = categorySubcategories.findIndex(s => s.id === subcategory.id);
 
@@ -358,7 +290,7 @@ export function SubcategoriesManagement({ initialSubcategories, categories }: Su
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(subcategory.id)}
+                          onClick={() => setDeleteId(subcategory.id)}
                           disabled={isPending}
                           aria-label={`Eliminar ${subcategory.name}`}
                         >

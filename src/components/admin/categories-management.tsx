@@ -3,37 +3,12 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
+import { CategoryFormDialog } from "./category-form-dialog";
 import {
   createCategory,
   updateCategory,
@@ -50,13 +25,7 @@ interface Category {
   isActive: boolean;
   displayOrder: number;
   attentionAreaId?: number | null;
-  subcategories?: Subcategory[];
-}
-
-interface Subcategory {
-  id: number;
-  name: string;
-  isActive: boolean;
+  subcategories?: { id: number; name: string; isActive: boolean }[];
 }
 
 interface AttentionArea {
@@ -114,23 +83,20 @@ export function AdminCategoriesManagement({
     }
 
     startTransition(async () => {
-      let result;
-      if (editingCategory) {
-        result = await updateCategory(
+      const result = editingCategory
+        ? await updateCategory(
           editingCategory.id,
           formData.name,
           formData.description,
           formData.isActive,
           formData.attentionAreaId
-        );
-      } else {
-        result = await createCategory(
+        )
+        : await createCategory(
           formData.name,
           formData.description,
           formData.isActive,
           formData.attentionAreaId
         );
-      }
 
       if (result.error) {
         toast.error(result.error);
@@ -143,7 +109,7 @@ export function AdminCategoriesManagement({
     });
   };
 
-  const handleDelete = async () => {
+  const confirmDelete = () => {
     if (!deleteId) return;
 
     startTransition(async () => {
@@ -198,99 +164,22 @@ export function AdminCategoriesManagement({
         <p className="text-sm text-muted-foreground">
           {initialCategories.length} categoría(s) total(es)
         </p>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => {
-              resetForm();
-              setIsDialogOpen(true);
-            }}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nueva categoría
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[525px]">
-            <DialogHeader>
-              <DialogTitle>
-                {editingCategory ? "Editar categoría" : "Nueva categoría"}
-              </DialogTitle>
-              <DialogDescription>
-                {editingCategory
-                  ? "Modifica los datos de la categoría"
-                  : "Crea una nueva categoría para los tickets"}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nombre *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Ej: Soporte Técnico"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="attentionArea">Área de Atención</Label>
-                <Select
-                  value={formData.attentionAreaId?.toString() || "none"}
-                  onValueChange={(value) =>
-                    setFormData(prev => ({
-                      ...prev,
-                      attentionAreaId: value === "none" ? undefined : Number(value),
-                    }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar área..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Sin área específica</SelectItem>
-                    {attentionAreas.map((area) => (
-                      <SelectItem key={area.id} value={area.id.toString()}>
-                        {area.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-[0.8rem] text-muted-foreground">
-                  Los tickets de esta categoría se asignarán a esta área.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Descripción</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isActive"
-                  checked={formData.isActive}
-                  onCheckedChange={(checked) =>
-                    setFormData(prev => ({ ...prev, isActive: checked }))
-                  }
-                />
-                <Label htmlFor="isActive" className="cursor-pointer">
-                  Categoría activa
-                </Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSubmit} disabled={isPending}>
-                {editingCategory ? "Actualizar" : "Crear"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nueva categoría
+        </Button>
       </div>
+
+      <CategoryFormDialog
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        editingCategory={editingCategory}
+        formData={formData}
+        onFormDataChange={setFormData}
+        attentionAreas={attentionAreas}
+        onSubmit={handleSubmit}
+        isPending={isPending}
+      />
 
       <div className="rounded-md border">
         <Table>
@@ -386,7 +275,7 @@ export function AdminCategoriesManagement({
       <DeleteConfirmDialog
         open={deleteId !== null}
         onOpenChange={(open) => !open && setDeleteId(null)}
-        onConfirm={handleDelete}
+        onConfirm={confirmDelete}
         title="¿Eliminar categoría?"
         description="Esta acción no se puede deshacer. Se eliminarán también todas las subcategorías asociadas."
       />
