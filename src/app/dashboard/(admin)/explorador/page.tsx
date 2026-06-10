@@ -5,6 +5,7 @@ import type { TicketFilterParams } from "@/db/queries";
 import { getSession } from "@/lib/auth/helpers";
 import { inArray } from "drizzle-orm";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -70,13 +71,15 @@ export default async function ExploradorPage({ searchParams }: PageProps) {
         </p>
       </div>
 
-      <AdminTicketsTable
-        tickets={mergedTickets}
-        totalCount={paginatedResult.totalCount}
-        assignedUsers={filterOptions.assignedUsers}
-        categories={filterOptions.categories}
-        attentionAreas={filterOptions.attentionAreas}
-      />
+      <Suspense fallback={<div className="h-64 animate-pulse bg-muted rounded-lg" />}>
+        <AdminTicketsTable
+          tickets={mergedTickets}
+          totalCount={paginatedResult.totalCount}
+          assignedUsers={filterOptions.assignedUsers}
+          categories={filterOptions.categories}
+          attentionAreas={filterOptions.attentionAreas}
+        />
+      </Suspense>
     </div>
   );
 }

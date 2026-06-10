@@ -18,7 +18,7 @@ import { PriorityBadge } from "@/components/shared/priority-badge";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { TicketFilters } from "@/components/tickets/ticket-filters";
 import { Pagination } from "@/components/shared/pagination";
-import { formatDate, differenceInDays } from "@/lib/utils/format";
+import { formatDate } from "@/lib/utils/format";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 
@@ -121,7 +121,6 @@ export function AdminTicketsTable({ tickets, totalCount, assignedUsers, categori
               </TableRow>
             ) : (
               tickets.map((ticket) => {
-                const daysOpen = differenceInDays(new Date(), new Date(ticket.createdAt));
                 return (
                   <TableRow key={ticket.id}>
                     <TableCell className="font-medium text-xs text-muted-foreground">
