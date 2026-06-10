@@ -911,7 +911,7 @@ function ProviderTicketDialog({
                         selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
                         onSelect={(date) => field.onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")}
                         disabled={(date) => date > new Date()}
-                        initialFocus
+                        autoFocus
                       />
                     </PopoverContent>
                   </Popover>
