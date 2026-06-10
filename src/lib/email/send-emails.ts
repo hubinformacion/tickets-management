@@ -6,6 +6,7 @@ import { getTicketAssignedTemplate } from './templates/ticket-assigned';
 import { getTicketResolvedTemplate } from './templates/ticket-resolved';
 import { getTicketRejectedTemplate } from './templates/ticket-rejected';
 import { getDerivationTemplate } from './templates/derivation';
+import { getSurveyReminderTemplate } from './templates/survey-reminder';
 import { translatePriority } from '../utils/format';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -344,6 +345,52 @@ export async function sendDerivationEmail(params: SendDerivationEmailParams) {
     ticketUrl,
     attentionAreaName: params.attentionAreaName,
     note: params.note,
+  });
+
+  const { to, cc } = getUnifiedRecipients(params);
+
+  // Threading Logic
+  let threadingHeaders: { inReplyTo?: string, references?: string } = {};
+  if (params.initialMessageId) {
+    threadingHeaders = { inReplyTo: params.initialMessageId, references: params.initialMessageId };
+  } else if (params.emailThreadId) {
+    threadingHeaders = await getThreadMessageIds(params.emailThreadId);
+  }
+
+  return await sendGmailEmail({
+    to,
+    cc: cc.length > 0 ? cc : undefined,
+    subject: `Ticket #${getDisplayCode(params.ticketCode)} | ${params.title}`,
+    htmlContent,
+    senderName: params.attentionAreaName,
+    threadId: params.emailThreadId || undefined,
+    ...threadingHeaders
+  });
+}
+
+// ============================================================================
+// 6. RECORDATORIO DE ENCUESTA DE SATISFACCIÓN
+// ============================================================================
+
+export interface SendSurveyReminderEmailParams extends TicketContext {
+  closedAt: Date;
+}
+
+export async function sendSurveyReminderEmail(params: SendSurveyReminderEmailParams) {
+  const ticketUrl = `${BASE_URL}/dashboard/tickets/${params.ticketCode}`;
+
+  const htmlContent = getSurveyReminderTemplate({
+    userName: params.creatorName,
+    ticketCode: params.ticketCode,
+    ticketUrl,
+    attentionAreaName: params.attentionAreaName,
+    closedAt: params.closedAt.toLocaleString('es-PE', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
   });
 
   const { to, cc } = getUnifiedRecipients(params);
