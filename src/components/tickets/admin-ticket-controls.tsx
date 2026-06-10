@@ -30,10 +30,17 @@ export function AdminTicketControls({
   const [validationMessage, setValidationMessage] = useState("");
 
   const status = currentStatus as TicketStatus;
+  const isPendingValidation = currentStatus === "pending_validation";
+  const isActive = currentStatus !== "resolved" && currentStatus !== "voided";
   const allowedTransitions = VALID_STATUS_TRANSITIONS[status] ?? [];
-  const availableStatusOptions = allowedTransitions
-    .filter(s => s !== "pending_validation")
-    .map(s => ({ value: s, label: STATUS_LABELS[s] }));
+  const availableStatusOptions: { value: TicketStatus; label: string; disabled: boolean }[] = [
+    ...allowedTransitions
+      .filter(s => s !== "pending_validation")
+      .map(s => ({ value: s, label: STATUS_LABELS[s], disabled: false })),
+    ...(isPendingValidation
+      ? [{ value: "pending_validation" as TicketStatus, label: STATUS_LABELS.pending_validation, disabled: true }]
+      : [])
+  ];
 
   const handleStatusChange = (newStatus: TicketStatus) => {
     startTransition(async () => {
@@ -85,9 +92,6 @@ export function AdminTicketControls({
     });
   };
 
-  const isActive = currentStatus !== "resolved" && currentStatus !== "voided";
-  const isPendingValidation = currentStatus === "pending_validation";
-
   return (
     <div className="space-y-3">
       {/* Status selector */}
@@ -106,7 +110,7 @@ export function AdminTicketControls({
             </SelectTrigger>
             <SelectContent>
               {availableStatusOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
                   {option.label}
                 </SelectItem>
               ))}
