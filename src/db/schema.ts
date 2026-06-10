@@ -133,6 +133,9 @@ export const tickets = pgTable("ticket", {
   closedAt: timestamp("closed_at"), // When ticket was closed
   closedByUserId: text("closed_by_user_id").references(() => users.id), // Who closed it (if user/admin)
 
+  // Survey reminder tracking
+  surveyReminderSentAt: timestamp("survey_reminder_sent_at"), // When the survey reminder email was sent (at most once)
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
