@@ -37,6 +37,12 @@ export function getValidationRequestTemplate(params: ValidationRequestTemplatePa
         <div style="text-align: center; margin: 20px 0;">
             <a href="${params.ticketUrl}" style="display: inline-block; background-color: #10B981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">Revisar y validar ticket</a>
         </div>
+
+        <div style="margin-top: 30px; padding: 12px 16px; background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; text-align: center;">
+            <p style="margin: 0; font-size: 12px; color: #6B7280; line-height: 1.5;">
+                Una vez que valides la atención recibida, podrás completar una breve encuesta de satisfacción para ayudarnos a mejorar nuestro servicio.
+            </p>
+        </div>
     `;
 
   return getBaseTemplate(content, params.attentionAreaName);
