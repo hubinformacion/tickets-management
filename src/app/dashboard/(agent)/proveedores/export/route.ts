@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { providerTickets, providerSatisfactionSurveys, attentionAreas, providers } from "@/db/schema";
+import { providerTickets, providerSatisfactionSurveys } from "@/db/schema";
 import { requireAgent } from "@/lib/auth/helpers";
 import { eq, desc } from "drizzle-orm";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,7 +11,6 @@ export async function GET(req: NextRequest) {
     const isAdmin = session.user.role === "admin";
     const areaId = session.user.attentionAreaId;
 
-    // Fetch all provider tickets scoped by role
     const ticketRows = await db.query.providerTickets.findMany({
       where: !isAdmin && areaId ? eq(providerTickets.attentionAreaId, areaId) : undefined,
       with: {
@@ -22,17 +21,14 @@ export async function GET(req: NextRequest) {
       orderBy: [desc(providerTickets.createdAt)],
     });
 
-    // Fetch all evaluations in one query
     const surveys = await db.query.providerSatisfactionSurveys.findMany({
       with: {
         submittedBy: { columns: { name: true } },
       },
     });
 
-    // Index surveys by providerTicketId
     const surveyByTicket = new Map(surveys.map((s) => [s.providerTicketId, s]));
 
-    // Helper: diff in days between two date strings (YYYY-MM-DD)
     function daysBetween(from: string | null, to: string | null): number | null {
       if (!from || !to) return null;
       const d1 = new Date(from).getTime();
@@ -41,60 +37,84 @@ export async function GET(req: NextRequest) {
       return Math.round((d2 - d1) / 86400000);
     }
 
-    // Build rows
-    const rows = ticketRows.map((t) => {
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = "Sistema de Tickets";
+    workbook.created = new Date();
+
+    const worksheet = workbook.addWorksheet("Tickets de proveedores");
+
+    worksheet.columns = [
+      { header: "Código externo", key: "externalCode", width: 18 },
+      { header: "Título", key: "title", width: 30 },
+      { header: "Descripción", key: "description", width: 30 },
+      { header: "Proveedor", key: "provider", width: 20 },
+      { header: "Área de atención", key: "attentionArea", width: 20 },
+      { header: "Estado", key: "status", width: 15 },
+      { header: "Prioridad", key: "priority", width: 12 },
+      { header: "Solicitado por", key: "requestedBy", width: 20 },
+      { header: "Fecha de creación", key: "createdAt", width: 22 },
+      { header: "Fecha de solicitud", key: "requestDate", width: 18 },
+      { header: "Fecha de finalización", key: "completionDate", width: 20 },
+      { header: "Tiempo de atención (días)", key: "daysOpen", width: 24 },
+      { header: "Evaluación: T. respuesta", key: "evalResponseTime", width: 24 },
+      { header: "Evaluación: Plazos", key: "evalDeadlines", width: 18 },
+      { header: "Evaluación: Calidad", key: "evalQuality", width: 18 },
+      { header: "Evaluación: Comprensión", key: "evalUnderstanding", width: 24 },
+      { header: "Evaluación: Atención", key: "evalAttention", width: 18 },
+      { header: "Evaluación: Promedio", key: "evalAverage", width: 20 },
+      { header: "Evaluado por", key: "evaluatedBy", width: 20 },
+      { header: "Fecha de evaluación", key: "evalDate", width: 20 },
+    ];
+
+    for (const t of ticketRows) {
       const survey = surveyByTicket.get(t.id);
       const days = daysBetween(t.requestDate, t.completionDate);
 
-      return {
-        "Código externo": t.externalCode,
-        "Título": t.title,
-        "Descripción": t.description || "—",
-        "Proveedor": t.provider?.name ?? "—",
-        "Área de atención": t.attentionArea?.name ?? "—",
-        "Estado": t.status === "cerrado" ? "Cerrado" : "En proceso",
-        "Prioridad": t.priority ?? "—",
-        "Solicitado por": t.requestedBy?.name ?? "—",
-        "Fecha de creación": t.createdAt ? new Date(t.createdAt).toLocaleString("es-ES") : "—",
-        "Fecha de solicitud": t.requestDate ?? "—",
-        "Fecha de finalización": t.completionDate ?? "—",
-        "Tiempo de atención (días)": days !== null ? days : "—",
-        // Survey fields
-        "Evaluación: T. respuesta": survey?.responseTimeRating ?? "—",
-        "Evaluación: Plazos": survey?.deadlineRating ?? "—",
-        "Evaluación: Calidad": survey?.qualityRating ?? "—",
-        "Evaluación: Comprensión": survey?.requirementUnderstandingRating ?? "—",
-        "Evaluación: Atención": survey?.attentionRating ?? "—",
-        "Evaluación: Promedio": survey
+      worksheet.addRow({
+        externalCode: t.externalCode,
+        title: t.title,
+        description: t.description || "—",
+        provider: t.provider?.name ?? "—",
+        attentionArea: t.attentionArea?.name ?? "—",
+        status: t.status === "cerrado" ? "Cerrado" : "En proceso",
+        priority: t.priority ?? "—",
+        requestedBy: t.requestedBy?.name ?? "—",
+        createdAt: t.createdAt ? new Date(t.createdAt).toLocaleString("es-ES") : "—",
+        requestDate: t.requestDate ?? "—",
+        completionDate: t.completionDate ?? "—",
+        daysOpen: days !== null ? days : "—",
+        evalResponseTime: survey?.responseTimeRating ?? "—",
+        evalDeadlines: survey?.deadlineRating ?? "—",
+        evalQuality: survey?.qualityRating ?? "—",
+        evalUnderstanding: survey?.requirementUnderstandingRating ?? "—",
+        evalAttention: survey?.attentionRating ?? "—",
+        evalAverage: survey
           ? (
-            (survey.responseTimeRating +
-              survey.deadlineRating +
-              survey.qualityRating +
-              survey.requirementUnderstandingRating +
-              survey.attentionRating) /
-            5
-          ).toFixed(2)
+              (survey.responseTimeRating +
+                survey.deadlineRating +
+                survey.qualityRating +
+                survey.requirementUnderstandingRating +
+                survey.attentionRating) /
+              5
+            ).toFixed(2)
           : "—",
-        "Evaluado por": survey?.submittedBy?.name ?? "—",
-        "Fecha de evaluación": survey?.createdAt
+        evaluatedBy: survey?.submittedBy?.name ?? "—",
+        evalDate: survey?.createdAt
           ? new Date(survey.createdAt).toLocaleDateString("es-ES")
           : "—",
-      };
-    });
+      });
+    }
 
-    // Generate XLSX workbook
-    const ws = XLSX.utils.json_to_sheet(rows);
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true };
+    headerRow.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF4472C4" },
+    };
+    headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
 
-    // Auto column widths
-    const colWidths = Object.keys(rows[0] ?? {}).map((key) => ({
-      wch: Math.max(key.length, 14),
-    }));
-    ws["!cols"] = colWidths;
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Tickets de proveedores");
-
-    const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+    const buffer = await workbook.xlsx.writeBuffer();
 
     const now = new Date().toISOString().split("T")[0];
     return new NextResponse(buffer, {
