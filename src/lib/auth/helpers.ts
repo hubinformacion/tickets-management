@@ -53,15 +53,6 @@ export async function requireAdmin(): Promise<AppSession> {
 }
 
 /**
- * Checks if the current user is an admin
- * @returns true if user is admin, false otherwise
- */
-export async function isAdmin(): Promise<boolean> {
-  const session = await getSession();
-  return session?.user?.role === "admin";
-}
-
-/**
  * Requires agent or admin role. Redirects if unauthorized.
  * @returns Session object
  */
@@ -73,12 +64,4 @@ export async function requireAgent(): Promise<AppSession> {
   }
 
   return session;
-}
-
-/**
- * Checks if key user is an agent
- */
-export async function isAgent(): Promise<boolean> {
-  const session = await getSession();
-  return session?.user?.role === "agent";
 }

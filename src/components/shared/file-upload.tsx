@@ -18,10 +18,13 @@ interface FileUploadProps {
 
 export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: FileUploadProps) {
   const [files, setFiles] = useState<File[]>([]);
-  const attachmentIdsRef = useRef<Set<string>>(new Set());
+  const attachmentIdsRef = useRef<Set<string> | null>(null);
+  if (!attachmentIdsRef.current) {
+    attachmentIdsRef.current = new Set();
+  }
 
   const updateParent = () => {
-    onFilesChange?.(Array.from(attachmentIdsRef.current));
+    onFilesChange?.(Array.from(attachmentIdsRef.current ?? []));
   };
 
   return (
@@ -46,7 +49,7 @@ export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: Fil
             onload: (response) => {
               // response es el ID del attachment (texto plano)
               const attachmentId = response as string;
-              attachmentIdsRef.current.add(attachmentId);
+              attachmentIdsRef.current?.add(attachmentId);
               updateParent();
               return attachmentId;
             },
@@ -58,7 +61,7 @@ export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: Fil
         }}
         onremovefile={(_error, file) => {
           if (file.serverId) {
-            attachmentIdsRef.current.delete(file.serverId);
+            attachmentIdsRef.current?.delete(file.serverId);
             updateParent();
           }
         }}

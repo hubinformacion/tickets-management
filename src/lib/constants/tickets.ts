@@ -76,7 +76,7 @@ export const PRIORITY_LABELS: Record<TicketPriority, string> = {
   critical: "Crítica",
 };
 
-export const CLOSURE_TYPE_LABELS: Record<ClosedBy, string> = {
+const CLOSURE_TYPE_LABELS: Record<ClosedBy, string> = {
   user: "Usuario",
   admin: "Administrador",
   system: "Sistema (48hrs)",

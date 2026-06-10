@@ -20,9 +20,9 @@ import { FloatingSurvey } from "@/components/surveys/pending-survey-banner";
 import { TicketAttachments } from "@/components/tickets/ticket-attachments";
 import { TicketActivity } from "@/components/tickets/ticket-activity";
 import { TicketSidebar } from "@/components/tickets/ticket-sidebar";
-import dynamic from "next/dynamic";
 import type { Metadata } from "next";
 import type { DerivationMetadata } from "@/types";
+import { TicketDescription } from "@/components/tickets/ticket-description";
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
   const { code } = await params;
@@ -180,9 +180,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                     <User className="w-4 h-4 text-muted-foreground" />
                     Descripción
                   </h3>
-                  <div className="prose prose-zinc dark:prose-invert max-w-none">
-                    {ticket.description}
-                  </div>
+                  <TicketDescription content={ticket.description || ""} />
                 </div>
                 {ticket.attachments && ticket.attentionArea?.slug !== "DIF" ? (
                   <TicketAttachments

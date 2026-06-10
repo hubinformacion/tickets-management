@@ -52,10 +52,6 @@ function formatRange(
   return `${start.format("DD MMM")} - ${end.format("DD MMM YYYY")}`;
 }
 
-export function differenceInDays(date: Date | string, baseDate: Date | string = new Date()): number {
-  return dayjs(baseDate).diff(dayjs(date), "day");
-}
-
 function nowInPeru(): dayjs.Dayjs {
   return dayjs().tz(PERU_TIMEZONE);
 }

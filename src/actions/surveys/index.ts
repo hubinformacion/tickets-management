@@ -93,7 +93,7 @@ export async function submitSurveyAction(data: {
  * Get survey for a specific ticket (used in ticket detail page).
  * Returns null if no survey exists.
  */
-export async function getSurveyByTicketAction(ticketId: number) {
+async function getSurveyByTicketAction(ticketId: number) {
   const session = await requireAuth();
 
   try {

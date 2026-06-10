@@ -212,8 +212,8 @@ export function TicketSidebar({
                 <div className="absolute left-[5px] top-2 bottom-2 w-px bg-border/60" />
               ) : null}
 
-              {events.map((event, idx) => (
-                <div key={idx} className="relative pl-5 py-1.5">
+              {events.map((event) => (
+                <div key={event.label} className="relative pl-5 py-1.5">
                   <div className={cn(
                     "absolute left-0 top-[9px] h-[11px] w-[11px] rounded-full ring-2 ring-background",
                     event.highlight

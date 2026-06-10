@@ -88,7 +88,7 @@ export function AdminTicketControls({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3 w-full">
-        <label className="text-sm font-medium whitespace-nowrap text-foreground shrink-0">
+        <label htmlFor="ticket-status" className="text-sm font-medium whitespace-nowrap text-foreground shrink-0">
           Cambiar estado
         </label>
         <Select
@@ -96,7 +96,7 @@ export function AdminTicketControls({
           onValueChange={(value) => handleStatusChange(value as TicketStatus)}
           disabled={isPending}
         >
-          <SelectTrigger>
+          <SelectTrigger id="ticket-status">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
