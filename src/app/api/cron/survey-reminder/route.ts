@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     const lowerBound = new Date(now.getTime() - 25 * 60 * 60 * 1000);
     const upperBound = new Date(now.getTime() - 23 * 60 * 60 * 1000);
 
-    // Find resolved tickets closed in the window without a satisfaction survey
+    // Find resolved tickets closed in the window without a survey and without a prior reminder
     const candidates = await db
       .select({
         id: tickets.id,
@@ -43,7 +43,8 @@ export async function GET(request: Request) {
           eq(tickets.status, 'resolved'),
           gte(tickets.closedAt, lowerBound),
           lt(tickets.closedAt, upperBound),
-          isNull(satisfactionSurveys.id)
+          isNull(satisfactionSurveys.id),
+          isNull(tickets.surveyReminderSentAt)
         )
       );
 
@@ -96,6 +97,11 @@ export async function GET(request: Request) {
           emailThreadId: ticket.emailThreadId,
           initialMessageId: ticket.initialMessageId,
         });
+
+        // Mark reminder as sent to prevent future duplicates
+        await db.update(tickets)
+          .set({ surveyReminderSentAt: now })
+          .where(eq(tickets.id, ticket.id));
 
         sentCount++;
       } catch (emailError) {
