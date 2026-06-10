@@ -25,6 +25,10 @@ import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils/cn";
 
+function avgDays(val: number): string {
+  return val > 0 ? val.toFixed(1) : "—";
+}
+
 function MiniBar({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   return (
@@ -66,10 +70,6 @@ export async function AdminDashboard() {
       .from(tickets)
       .where(and(eq(tickets.status, "resolved"), sql`${tickets.closedAt} IS NOT NULL`)),
   ]);
-
-  function avgDays(val: number): string {
-    return val > 0 ? val.toFixed(1) : "—";
-  }
 
   const getStat = (status: string) => statusStats.find(s => s.status === status)?.count || 0;
   const getUsersStat = (role: string) => usersByRole.find(r => r.role === role)?.count || 0;

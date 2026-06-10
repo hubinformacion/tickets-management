@@ -126,8 +126,9 @@ export async function getAgentsWithProviderSurveysAction() {
 
     const agentMap = new Map<string, string>();
     for (const row of rows) {
-      if (!agentMap.has(row.submittedBy.id)) {
-        agentMap.set(row.submittedBy.id, row.submittedBy.name || row.submittedBy.id);
+      const agentId = row.submittedBy.id;
+      if (!agentMap.has(agentId)) {
+        agentMap.set(agentId, row.submittedBy.name || agentId);
       }
     }
 

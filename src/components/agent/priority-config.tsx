@@ -37,7 +37,7 @@ export function AgentPriorityConfig({ priorityConfigs }: AgentPriorityConfigProp
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingConfig, setEditingConfig] = useState<PriorityConfigItem | null>(null);
 
-  const sortedConfigs = [...priorityConfigs].sort(
+  const sortedConfigs = priorityConfigs.toSorted(
     (a, b) => PRIORITY_ORDER.indexOf(a.priority as TicketPriority) - PRIORITY_ORDER.indexOf(b.priority as TicketPriority)
   );
 

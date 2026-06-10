@@ -145,6 +145,7 @@ export function UserValidationControls({ ticketId }: UserValidationControlsProps
           </>
         ) : (
           <button
+            type="button"
             onClick={() => setIsExpanded(true)}
             className="flex items-center gap-3 px-5 py-3.5 hover:bg-muted/30 transition-colors w-full"
           >

@@ -135,18 +135,20 @@ export function RichTextEditor({ value, onChange, placeholder, disabled, classNa
 
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 cursor-pointer" aria-label="Color de texto">
                 <Palette className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-2" align="start">
               <div className="grid grid-cols-5 gap-1">
                 {COLOR_PALETTE.map((color) => (
-                  <button
+                    <button
+                    type="button"
                     key={color}
                     className="h-6 w-6 rounded-md border border-muted"
                     style={{ backgroundColor: color }}
                     onClick={() => editor.chain().focus().setColor(color).run()}
+                    aria-label={`Color ${color}`}
                   />
                 ))}
                 <Button

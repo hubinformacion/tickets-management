@@ -9,31 +9,31 @@ export const metadata: Metadata = {
   title: "Encuestas de satisfacción",
 };
 
+const sections = [
+  {
+    href: "/dashboard/encuestas/usuarios",
+    icon: Star,
+    title: "Encuestas de usuarios",
+    description:
+      "Resultados de las encuestas post-atención completadas por usuarios al confirmar la resolución de sus tickets.",
+    color: "text-emerald-600 dark:text-emerald-400",
+    bg: "bg-emerald-100 dark:bg-emerald-950/50",
+    border: "border-emerald-200 dark:border-emerald-900",
+  },
+  {
+    href: "/dashboard/encuestas/proveedores",
+    icon: Package,
+    title: "Evaluaciones de proveedores",
+    description:
+      "Resultados de las evaluaciones internas registradas por agentes al cerrar tickets de proveedor.",
+    color: "text-amber-600 dark:text-amber-400",
+    bg: "bg-amber-100 dark:bg-amber-950/50",
+    border: "border-amber-200 dark:border-amber-900",
+  },
+];
+
 export default async function SurveyHubPage() {
   await requireAgent();
-
-  const sections = [
-    {
-      href: "/dashboard/encuestas/usuarios",
-      icon: Star,
-      title: "Encuestas de usuarios",
-      description:
-        "Resultados de las encuestas post-atención completadas por usuarios al confirmar la resolución de sus tickets.",
-      color: "text-emerald-600 dark:text-emerald-400",
-      bg: "bg-emerald-100 dark:bg-emerald-950/50",
-      border: "border-emerald-200 dark:border-emerald-900",
-    },
-    {
-      href: "/dashboard/encuestas/proveedores",
-      icon: Package,
-      title: "Evaluaciones de proveedores",
-      description:
-        "Resultados de las evaluaciones internas registradas por agentes al cerrar tickets de proveedor.",
-      color: "text-amber-600 dark:text-amber-400",
-      bg: "bg-amber-100 dark:bg-amber-950/50",
-      border: "border-amber-200 dark:border-amber-900",
-    },
-  ];
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 animate-in fade-in duration-500">

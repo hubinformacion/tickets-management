@@ -11,11 +11,11 @@ import { eq, and, isNull } from "drizzle-orm";
  * to an existing ticket. Only the uploader can link their own files.
  */
 export async function addTicketAttachmentsAction(ticketId: number, uploadToken: string) {
-  const session = await requireAuth();
-
   if (!ticketId || !uploadToken) {
     return { error: "Parámetros inválidos" };
   }
+
+  const session = await requireAuth();
 
   // Verify ticket exists
   const ticket = await db.query.tickets.findFirst({

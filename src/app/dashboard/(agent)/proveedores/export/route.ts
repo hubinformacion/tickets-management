@@ -5,6 +5,14 @@ import { requireAgent } from "@/lib/auth/helpers";
 import { eq, desc } from "drizzle-orm";
 import ExcelJS from "exceljs";
 
+function daysBetween(from: string | null, to: string | null): number | null {
+  if (!from || !to) return null;
+  const d1 = new Date(from).getTime();
+  const d2 = new Date(to).getTime();
+  if (isNaN(d1) || isNaN(d2)) return null;
+  return Math.round((d2 - d1) / 86400000);
+}
+
 export async function GET(req: NextRequest) {
   try {
     const session = await requireAgent();
@@ -28,14 +36,6 @@ export async function GET(req: NextRequest) {
     });
 
     const surveyByTicket = new Map(surveys.map((s) => [s.providerTicketId, s]));
-
-    function daysBetween(from: string | null, to: string | null): number | null {
-      if (!from || !to) return null;
-      const d1 = new Date(from).getTime();
-      const d2 = new Date(to).getTime();
-      if (isNaN(d1) || isNaN(d2)) return null;
-      return Math.round((d2 - d1) / 86400000);
-    }
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = "Sistema de Tickets";

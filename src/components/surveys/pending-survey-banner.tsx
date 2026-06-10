@@ -142,10 +142,11 @@ export function FloatingSurvey({ ticketId }: FloatingSurveyProps) {
 
               {/* Improvement Suggestion */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
+                <label htmlFor="suggestion" className="text-sm font-medium text-foreground">
                   Sugerencias de mejora <span className="text-muted-foreground font-normal">(opcional)</span>
                 </label>
                 <textarea
+                  id="suggestion"
                   value={suggestion}
                   onChange={(e) => setSuggestion(e.target.value)}
                   placeholder="¿Cómo podemos mejorar?"
@@ -179,6 +180,7 @@ export function FloatingSurvey({ ticketId }: FloatingSurveyProps) {
           </>
         ) : (
           <button
+            type="button"
             onClick={() => setIsExpanded(true)}
             className="flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-muted/30 transition-colors w-full"
           >
