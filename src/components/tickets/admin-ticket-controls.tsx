@@ -5,20 +5,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { assignTicketToSelf, updateTicketStatus, unassignTicket, requestValidation } from "@/actions/admin";
 import { toast } from "sonner";
 import { useTransition } from "react";
-import { UserPlus, UserMinus, CheckCircle, Share2 } from "lucide-react";
+import { UserPlus, UserMinus, CheckCircle, Clock } from "lucide-react";
 import { useState } from "react";
 import type { TicketStatus } from "@/types";
+import { VALID_STATUS_TRANSITIONS, STATUS_LABELS } from "@/lib/constants/tickets";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RichTextEditor } from "@/components/shared/rich-text-editor";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils/cn";
-
-const STATUS_OPTIONS: { value: TicketStatus; label: string }[] = [
-  { value: "open", label: "Abierto" },
-  { value: "in_progress", label: "En progreso" },
-  { value: "resolved", label: "Resuelto" },
-  { value: "voided", label: "Anulado" },
-];
 
 export function AdminTicketControls({
   ticketId,
@@ -34,6 +28,12 @@ export function AdminTicketControls({
   const [isPending, startTransition] = useTransition();
   const [isValidationDialogOpen, setIsValidationDialogOpen] = useState(false);
   const [validationMessage, setValidationMessage] = useState("");
+
+  const status = currentStatus as TicketStatus;
+  const allowedTransitions = VALID_STATUS_TRANSITIONS[status] ?? [];
+  const availableStatusOptions = allowedTransitions
+    .filter(s => s !== "pending_validation")
+    .map(s => ({ value: s, label: STATUS_LABELS[s] }));
 
   const handleStatusChange = (newStatus: TicketStatus) => {
     startTransition(async () => {
@@ -85,35 +85,54 @@ export function AdminTicketControls({
     });
   };
 
+  const isActive = currentStatus !== "resolved" && currentStatus !== "voided";
+  const isPendingValidation = currentStatus === "pending_validation";
+
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-3 w-full">
-        <label htmlFor="ticket-status" className="text-sm font-medium whitespace-nowrap text-foreground shrink-0">
-          Cambiar estado
-        </label>
-        <Select
-          value={currentStatus}
-          onValueChange={(value) => handleStatusChange(value as TicketStatus)}
-          disabled={isPending}
-        >
-          <SelectTrigger id="ticket-status">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Status selector */}
+      {availableStatusOptions.length > 0 && (
+        <div className="flex items-center gap-3 w-full">
+          <label htmlFor="ticket-status" className="text-sm font-medium whitespace-nowrap text-foreground shrink-0">
+            Cambiar estado
+          </label>
+          <Select
+            value={currentStatus}
+            onValueChange={(value) => handleStatusChange(value as TicketStatus)}
+            disabled={isPending}
+          >
+            <SelectTrigger id="ticket-status">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {availableStatusOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
-      {(currentStatus !== "resolved" && currentStatus !== "voided" || derivationSlot) && (
+      {/* Pending validation: show waiting indicator */}
+      {isPendingValidation && (
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 dark:bg-amber-950/30 dark:border-amber-800/50">
+          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-amber-100 dark:bg-amber-900/50">
+            <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div className="text-sm text-amber-700 dark:text-amber-300">
+            Esperando validación del usuario
+          </div>
+        </div>
+      )}
+
+      {/* Action buttons */}
+      {(isActive || derivationSlot) && !isPendingValidation && (
         <div className={cn("gap-3 pt-2", currentStatus === "in_progress" ? "grid grid-cols-2" : "grid grid-cols-1 md:grid-cols-2")}>
           {/* Left column options */}
           <div className={cn("flex flex-col gap-3", currentStatus !== "in_progress" && "col-span-full grid grid-cols-2")}>
-            {currentStatus !== "resolved" && currentStatus !== "voided" && (
+            {isActive && (
               !isAssigned ? (
                 <Button
                   onClick={handleAssign}
