@@ -9,7 +9,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { PriorityBadge } from "@/components/shared/priority-badge";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
-import { Hash, Calendar, User } from "lucide-react";
+import { Hash, Calendar, User, Share2 } from "lucide-react";
 import { AdminTicketControls } from "@/components/tickets/admin-ticket-controls";
 import { AgentManagementCollapsible } from "@/components/agent/agent-management-collapsible";
 import { Button } from "@/components/ui/button";
@@ -232,6 +232,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                       variant="outline"
                       className="w-full flex-1 min-h-[80px] flex-col gap-2 rounded-xl"
                     >
+                      <Share2 className="h-5 w-5" />
                       <span className="text-xs whitespace-normal text-center">Registrar derivación</span>
                     </Button>
                   }
