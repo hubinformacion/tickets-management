@@ -6,6 +6,7 @@ import { requireAuth } from "@/lib/auth/helpers";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { TICKET_STATUS } from "@/lib/constants/tickets";
+import { recordStatusChange } from "@/lib/utils/status-history";
 
 export async function userCancelTicketAction(ticketId: number) {
   const session = await requireAuth();
@@ -32,6 +33,9 @@ export async function userCancelTicketAction(ticketId: number) {
         updatedAt: new Date()
       })
       .where(eq(tickets.id, ticketId));
+
+    // Registrar cambio de estado en historial
+    await recordStatusChange(ticketId, ticket.status as typeof TICKET_STATUS[keyof typeof TICKET_STATUS], TICKET_STATUS.VOIDED, session.user.id);
 
     revalidatePath(`/dashboard/tickets/${ticket.ticketCode}`);
     revalidatePath("/dashboard/tickets");

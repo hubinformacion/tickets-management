@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { tickets, users, comments, ticketAttachments, satisfactionSurveys, providerTickets, providerSatisfactionSurveys } from "@/db/schema";
+import { tickets, users, comments, ticketAttachments, satisfactionSurveys, providerTickets, providerSatisfactionSurveys, ticketStatusHistory } from "@/db/schema";
 import { requireAgent, requireAdmin } from "@/lib/auth/helpers";
 import { eq, inArray, and } from "drizzle-orm";
 import { deleteFileFromDrive } from "@/lib/drive/client";
@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { TICKET_STATUS, VALID_STATUS_TRANSITIONS, STATUS_LABELS } from "@/lib/constants/tickets";
 import { sendTicketAssignedEmail } from "@/lib/email/send-emails";
+import { recordStatusChange } from "@/lib/utils/status-history";
 import type { TicketStatus } from "@/types";
 
 export async function assignTicketToSelf(ticketId: number) {
@@ -23,6 +24,9 @@ export async function assignTicketToSelf(ticketId: number) {
         updatedAt: new Date()
       })
       .where(eq(tickets.id, ticketId));
+
+    // Registrar cambio de estado en historial
+    await recordStatusChange(ticketId, TICKET_STATUS.OPEN, TICKET_STATUS.IN_PROGRESS, session.user.id);
 
     // Get full ticket details for email
     const ticket = await db.query.tickets.findFirst({
@@ -118,7 +122,7 @@ export async function unassignTicket(ticketId: number) {
 }
 
 export async function updateTicketStatus(ticketId: number, newStatus: TicketStatus) {
-  await requireAgent();
+  const session = await requireAgent();
 
   try {
     // Obtener el estado actual del ticket para validar la transición
@@ -146,6 +150,9 @@ export async function updateTicketStatus(ticketId: number, newStatus: TicketStat
         updatedAt: new Date()
       })
       .where(eq(tickets.id, ticketId));
+
+    // Registrar cambio de estado en historial
+    await recordStatusChange(ticketId, currentStatus, newStatus, session.user.id);
 
     revalidatePath(`/dashboard/tickets/${ticket.ticketCode}`);
     revalidatePath("/dashboard/explorador");
@@ -195,13 +202,16 @@ export async function deepDeleteTicketAction(ticketId: number) {
       // 3. Encuestas de satisfacción del usuario
       await tx.delete(satisfactionSurveys).where(eq(satisfactionSurveys.ticketId, ticketId));
 
-      // 4. Comentarios e historial de actividad
+      // 4. Historial de cambios de estado
+      await tx.delete(ticketStatusHistory).where(eq(ticketStatusHistory.ticketId, ticketId));
+
+      // 5. Comentarios e historial de actividad
       await tx.delete(comments).where(eq(comments.ticketId, ticketId));
 
-      // 5. Archivos adjuntos (aunque tienen CASCADE, es seguro forzarlo)
+      // 6. Archivos adjuntos (aunque tienen CASCADE, es seguro forzarlo)
       await tx.delete(ticketAttachments).where(eq(ticketAttachments.ticketId, ticketId));
 
-      // 6. Eliminar el propio ticket
+      // 7. Eliminar el propio ticket
       await tx.delete(tickets).where(eq(tickets.id, ticketId));
     });
 

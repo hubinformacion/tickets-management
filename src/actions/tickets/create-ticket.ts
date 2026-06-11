@@ -10,6 +10,7 @@ import { TICKET_STATUS } from "@/lib/constants/tickets";
 import { sendTicketCreatedEmail } from "@/lib/email/send-emails";
 import { eq, inArray, and, isNull } from "drizzle-orm";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
+import { recordStatusChange } from "@/lib/utils/status-history";
 
 // Rate limiter: 5 tickets por minuto por usuario
 const ticketRateLimiter = createRateLimiter('MODERATE');
@@ -141,6 +142,9 @@ export async function createTicketAction(formData: FormData) {
 
     ticketId = newTicket.id;
     ticketCode = newTicket.ticketCode;
+
+    // Registrar estado inicial en historial
+    await recordStatusChange(ticketId, null, TICKET_STATUS.OPEN, session.user.id);
 
     // Vincular archivos adjuntos al ticket (solo para áreas que no son Difusión)
     if (!isDiffusion) {

@@ -1,13 +1,15 @@
 "use client";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MessageSquareIcon, ChevronDown, Activity, Share2, ArrowRight } from "lucide-react";
+import { MessageSquareIcon, ChevronDown, Activity, Share2, ArrowRight, ArrowRightLeft } from "lucide-react";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { formatDate, formatDateShort } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { CommentForm } from "@/components/tickets/comment-form";
 import dynamic from "next/dynamic";
 import type { DerivationMetadata } from "@/types";
+import { STATUS_LABELS } from "@/lib/constants/tickets";
+import type { TicketStatus } from "@/types";
 
 const RichTextEditor = dynamic(
   () => import("@/components/shared/rich-text-editor").then(mod => ({ default: mod.RichTextEditor }))
@@ -22,14 +24,39 @@ interface CommentEntry {
   author: { name: string; image?: string | null };
 }
 
+interface StatusHistoryEntry {
+  id: number;
+  fromStatus: string | null;
+  toStatus: string;
+  changedAt: Date;
+  changedBy: { name: string; image?: string | null };
+}
+
 interface TicketActivityProps {
   ticketId: number;
   comments: CommentEntry[];
+  statusHistory?: StatusHistoryEntry[];
   canComment: boolean;
   isTicketClosed: boolean;
 }
 
-export function TicketActivity({ ticketId, comments, canComment, isTicketClosed }: TicketActivityProps) {
+export function TicketActivity({ ticketId, comments, statusHistory = [], canComment, isTicketClosed }: TicketActivityProps) {
+  // Merge comments and status history into a unified timeline
+  const timelineEntries = [
+    ...comments.map(c => ({ ...c, _type: "comment" as const, _date: c.createdAt })),
+    ...statusHistory.map(s => ({
+      id: `status-${s.id}`,
+      type: "status_change" as const,
+      content: "",
+      metadata: null,
+      createdAt: s.changedAt,
+      author: s.changedBy,
+      fromStatus: s.fromStatus,
+      toStatus: s.toStatus,
+      _type: "status_change" as const,
+      _date: s.changedAt,
+    })),
+  ].sort((a, b) => b._date.getTime() - a._date.getTime());
   return (
     <div className="space-y-6 pt-4">
       <div className="mb-6">
@@ -51,7 +78,7 @@ export function TicketActivity({ ticketId, comments, canComment, isTicketClosed 
         )}
       </div>
 
-      {comments.length > 0 ? (
+      {timelineEntries.length > 0 ? (
         <div className="pt-2">
           <Collapsible defaultOpen className="space-y-6">
             <div className="flex items-center justify-between">
@@ -60,19 +87,46 @@ export function TicketActivity({ ticketId, comments, canComment, isTicketClosed 
                 Historial de actividad
                 <ChevronDown className="w-3 h-3 transition-transform group-data-[state=open]:rotate-180" />
               </CollapsibleTrigger>
-              <span className="text-xs text-muted-foreground bg-muted border px-2.5 py-0.5 rounded-full">{comments.length}</span>
+              <span className="text-xs text-muted-foreground bg-muted border px-2.5 py-0.5 rounded-full">{timelineEntries.length}</span>
             </div>
 
             <CollapsibleContent>
               <div className="space-y-6 relative pl-2">
-                {comments.length > 0 ? (
+                {timelineEntries.length > 0 ? (
                   <div className="absolute left-[26px] top-4 bottom-4 w-px bg-linear-to-b from-border/80 via-border/40 to-transparent" />
                 ) : null}
 
-                {comments.map((entry) => {
-                  const entryType = entry.type || 'comment';
+                {timelineEntries.map((entry) => {
+                  const entryType = entry._type;
 
-                  if (entryType === 'derivation') {
+                  if (entryType === "status_change") {
+                    const fromLabel = entry.fromStatus ? (STATUS_LABELS[entry.fromStatus as TicketStatus] || entry.fromStatus) : "Creación";
+                    const toLabel = STATUS_LABELS[entry.toStatus as TicketStatus] || entry.toStatus;
+                    return (
+                      <div key={entry.id} className="relative pl-12 group">
+                        <div className="absolute left-0 top-0 z-10">
+                          <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-950 ring-4 ring-background flex items-center justify-center shadow-sm">
+                            <ArrowRightLeft className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          </div>
+                        </div>
+                        <div className="flex items-baseline gap-2 min-h-10 pt-2.5">
+                          <span className="text-xs text-muted-foreground">
+                            <span className="font-medium">{entry.author.name}</span>
+                            {" "}
+                            cambió estado de{" "}
+                            <span className="font-medium text-foreground">{fromLabel}</span>
+                            {" → "}
+                            <span className="font-medium text-foreground">{toLabel}</span>
+                          </span>
+                          <span className="text-xs text-muted-foreground/60">{formatDate(entry.createdAt)}</span>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  const entryTypeComment = entry.type || 'comment';
+
+                  if (entryTypeComment === 'derivation') {
                     const meta = entry.metadata as DerivationMetadata | null;
                     return (
                       <div key={entry.id} className="relative pl-12 group">
@@ -103,7 +157,7 @@ export function TicketActivity({ ticketId, comments, canComment, isTicketClosed 
                     );
                   }
 
-                  if (entryType === 'system') {
+                  if (entryTypeComment === 'system') {
                     return (
                       <div key={entry.id} className="relative pl-12 group">
                         <div className="absolute left-0 top-0 z-10">
@@ -156,7 +210,7 @@ export function TicketActivity({ ticketId, comments, canComment, isTicketClosed 
         </div>
       ) : null}
 
-      {comments.length === 0 ? (
+      {timelineEntries.length === 0 ? (
         <div className="text-center py-10 px-4 border border-dashed border-border/60 rounded-xl bg-muted/5">
           <div className="mx-auto h-12 w-12 rounded-full bg-muted/30 flex items-center justify-center mb-3">
             <Activity className="h-5 w-5 text-muted-foreground/50" />

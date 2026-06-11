@@ -195,6 +195,7 @@ export const ticketsRelations = relations(tickets, ({ one, many }) => ({
   attachments: many(ticketAttachments),
   providerTickets: many(providerTickets),
   satisfactionSurvey: one(satisfactionSurveys),
+  statusHistory: many(ticketStatusHistory),
 }));
 
 export const commentsRelations = relations(comments, ({ one }) => ({
@@ -229,6 +230,7 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   }),
   requestedProviderTickets: many(providerTickets, { relationName: "requestedProviderTickets" }),
   createdProviderTickets: many(providerTickets, { relationName: "createdProviderTickets" }),
+  statusChanges: many(ticketStatusHistory),
 }));
 
 // Configuration tables relations
@@ -402,6 +404,28 @@ export const providerTicketsRelations = relations(providerTickets, ({ one }) => 
   attentionArea: one(attentionAreas, {
     fields: [providerTickets.attentionAreaId],
     references: [attentionAreas.id],
+  }),
+}));
+
+// --- TICKET STATUS HISTORY (bitácora de cambios de estado) ---
+
+export const ticketStatusHistory = pgTable("ticket_status_history", {
+  id: serial("id").primaryKey(),
+  ticketId: integer("ticket_id").notNull().references(() => tickets.id, { onDelete: "cascade" }),
+  fromStatus: text("from_status"),
+  toStatus: text("to_status").notNull(),
+  changedById: text("changed_by_id").notNull().references(() => users.id),
+  changedAt: timestamp("changed_at").defaultNow().notNull(),
+});
+
+export const ticketStatusHistoryRelations = relations(ticketStatusHistory, ({ one }) => ({
+  ticket: one(tickets, {
+    fields: [ticketStatusHistory.ticketId],
+    references: [tickets.id],
+  }),
+  changedBy: one(users, {
+    fields: [ticketStatusHistory.changedById],
+    references: [users.id],
   }),
 }));
 

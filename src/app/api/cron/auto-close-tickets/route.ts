@@ -3,6 +3,7 @@ import { tickets } from "@/db/schema";
 import { lt, and, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { TICKET_STATUS, CLOSURE_TYPE, VALIDATION_TIMEOUT_HOURS } from "@/lib/constants/tickets";
+import { recordStatusChange } from "@/lib/utils/status-history";
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +30,8 @@ export async function GET(request: Request) {
         id: tickets.id,
         ticketCode: tickets.ticketCode,
         validationRequestedAt: tickets.validationRequestedAt,
+        assignedToId: tickets.assignedToId,
+        createdById: tickets.createdById,
       })
       .from(tickets)
       .where(
@@ -57,6 +60,12 @@ export async function GET(request: Request) {
         updatedAt: now,
       })
       .where(inArray(tickets.id, ticketIds));
+
+    // Registrar cambios de estado en historial
+    for (const t of ticketsToClose) {
+      const systemUserId = t.assignedToId || t.createdById;
+      await recordStatusChange(t.id, TICKET_STATUS.PENDING_VALIDATION, TICKET_STATUS.RESOLVED, systemUserId, now);
+    }
 
     console.log(`Auto-closed ${ticketsToClose.length} tickets:`, ticketsToClose.map(t => t.ticketCode));
 

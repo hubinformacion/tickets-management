@@ -9,7 +9,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard, Ticket, LogOut, Menu, X, Shield, Eye, Settings,
   ChevronLeft, ChevronRight, ChevronDown, BookOpen, PlusCircle, Share2,
-  Inbox, ExternalLink, FileText, BarChart3, Star, Package,
+  Inbox, ExternalLink, FileText, BarChart3, Star, Package, AreaChart,
 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -125,6 +125,7 @@ export default function DashboardLayout({
       groups.push({
         groupLabel: "Análisis",
         items: [
+          { href: "/dashboard/analytics", label: "Dashboard de analytics", icon: AreaChart },
           {
             label: "Encuestas",
             icon: BarChart3,
@@ -135,6 +136,13 @@ export default function DashboardLayout({
             isOpen: isEncuestasOpen,
             onOpenChange: setIsEncuestasOpen,
           }
+        ]
+      });
+    } else {
+      groups.push({
+        groupLabel: "Análisis",
+        items: [
+          { href: "/dashboard/analytics", label: "Mis estadísticas", icon: AreaChart },
         ]
       });
     }

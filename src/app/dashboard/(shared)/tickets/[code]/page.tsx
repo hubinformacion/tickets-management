@@ -1,6 +1,6 @@
 
 import { db } from "@/db";
-import { tickets, comments, users, priorityConfig, providers, satisfactionSurveys } from "@/db/schema";
+import { tickets, comments, users, priorityConfig, providers, satisfactionSurveys, ticketStatusHistory } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/helpers";
 import { notFound, redirect } from "next/navigation";
 import { eq, desc, and } from "drizzle-orm";
@@ -63,6 +63,13 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
         orderBy: [desc(comments.createdAt)]
       }
     }
+  });
+
+  // Fetch status history for the Bitácora
+  const statusHistory = await db.query.ticketStatusHistory.findMany({
+    where: eq(ticketStatusHistory.ticketId, ticket?.id ?? 0),
+    with: { changedBy: true },
+    orderBy: [desc(ticketStatusHistory.changedAt)],
   });
 
   if (!ticket) notFound();
@@ -197,6 +204,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
             <TicketActivity
               ticketId={ticket.id}
               comments={ticket.comments}
+              statusHistory={statusHistory}
               canComment={canComment}
               isTicketClosed={isTicketClosed}
             />

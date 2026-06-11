@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { TICKET_STATUS, CLOSURE_TYPE } from "@/lib/constants/tickets";
 import { sendValidationRequestEmail, sendTicketResolvedEmail, sendTicketRejectedEmail } from "@/lib/email/send-emails";
+import { recordStatusChange } from "@/lib/utils/status-history";
 
 /**
  * User approves ticket closure - moves from pending_validation to resolved
@@ -49,6 +50,9 @@ export async function approveTicketValidation(ticketId: number) {
         updatedAt: new Date()
       })
       .where(eq(tickets.id, ticketId));
+
+    // Registrar cambio de estado en historial
+    await recordStatusChange(ticketId, TICKET_STATUS.PENDING_VALIDATION, TICKET_STATUS.RESOLVED, session.user.id);
 
     // Defer email notification after response is sent to user
     if (ticket.attentionAreaId) {
@@ -140,6 +144,9 @@ export async function rejectTicketValidation(ticketId: number, rejectionMessage:
           updatedAt: new Date()
         })
         .where(eq(tickets.id, ticketId));
+
+      // Registrar cambio de estado en historial
+      await recordStatusChange(ticketId, TICKET_STATUS.PENDING_VALIDATION, TICKET_STATUS.IN_PROGRESS, session.user.id);
 
       // Always insert rejection comment so agents see why it was rejected
       await tx.insert(comments).values({
@@ -242,6 +249,9 @@ export async function requestValidation(ticketId: number, message?: string) {
         updatedAt: new Date()
       })
       .where(eq(tickets.id, ticketId));
+
+    // Registrar cambio de estado en historial
+    await recordStatusChange(ticketId, TICKET_STATUS.IN_PROGRESS, TICKET_STATUS.PENDING_VALIDATION, session.user.id);
 
     if (message) {
       await db.insert(comments).values({
