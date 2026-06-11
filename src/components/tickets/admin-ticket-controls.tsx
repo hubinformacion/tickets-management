@@ -34,12 +34,10 @@ export function AdminTicketControls({
   const isActive = currentStatus !== "resolved" && currentStatus !== "voided";
   const allowedTransitions = VALID_STATUS_TRANSITIONS[status] ?? [];
   const availableStatusOptions: { value: TicketStatus; label: string; disabled: boolean }[] = [
+    { value: status, label: STATUS_LABELS[status], disabled: true },
     ...allowedTransitions
       .filter(s => s !== "pending_validation")
       .map(s => ({ value: s, label: STATUS_LABELS[s], disabled: false })),
-    ...(isPendingValidation
-      ? [{ value: "pending_validation" as TicketStatus, label: STATUS_LABELS.pending_validation, disabled: true }]
-      : [])
   ];
 
   const handleStatusChange = (newStatus: TicketStatus) => {
