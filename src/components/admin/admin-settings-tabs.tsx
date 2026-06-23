@@ -38,6 +38,8 @@ interface AttentionArea {
   name: string;
   slug: string;
   isAcceptingTickets: boolean;
+  businessStartTime: string;
+  businessEndTime: string;
 }
 
 interface PriorityConfigItem {

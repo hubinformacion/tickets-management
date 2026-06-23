@@ -11,17 +11,23 @@ async function seed() {
       {
         name: "Tecnologías y Sistemas de Información",
         slug: "TSI",
-        isAcceptingTickets: true
+        isAcceptingTickets: true,
+        businessStartTime: "08:30",
+        businessEndTime: "18:30",
       },
       {
         name: "Fondo Editorial",
         slug: "FED",
-        isAcceptingTickets: false
+        isAcceptingTickets: false,
+        businessStartTime: "08:30",
+        businessEndTime: "16:00",
       },
       {
         name: "Difusión",
         slug: "DIF",
-        isAcceptingTickets: false
+        isAcceptingTickets: false,
+        businessStartTime: "08:30",
+        businessEndTime: "18:30",
       }
     ]).onConflictDoNothing().returning({ id: attentionAreas.id, name: attentionAreas.name });
 

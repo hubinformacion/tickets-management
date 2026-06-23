@@ -261,6 +261,10 @@ export const attentionAreas = pgTable("attention_area", {
   // Availability
   isAcceptingTickets: boolean("is_accepting_tickets").notNull().default(true),
 
+  // Horario de atención (formato "HH:MM", 24h) — para cálculos estadísticos
+  businessStartTime: text("business_start_time").notNull().default("08:30"),
+  businessEndTime: text("business_end_time").notNull().default("18:30"),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

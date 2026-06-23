@@ -56,6 +56,24 @@ export const updatePriorityConfigSchema = z.object({
 
 type UpdatePriorityConfigSchema = z.infer<typeof updatePriorityConfigSchema>;
 
+// ─── Business Hours schemas (horario de atención por área) ───
+
+const timeStringSchema = z.string().regex(
+  /^([01]\d|2[0-3]):([0-5]\d)$/,
+  "Formato de hora inválido (HH:MM)"
+);
+
+export const updateBusinessHoursSchema = z.object({
+  id: z.coerce.number().min(1),
+  businessStartTime: timeStringSchema,
+  businessEndTime: timeStringSchema,
+}).refine(
+  (data) => data.businessStartTime < data.businessEndTime,
+  { message: "La hora de inicio debe ser anterior a la hora de fin", path: ["businessEndTime"] }
+);
+
+export type UpdateBusinessHoursSchema = z.infer<typeof updateBusinessHoursSchema>;
+
 // ─── Provider schemas (admin/agent config) ───
 
 export const createProviderSchema = z.object({
