@@ -12,12 +12,18 @@ const timeStringSchema = z.string().regex(
   "Formato de hora inválido (HH:MM)"
 );
 
+const businessDaysSchema = z.string().regex(
+  /^[0-6](,[0-6])*$/,
+  "Formato de días inválido"
+);
+
 const attentionAreaSchema = z.object({
   name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
   slug: z.string().min(3, "El slug debe tener al menos 3 caracteres"),
   isAcceptingTickets: z.boolean().default(true),
   businessStartTime: timeStringSchema.default("08:30"),
   businessEndTime: timeStringSchema.default("18:30"),
+  businessDays: businessDaysSchema.default("1,2,3,4,5"),
 }).refine(
   (data) => data.businessStartTime < data.businessEndTime,
   { message: "La hora de inicio debe ser anterior a la hora de fin", path: ["businessEndTime"] }
@@ -32,6 +38,7 @@ export async function createAttentionArea(formData: FormData) {
     isAcceptingTickets: formData.get("isAcceptingTickets") === "true",
     businessStartTime: formData.get("businessStartTime") || "08:30",
     businessEndTime: formData.get("businessEndTime") || "18:30",
+    businessDays: formData.get("businessDays") || "1,2,3,4,5",
   };
 
   const result = attentionAreaSchema.safeParse(rawData);
@@ -60,6 +67,7 @@ export async function updateAttentionArea(id: number, formData: FormData) {
     isAcceptingTickets: formData.get("isAcceptingTickets") === "true",
     businessStartTime: formData.get("businessStartTime") || "08:30",
     businessEndTime: formData.get("businessEndTime") || "18:30",
+    businessDays: formData.get("businessDays") || "1,2,3,4,5",
   };
 
   const result = attentionAreaSchema.safeParse(rawData);

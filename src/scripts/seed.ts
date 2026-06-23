@@ -14,6 +14,7 @@ async function seed() {
         isAcceptingTickets: true,
         businessStartTime: "08:30",
         businessEndTime: "18:30",
+        businessDays: "1,2,3,4,5",
       },
       {
         name: "Fondo Editorial",
@@ -21,6 +22,7 @@ async function seed() {
         isAcceptingTickets: false,
         businessStartTime: "08:30",
         businessEndTime: "16:00",
+        businessDays: "1,2,3,4,5",
       },
       {
         name: "Difusión",
@@ -28,6 +30,7 @@ async function seed() {
         isAcceptingTickets: false,
         businessStartTime: "08:30",
         businessEndTime: "18:30",
+        businessDays: "1,2,3,4,5",
       }
     ]).onConflictDoNothing().returning({ id: attentionAreas.id, name: attentionAreas.name });
 

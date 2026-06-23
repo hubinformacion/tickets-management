@@ -2,11 +2,12 @@
 
 import { updateAttentionArea } from "@/actions/admin/attention-areas";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatBusinessHoursRange } from "@/lib/utils/business-hours";
+import { formatBusinessDays, formatBusinessHoursRange, WEEKDAYS_ORDER, DAY_LABELS } from "@/lib/utils/business-hours";
 import { Clock, Loader2, Pencil } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ interface AttentionArea {
   isAcceptingTickets: boolean;
   businessStartTime: string;
   businessEndTime: string;
+  businessDays: string;
 }
 
 interface BusinessHoursManagementProps {
@@ -36,13 +38,14 @@ export function BusinessHoursManagement({ attentionAreas }: BusinessHoursManagem
             <TableRow>
               <TableHead>Área de atención</TableHead>
               <TableHead>Horario hábil</TableHead>
+              <TableHead>Días hábiles</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {attentionAreas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
                   No hay áreas de atención registradas.
                 </TableCell>
               </TableRow>
@@ -60,6 +63,11 @@ export function BusinessHoursManagement({ attentionAreas }: BusinessHoursManagem
                       <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                       {formatBusinessHoursRange(area.businessStartTime, area.businessEndTime)}
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground">
+                      {formatBusinessDays(area.businessDays)}
+                    </span>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
@@ -100,18 +108,52 @@ function BusinessHoursDialog({
   area: AttentionArea | null;
 }) {
   const [isPending, startTransition] = useTransition();
+  const [selectedDays, setSelectedDays] = useState<Set<number>>(new Set());
+
+  // Sincronizar selectedDays cuando cambia el área
+  const currentArea = area;
+  if (currentArea && open) {
+    const areaDays = new Set(currentArea.businessDays.split(",").map(Number));
+    if (selectedDays.size === 0 && areaDays.size > 0) {
+      // Solo inicializar si está vacío (evitar loop)
+      const needsInit = [...areaDays].some(d => !selectedDays.has(d)) ||
+        [...selectedDays].some(d => !areaDays.has(d));
+      if (needsInit && selectedDays.size === 0) {
+        setSelectedDays(areaDays);
+      }
+    }
+  }
+
+  function handleDayToggle(day: number, checked: boolean) {
+    setSelectedDays(prev => {
+      const next = new Set(prev);
+      if (checked) {
+        next.add(day);
+      } else {
+        next.delete(day);
+      }
+      return next;
+    });
+  }
+
+  function handleOpenChange(newOpen: boolean) {
+    if (!newOpen) {
+      setSelectedDays(new Set());
+    }
+    onOpenChange(newOpen);
+  }
 
   if (!area) return null;
 
   async function handleSubmit(formData: FormData) {
     startTransition(async () => {
       const formDataClone = new FormData();
-      // Enviar todos los campos requeridos por el server action
       formDataClone.append("name", area!.name);
       formDataClone.append("slug", area!.slug);
       formDataClone.append("isAcceptingTickets", area!.isAcceptingTickets ? "true" : "false");
       formDataClone.append("businessStartTime", formData.get("businessStartTime") as string);
       formDataClone.append("businessEndTime", formData.get("businessEndTime") as string);
+      formDataClone.append("businessDays", [...selectedDays].sort().join(","));
 
       const result = await updateAttentionArea(area!.id, formDataClone);
 
@@ -119,13 +161,14 @@ function BusinessHoursDialog({
         toast.error(result.error);
       } else {
         toast.success(`Horario de "${area!.name}" actualizado`);
+        setSelectedDays(new Set());
         onOpenChange(false);
       }
     });
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Editar horario de recepción</DialogTitle>
@@ -156,14 +199,34 @@ function BusinessHoursDialog({
               />
             </div>
           </div>
+
+          {/* Días hábiles */}
+          <div className="space-y-3">
+            <Label>Días hábiles</Label>
+            <div className="flex flex-wrap gap-3">
+              {WEEKDAYS_ORDER.map((day) => (
+                <label
+                  key={day}
+                  className="flex items-center gap-2 text-sm cursor-pointer"
+                >
+                  <Checkbox
+                    checked={selectedDays.has(day)}
+                    onCheckedChange={(checked) => handleDayToggle(day, !!checked)}
+                  />
+                  {DAY_LABELS[day]}
+                </label>
+              ))}
+            </div>
+          </div>
+
           <p className="text-xs text-muted-foreground">
             Los usuarios pueden enviar requerimientos las 24 horas. Este horario se utiliza exclusivamente para el cálculo de métricas y tiempos de atención.
           </p>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending || selectedDays.size === 0}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Guardar
             </Button>

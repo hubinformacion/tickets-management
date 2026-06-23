@@ -54,6 +54,7 @@ export async function getActiveAttentionAreas() {
         isAcceptingTickets: true,
         businessStartTime: true,
         businessEndTime: true,
+        businessDays: true,
       }
     });
     return areas;

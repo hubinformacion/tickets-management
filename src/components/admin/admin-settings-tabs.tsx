@@ -41,6 +41,7 @@ interface AttentionArea {
   isAcceptingTickets: boolean;
   businessStartTime: string;
   businessEndTime: string;
+  businessDays: string;
 }
 
 interface PriorityConfigItem {

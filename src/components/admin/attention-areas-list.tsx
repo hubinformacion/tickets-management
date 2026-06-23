@@ -18,6 +18,7 @@ interface AttentionArea {
   isAcceptingTickets: boolean;
   businessStartTime: string;
   businessEndTime: string;
+  businessDays: string;
 }
 
 interface AttentionAreasListProps {
@@ -114,6 +115,7 @@ function AreaDialog({
       // Preservar los horarios existentes al editar, usar defaults al crear
       formDataClone.append("businessStartTime", area?.businessStartTime ?? "08:30");
       formDataClone.append("businessEndTime", area?.businessEndTime ?? "18:30");
+      formDataClone.append("businessDays", area?.businessDays ?? "1,2,3,4,5");
 
       const result = area
         ? await updateAttentionArea(area.id, formDataClone)
