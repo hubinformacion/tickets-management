@@ -2,7 +2,7 @@
 
 import { createAttentionArea, updateAttentionArea } from "@/actions/admin/attention-areas";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -16,6 +16,9 @@ interface AttentionArea {
   name: string;
   slug: string;
   isAcceptingTickets: boolean;
+  businessStartTime: string;
+  businessEndTime: string;
+  businessDays: string;
 }
 
 interface AttentionAreasListProps {
@@ -109,6 +112,10 @@ function AreaDialog({
       formDataClone.append("name", formData.get("name") as string);
       formDataClone.append("slug", formData.get("slug") as string);
       formDataClone.append("isAcceptingTickets", formData.get("isAcceptingTickets") === "on" ? "true" : "false");
+      // Preservar los horarios existentes al editar, usar defaults al crear
+      formDataClone.append("businessStartTime", area?.businessStartTime ?? "08:30");
+      formDataClone.append("businessEndTime", area?.businessEndTime ?? "18:30");
+      formDataClone.append("businessDays", area?.businessDays ?? "1,2,3,4,5");
 
       const result = area
         ? await updateAttentionArea(area.id, formDataClone)

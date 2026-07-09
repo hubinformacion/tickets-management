@@ -53,6 +53,9 @@ interface ProviderItem {
 interface SettingsTabsProps {
   initialData: {
     isAcceptingTickets: boolean;
+    businessStartTime: string;
+    businessEndTime: string;
+    businessDays: string;
   };
   categories: Category[];
   subcategories: Subcategory[];

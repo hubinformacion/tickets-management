@@ -30,6 +30,7 @@ interface Subcategory {
 }
 
 import { AttentionAreasList } from "@/components/admin/attention-areas-list";
+import { BusinessHoursManagement } from "@/components/admin/business-hours-management";
 import { PriorityConfigManagement } from "@/components/admin/priority-config-management";
 import { ProvidersManagement } from "@/components/admin/providers-management";
 
@@ -38,6 +39,9 @@ interface AttentionArea {
   name: string;
   slug: string;
   isAcceptingTickets: boolean;
+  businessStartTime: string;
+  businessEndTime: string;
+  businessDays: string;
 }
 
 interface PriorityConfigItem {
@@ -164,6 +168,18 @@ export function AdminSettingsTabs({
           </CardHeader>
           <CardContent>
             <AttentionAreasList areas={initialAttentionAreas} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recepción</CardTitle>
+            <CardDescription>
+              Configura los horarios de atención por área para el cálculo de métricas y tiempos de respuesta
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BusinessHoursManagement attentionAreas={initialAttentionAreas} />
           </CardContent>
         </Card>
       </TabsContent>
