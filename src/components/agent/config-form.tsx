@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatBusinessDays, formatBusinessHoursRange, WEEKDAYS_ORDER, DAY_LABELS } from "@/lib/utils/business-hours";
 import { Clock, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -23,6 +24,7 @@ interface SettingsFormProps {
 }
 
 export function SettingsForm({ initialData }: SettingsFormProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isHoursPending, startHoursTransition] = useTransition();
   const [selectedDays, setSelectedDays] = useState<Set<number>>(
@@ -39,6 +41,7 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
         toast.error(result.error);
       } else {
         toast.success("Configuración actualizada correctamente");
+        router.refresh();
       }
     });
   }
@@ -67,6 +70,7 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
         toast.error(result.error);
       } else {
         toast.success("Horario de atención actualizado");
+        router.refresh();
       }
     });
   }

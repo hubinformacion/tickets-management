@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatBusinessDays, formatBusinessHoursRange, WEEKDAYS_ORDER, DAY_LABELS } from "@/lib/utils/business-hours";
 import { Clock, Loader2, Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -107,6 +108,7 @@ function BusinessHoursDialog({
   onOpenChange: (open: boolean) => void;
   area: AttentionArea | null;
 }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [selectedDays, setSelectedDays] = useState<Set<number>>(new Set());
 
@@ -163,6 +165,7 @@ function BusinessHoursDialog({
         toast.success(`Horario de "${area!.name}" actualizado`);
         setSelectedDays(new Set());
         onOpenChange(false);
+        router.refresh();
       }
     });
   }
