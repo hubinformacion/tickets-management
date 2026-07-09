@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { formatBusinessDays, formatBusinessHoursRange, WEEKDAYS_ORDER, DAY_LABELS } from "@/lib/utils/business-hours";
 import { Clock, Loader2, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 interface AttentionArea {
@@ -112,19 +112,12 @@ function BusinessHoursDialog({
   const [isPending, startTransition] = useTransition();
   const [selectedDays, setSelectedDays] = useState<Set<number>>(new Set());
 
-  // Sincronizar selectedDays cuando cambia el área
-  const currentArea = area;
-  if (currentArea && open) {
-    const areaDays = new Set(currentArea.businessDays.split(",").map(Number));
-    if (selectedDays.size === 0 && areaDays.size > 0) {
-      // Solo inicializar si está vacío (evitar loop)
-      const needsInit = [...areaDays].some(d => !selectedDays.has(d)) ||
-        [...selectedDays].some(d => !areaDays.has(d));
-      if (needsInit && selectedDays.size === 0) {
-        setSelectedDays(areaDays);
-      }
+  // Sincronizar selectedDays cuando se abre el diálogo o cambia el área
+  useEffect(() => {
+    if (open && area) {
+      setSelectedDays(new Set(area.businessDays.split(",").map(Number)));
     }
-  }
+  }, [open, area]);
 
   function handleDayToggle(day: number, checked: boolean) {
     setSelectedDays(prev => {

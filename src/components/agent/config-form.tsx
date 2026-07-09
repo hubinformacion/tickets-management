@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { formatBusinessDays, formatBusinessHoursRange, WEEKDAYS_ORDER, DAY_LABELS } from "@/lib/utils/business-hours";
 import { Clock, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 interface SettingsFormProps {
@@ -30,6 +30,11 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
   const [selectedDays, setSelectedDays] = useState<Set<number>>(
     () => new Set(initialData.businessDays.split(",").map(Number))
   );
+
+  // Sincronizar selectedDays cuando initialData cambia (tras router.refresh)
+  useEffect(() => {
+    setSelectedDays(new Set(initialData.businessDays.split(",").map(Number)));
+  }, [initialData.businessDays]);
 
   function handleToggleChange(checked: boolean) {
     const formData = new FormData();
