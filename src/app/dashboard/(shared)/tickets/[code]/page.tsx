@@ -206,7 +206,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
               comments={ticket.comments}
               statusHistory={statusHistory}
               canComment={canComment}
-              isTicketClosed={isTicketClosed}
             />
           </div>
 
@@ -217,7 +216,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
             watchersList={watchersList}
             currentUserId={session.user.id}
             isAdmin={isAdmin}
-            isAgentForArea={isAgentForArea}
             isCreator={isCreator}
             isTicketClosed={isTicketClosed}
           />

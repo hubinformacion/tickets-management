@@ -37,25 +37,26 @@ interface TicketActivityProps {
   comments: CommentEntry[];
   statusHistory?: StatusHistoryEntry[];
   canComment: boolean;
-  isTicketClosed: boolean;
 }
 
-export function TicketActivity({ ticketId, comments, statusHistory = [], canComment, isTicketClosed }: TicketActivityProps) {
+export function TicketActivity({ ticketId, comments, statusHistory = [], canComment }: TicketActivityProps) {
   // Merge comments and status history into a unified timeline
   const timelineEntries = [
     ...comments.map(c => ({ ...c, _type: "comment" as const, _date: c.createdAt })),
-    ...statusHistory.map(s => ({
-      id: `status-${s.id}`,
-      type: "status_change" as const,
-      content: "",
-      metadata: null,
-      createdAt: s.changedAt,
-      author: s.changedBy,
-      fromStatus: s.fromStatus,
-      toStatus: s.toStatus,
-      _type: "status_change" as const,
-      _date: s.changedAt,
-    })),
+    ...statusHistory
+      .filter(s => !(s.fromStatus === null && s.toStatus === "open"))
+      .map(s => ({
+        id: `status-${s.id}`,
+        type: "status_change" as const,
+        content: "",
+        metadata: null,
+        createdAt: s.changedAt,
+        author: s.changedBy,
+        fromStatus: s.fromStatus,
+        toStatus: s.toStatus,
+        _type: "status_change" as const,
+        _date: s.changedAt,
+      })),
   ].sort((a, b) => b._date.getTime() - a._date.getTime());
   return (
     <div className="space-y-6 pt-4">

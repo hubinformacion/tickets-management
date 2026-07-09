@@ -5,9 +5,8 @@ import { WatchersManager } from "@/components/tickets/watchers-manager";
 import { TicketAttachmentUploader } from "@/components/tickets/ticket-attachment-uploader";
 import { CancelTicketButton } from "@/components/tickets/cancel-ticket-button";
 import { AdminDeleteTicketControl } from "@/components/admin/admin-delete-ticket-control";
-import { formatDate, formatDateShort } from "@/lib/utils/format";
-import { cn } from "@/lib/utils/cn";
-import { User, Clock, Tag, Eye, History } from "lucide-react";
+import { formatDateShort } from "@/lib/utils/format";
+import { User, Clock, Tag, Eye } from "lucide-react";
 
 interface SlaInfo {
   slaHours: number;
@@ -40,7 +39,6 @@ interface TicketSidebarProps {
   watchersList: { id: string; name: string; email: string; image: string | null }[];
   currentUserId: string;
   isAdmin: boolean;
-  isAgentForArea: boolean;
   isCreator: boolean;
   isTicketClosed: boolean;
 }
@@ -52,47 +50,9 @@ export function TicketSidebar({
   watchersList,
   currentUserId,
   isAdmin,
-  isAgentForArea,
   isCreator,
   isTicketClosed,
 }: TicketSidebarProps) {
-  const events: { label: string; date: Date; highlight?: boolean }[] = [
-    { label: "Ticket creado", date: ticket.createdAt, highlight: true },
-  ];
-
-  if (ticket.assignedTo) {
-    events.push({
-      label: `Asignado a ${ticket.assignedTo.name}`,
-      date: ticket.assignedAt || ticket.updatedAt,
-    });
-  }
-
-  if (ticket.validationRequestedAt) {
-    events.push({
-      label: "Enviado a validación",
-      date: ticket.validationRequestedAt,
-    });
-  }
-
-  if (ticket.closedAt) {
-    const closedByLabel = ticket.closedBy === 'user' ? 'usuario'
-      : ticket.closedBy === 'admin' ? 'administrador'
-      : 'sistema (48hrs)';
-    events.push({
-      label: `Cerrado por ${closedByLabel}`,
-      date: ticket.closedAt,
-    });
-  }
-
-  if (ticket.status === 'voided' && !ticket.closedAt) {
-    events.push({
-      label: "Ticket anulado",
-      date: ticket.updatedAt,
-    });
-  }
-
-  events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
   return (
     <div className="sticky top-6 lg:border-l lg:pl-10 border-border/60">
       <div className="space-y-6">
@@ -202,32 +162,7 @@ export function TicketSidebar({
           </div>
         ) : null}
 
-        {(isAdmin || isAgentForArea) && (
-          <div className="bg-sidebar border border-border/50 rounded-xl p-4 space-y-3">
-            <label className="text-[11px] font-medium text-muted-foreground uppercase flex items-center gap-1.5">
-              <History className="w-3 h-3" />
-              Bitácora
-            </label>
-            <div className="space-y-0 relative">
-              {events.length > 1 ? (
-                <div className="absolute left-[5px] top-2 bottom-2 w-px bg-border/60" />
-              ) : null}
 
-              {events.map((event) => (
-                <div key={event.label} className="relative pl-5 py-1.5">
-                  <div className={cn(
-                    "absolute left-0 top-[9px] h-[11px] w-[11px] rounded-full ring-2 ring-background",
-                    event.highlight
-                      ? "bg-primary/20 border-2 border-primary"
-                      : "bg-muted border-2 border-muted-foreground/30"
-                  )} />
-                  <p className="text-xs text-foreground/90 font-medium">{event.label}</p>
-                  <p className="text-[10px] text-muted-foreground">{formatDate(event.date)}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {isCreator && !isTicketClosed ? (
           <div>
