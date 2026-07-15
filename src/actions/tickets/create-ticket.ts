@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { tickets, users, attentionAreas, ticketCategories, ticketSubcategories, ticketAttachments } from "@/db/schema";
-import { createTicketSchema, createDiffusionTicketSchema } from "@/lib/validation/schemas";
+import { createTicketSchema, createFedTicketSchema, createDiffusionTicketSchema } from "@/lib/validation/schemas";
 import { requireAuth } from "@/lib/auth/helpers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
@@ -55,6 +55,7 @@ export async function createTicketAction(formData: FormData) {
   }
 
   const isDiffusion = targetArea.slug === "DIF";
+  const isFondoEditorial = targetArea.slug === "FED";
 
   // Validar según el tipo de formulario
   let title: string;
@@ -66,6 +67,8 @@ export async function createTicketAction(formData: FormData) {
   let activityStartDate: string | null = null;
   let desiredDiffusionDate: string | null = null;
   let targetAudience: string | null = null;
+  let metadata: Record<string, unknown> | null = null;
+  let allowAttachments = true;
 
   if (isDiffusion) {
     const rawData = {
@@ -89,6 +92,69 @@ export async function createTicketAction(formData: FormData) {
     activityStartDate = result.data.activityStartDate;
     desiredDiffusionDate = result.data.desiredDiffusionDate;
     targetAudience = result.data.targetAudience;
+  } else if (isFondoEditorial) {
+    // Parsear metadata FED del FormData
+    let parsedMetadata: Record<string, unknown> | undefined;
+    const metadataRaw = formData.get("metadata");
+    if (metadataRaw && typeof metadataRaw === "string") {
+      try {
+        parsedMetadata = JSON.parse(metadataRaw);
+      } catch {
+        return { error: "Metadata de Fondo Editorial inválida" };
+      }
+    }
+
+    const rawData = {
+      title: formData.get("title"),
+      description: formData.get("description"),
+      priority: formData.get("priority"),
+      categoryId: formData.get("categoryId"),
+      subcategoryId: formData.get("subcategoryId"),
+      attentionAreaId: formData.get("attentionAreaId"),
+      metadata: parsedMetadata,
+    };
+
+    const result = createFedTicketSchema.safeParse(rawData);
+    if (!result.success) {
+      return { error: "Datos inválidos", details: result.error.flatten() };
+    }
+
+    ({ title, description, priority, categoryId, subcategoryId, attentionAreaId } = result.data);
+    metadata = result.data.metadata ?? null;
+
+    // Validación detallada por subcategoría de Fondo Editorial
+    const subcat = await db.query.ticketSubcategories.findFirst({
+      where: eq(ticketSubcategories.id, subcategoryId),
+      columns: { name: true },
+    });
+
+    if (subcat) {
+      const { getFedFieldConfig } = require("@/lib/constants/fed-fields");
+      const config = getFedFieldConfig(subcat.name);
+      if (config) {
+        allowAttachments = config.allowAttachments ?? false;
+        const metaObj = metadata || {};
+        if (config.requestType && !metaObj.requestType) {
+          return { error: "El tipo de solicitud es obligatorio." };
+        }
+        if (config.documentLink?.required && !metaObj.documentLink) {
+          return { error: "El enlace al documento/carpeta es obligatorio." };
+        }
+        if (config.quantity?.required && !metaObj.quantity) {
+          return { error: `El campo '${config.quantity.label}' es obligatorio.` };
+        }
+        if (config.numberOfPages?.required && !metaObj.numberOfPages) {
+          return { error: "El número de páginas es obligatorio." };
+        }
+        if (config.maxWords && description) {
+          const plainText = description.replace(/<[^>]*>/g, " ").trim();
+          const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+          if (wordCount > config.maxWords) {
+            return { error: `La descripción de esta subcategoría no debe superar las ${config.maxWords} palabras.` };
+          }
+        }
+      }
+    }
   } else {
     const rawData = {
       title: formData.get("title"),
@@ -110,7 +176,7 @@ export async function createTicketAction(formData: FormData) {
   // Parse watchers (user IDs)
   let watcherList: string[] = [];
   const watchersData = formData.get("watchers");
-  if (watchersData) {
+  if (watchersData && typeof watchersData === "string") {
     try {
       watcherList = JSON.parse(watchersData as string);
     } catch (e) {
@@ -134,10 +200,12 @@ export async function createTicketAction(formData: FormData) {
       subcategoryId,
       attentionAreaId,
       watchers: watcherList,
-      // Campos de Difusión (null para TSI/FE)
+      // Campos de Difusión (null para TSI/FED)
       activityStartDate,
       desiredDiffusionDate,
       targetAudience,
+      // Metadata dinámica (FED)
+      metadata,
     });
 
     ticketId = newTicket.id;
@@ -146,8 +214,8 @@ export async function createTicketAction(formData: FormData) {
     // Registrar estado inicial en historial
     await recordStatusChange(ticketId, null, TICKET_STATUS.OPEN, session.user.id);
 
-    // Vincular archivos adjuntos al ticket (solo para áreas que no son Difusión)
-    if (!isDiffusion) {
+    // Vincular archivos adjuntos al ticket (solo para áreas que no son Difusión y que permitan adjuntos)
+    if (!isDiffusion && allowAttachments) {
       const uploadToken = formData.get("uploadToken") as string | null;
       if (uploadToken) {
         await db.update(ticketAttachments)

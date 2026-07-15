@@ -116,6 +116,9 @@ export const tickets = pgTable("ticket", {
   desiredDiffusionDate: date("desired_diffusion_date"),    // Fecha deseable de inicio de difusión
   targetAudience: text("target_audience"),                 // Público objetivo
 
+  // Campos dinámicos por área (ej: Fondo Editorial)
+  metadata: jsonb("metadata"),                             // { requestType, documentLink, quantity, ... }
+
   watchers: text("watchers").array(), // User IDs que monitorean el ticket
 
   // Assignment tracking

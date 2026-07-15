@@ -124,6 +124,52 @@ async function seed() {
 
     console.log(`✅ Created ${subcategories.length} subcategories`);
 
+    // 3b. Seed FED Categories and Subcategories
+    const fedArea = attentionAreasList.find(a => a.name.includes("Fondo Editorial"));
+    if (fedArea) {
+      console.log("📁 Seeding FED categories...");
+      const fedCategories = await db.insert(ticketCategories).values([
+        { name: "Diseño", description: "Diseño gráfico, cubiertas, portadas y retoque de imágenes", displayOrder: 1, attentionAreaId: fedArea.id },
+        { name: "Diagramación", description: "Diagramación de libros, revistas y material educativo", displayOrder: 2, attentionAreaId: fedArea.id },
+        { name: "Corrección de textos", description: "Corrección y cotejo de documentos, copys, guías y títulos de tesis", displayOrder: 3, attentionAreaId: fedArea.id },
+      ]).onConflictDoNothing().returning({ id: ticketCategories.id, name: ticketCategories.name });
+
+      if (fedCategories.length > 0) {
+        const fedDesign = fedCategories.find(c => c.name === "Diseño");
+        const fedDiag = fedCategories.find(c => c.name === "Diagramación");
+        const fedCorr = fedCategories.find(c => c.name === "Corrección de textos");
+
+        const fedSubcatValues = [
+          // Diseño
+          ...(fedDesign ? [
+            { categoryId: fedDesign.id, name: "Diseño de pieza gráfica", description: "Diseño de piezas gráficas nuevas o correcciones", displayOrder: 1 },
+            { categoryId: fedDesign.id, name: "Diseño de cubierta", description: "Diseño de cubiertas para publicaciones", displayOrder: 2 },
+            { categoryId: fedDesign.id, name: "Portada de tesis", description: "Diseño de portadas para tesis", displayOrder: 3 },
+            { categoryId: fedDesign.id, name: "Retoque de imágenes", description: "Edición y retoque de imágenes", displayOrder: 4 },
+          ] : []),
+          // Diagramación
+          ...(fedDiag ? [
+            { categoryId: fedDiag.id, name: "Libro", description: "Diagramación de libros", displayOrder: 1 },
+            { categoryId: fedDiag.id, name: "Revista", description: "Diagramación de revistas", displayOrder: 2 },
+            { categoryId: fedDiag.id, name: "Material educativo", description: "Diagramación de material educativo", displayOrder: 3 },
+          ] : []),
+          // Corrección de textos
+          ...(fedCorr ? [
+            { categoryId: fedCorr.id, name: "Corrección de proyectos editoriales", description: "Corrección de textos de proyectos editoriales", displayOrder: 1 },
+            { categoryId: fedCorr.id, name: "Cotejo de pruebas", description: "Cotejo y revisión de pruebas de impresión", displayOrder: 2 },
+            { categoryId: fedCorr.id, name: "Corrección de copys/mailing", description: "Corrección de copys y contenido de mailing", displayOrder: 3 },
+            { categoryId: fedCorr.id, name: "Corrección de guías", description: "Corrección de guías y documentos académicos", displayOrder: 4 },
+            { categoryId: fedCorr.id, name: "Corrección de títulos de tesis", description: "Corrección y revisión de títulos de tesis", displayOrder: 5 },
+          ] : []),
+        ];
+
+        if (fedSubcatValues.length > 0) {
+          await db.insert(ticketSubcategories).values(fedSubcatValues).onConflictDoNothing();
+        }
+        console.log(`✅ Created ${fedCategories.length} FED categories + ${fedSubcatValues.length} subcategories`);
+      }
+    }
+
     // 4. Seed App Settings
     console.log("⚙️  Seeding app settings...");
     await db.insert(appSettings).values([

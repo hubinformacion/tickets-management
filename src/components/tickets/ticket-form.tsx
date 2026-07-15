@@ -29,6 +29,8 @@ import { PRIORITY_DEFINITIONS } from "@/lib/constants/priority-info";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PrioritySelector } from "@/components/tickets/priority-selector";
 import { DiffusionFields } from "@/components/tickets/diffusion-fields";
+import { FedFields } from "@/components/tickets/fed-fields";
+import { FED_SIDEBAR_INSTRUCTIONS, getFedFieldConfig } from "@/lib/constants/fed-fields";
 import type { TicketPriority } from "@/types";
 
 
@@ -103,46 +105,68 @@ function useSidebarContext(
     const subcategory = category?.subcategories.find(s => s.id === selectedSubcategory);
 
     const isDiffusion = area?.slug === "DIF";
+    const isFed = area?.slug === "FED";
+
+    let tips: string[];
+    if (isFed) {
+      tips = [
+        ...FED_SIDEBAR_INSTRUCTIONS.general,
+        ...FED_SIDEBAR_INSTRUCTIONS.plazos,
+      ];
+    } else if (isDiffusion) {
+      tips = [
+        "Indica las fechas con la mayor anticipación posible",
+        "Describe detalladamente el evento o actividad a difundir",
+        "Especifica el público objetivo para una mejor segmentación",
+      ];
+    } else {
+      tips = [
+        "Describe el problema con el mayor detalle posible",
+        "Adjunta capturas o enlaces relevantes en la descripción",
+      ];
+    }
 
     return {
       areaName: area ? area.name : "Selecciona un área para comenzar",
       category: category ? { name: category.name, description: category.description } : undefined,
       subcategory: subcategory ? { name: subcategory.name, description: subcategory.description } : undefined,
-      tips: isDiffusion
-        ? [
-          "Indica las fechas con la mayor anticipación posible",
-          "Describe detalladamente el evento o actividad a difundir",
-          "Especifica el público objetivo para una mejor segmentación",
-        ]
-        : [
-          "Describe el problema con el mayor detalle posible",
-          "Adjunta capturas o enlaces relevantes en la descripción",
-        ],
+      tips,
     };
   }, [selectedAttentionArea, selectedCategory, selectedSubcategory, attentionAreas, categories]);
 }
 
 // Progreso del formulario
-function useFormProgress(formValues: Partial<CreateTicketFormSchema>, hasDescription: boolean, isDiffusion: boolean) {
+function useFormProgress(formValues: Partial<CreateTicketFormSchema>, hasDescription: boolean, isDiffusion: boolean, isFed: boolean) {
   return useMemo(() => {
-    const fields = isDiffusion
-      ? [
+    let fields;
+    if (isDiffusion) {
+      fields = [
         { label: "Clasificación", done: Boolean(formValues.attentionAreaId && formValues.categoryId && formValues.subcategoryId) },
         { label: "Asunto", done: Boolean(formValues.title && formValues.title.length >= 5) },
         { label: "Prioridad", done: Boolean(formValues.priority) },
         { label: "Fechas", done: Boolean(formValues.activityStartDate && formValues.desiredDiffusionDate) },
         { label: "Público", done: Boolean(formValues.targetAudience) },
         { label: "Descripción", done: hasDescription },
-      ]
-      : [
+      ];
+    } else if (isFed) {
+      fields = [
+        { label: "Clasificación", done: Boolean(formValues.attentionAreaId && formValues.categoryId && formValues.subcategoryId) },
+        { label: "Asunto", done: Boolean(formValues.title && formValues.title.length >= 5) },
+        { label: "Prioridad", done: Boolean(formValues.priority) },
+        { label: "Campos extra", done: Boolean(formValues.fedDocumentLink) },
+        { label: "Descripción", done: hasDescription },
+      ];
+    } else {
+      fields = [
         { label: "Clasificación", done: Boolean(formValues.attentionAreaId && formValues.categoryId && formValues.subcategoryId) },
         { label: "Asunto", done: Boolean(formValues.title && formValues.title.length >= 5) },
         { label: "Prioridad", done: Boolean(formValues.priority) },
         { label: "Descripción", done: hasDescription },
       ];
+    }
     const completed = fields.filter(f => f.done).length;
     return { fields, completed, total: fields.length };
-  }, [formValues, hasDescription, isDiffusion]);
+  }, [formValues, hasDescription, isDiffusion, isFed]);
 }
 
 export function NewTicketForm({
@@ -165,6 +189,14 @@ export function NewTicketForm({
   const [customTargetAudience, setCustomTargetAudience] = useState("");
 
   const isDiffusion = selectedAreaSlug === "DIF";
+  const isFondoEditorial = selectedAreaSlug === "FED";
+
+  // Resolver nombre de subcategoría seleccionada (para FedFields)
+  const selectedSubcategoryName = useMemo(() => {
+    if (!isFondoEditorial || !selectedCategory || !selectedSubcategory) return null;
+    const cat = categories.find(c => c.id === selectedCategory);
+    return cat?.subcategories.find(s => s.id === selectedSubcategory)?.name ?? null;
+  }, [isFondoEditorial, selectedCategory, selectedSubcategory, categories]);
 
   const dynamicSchema = useMemo(() => {
     return createTicketFormSchema.superRefine((data, ctx) => {
@@ -199,8 +231,54 @@ export function NewTicketForm({
           });
         }
       }
+
+      // Validación dinámica para Fondo Editorial
+      if (isFondoEditorial && selectedSubcategoryName) {
+        const config = getFedFieldConfig(selectedSubcategoryName);
+        if (config) {
+          if (config.requestType && !data.fedRequestType) {
+            ctx.addIssue({
+              code: "custom",
+              message: "Selecciona el tipo de solicitud",
+              path: ["fedRequestType"],
+            });
+          }
+          if (config.documentLink?.required && !data.fedDocumentLink) {
+            ctx.addIssue({
+              code: "custom",
+              message: "El link del documento es obligatorio",
+              path: ["fedDocumentLink"],
+            });
+          }
+          if (config.quantity?.required && !data.fedQuantity) {
+            ctx.addIssue({
+              code: "custom",
+              message: `${config.quantity.label} es obligatorio`,
+              path: ["fedQuantity"],
+            });
+          }
+          if (config.numberOfPages?.required && !data.fedNumberOfPages) {
+            ctx.addIssue({
+              code: "custom",
+              message: "El número de páginas es obligatorio",
+              path: ["fedNumberOfPages"],
+            });
+          }
+          if (config.maxWords && data.description) {
+            const plainText = data.description.replace(/<[^>]*>/g, " ").trim();
+            const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+            if (wordCount > config.maxWords) {
+              ctx.addIssue({
+                code: "custom",
+                message: `La descripción no debe superar las ${config.maxWords} palabras (actual: ${wordCount} palabras)`,
+                path: ["description"],
+              });
+            }
+          }
+        }
+      }
     });
-  }, [isDiffusion]);
+  }, [isDiffusion, isFondoEditorial, selectedSubcategoryName]);
 
   // Un único formulario con schema unificado
   const form = useForm<CreateTicketFormSchema>({
@@ -211,6 +289,10 @@ export function NewTicketForm({
       activityStartDate: "",
       desiredDiffusionDate: "",
       targetAudience: "",
+      fedRequestType: "",
+      fedDocumentLink: "",
+      fedQuantity: undefined,
+      fedNumberOfPages: undefined,
     },
   });
 
@@ -218,7 +300,7 @@ export function NewTicketForm({
   const hasDescription = Boolean(watchedValues.description && watchedValues.description.length >= 10);
 
   const sidebarContext = useSidebarContext(selectedAttentionArea, selectedCategory, selectedSubcategory, attentionAreas, categories);
-  const progress = useFormProgress(watchedValues, hasDescription, isDiffusion);
+  const progress = useFormProgress(watchedValues, hasDescription, isDiffusion, isFondoEditorial);
 
   // Resolver priority info por área: DB config si existe, fallback a PRIORITY_DEFINITIONS
   const priorityInfo = useMemo(() => {
@@ -266,6 +348,11 @@ export function NewTicketForm({
       activityStartDate: "",
       desiredDiffusionDate: "",
       targetAudience: "",
+      // Limpiar campos FED
+      fedRequestType: "",
+      fedDocumentLink: "",
+      fedQuantity: undefined,
+      fedNumberOfPages: undefined,
     });
   }, [attentionAreas, form]);
 
@@ -294,11 +381,37 @@ export function NewTicketForm({
 
   const onSubmit = (data: CreateTicketFormSchema) => {
     const formData = new FormData();
+
+    // Separar campos FED del resto
+    const fedKeys = ["fedRequestType", "fedDocumentLink", "fedQuantity", "fedNumberOfPages"] as const;
+
     Object.entries(data).forEach(([key, value]) => {
+      // Saltar campos FED — se serializan como metadata
+      if (fedKeys.includes(key as typeof fedKeys[number])) return;
       if (value !== undefined && value !== null && value !== "") {
         formData.append(key, value.toString());
       }
     });
+
+    // Serializar metadata FED como JSON
+    if (isFondoEditorial) {
+      const metadata: Record<string, unknown> = {};
+      if (data.fedRequestType) metadata.requestType = data.fedRequestType;
+      if (data.fedDocumentLink) metadata.documentLink = data.fedDocumentLink;
+      if (data.fedQuantity) {
+        metadata.quantity = data.fedQuantity;
+        // Obtener label de cantidad de la config
+        if (selectedSubcategoryName) {
+          const config = getFedFieldConfig(selectedSubcategoryName);
+          if (config?.quantity) metadata.quantityLabel = config.quantity.label;
+        }
+      }
+      if (data.fedNumberOfPages) metadata.numberOfPages = data.fedNumberOfPages;
+
+      if (Object.keys(metadata).length > 0) {
+        formData.append("metadata", JSON.stringify(metadata));
+      }
+    }
 
     formData.append("watchers", JSON.stringify(selectedWatchers));
     if (!isDiffusion) {
@@ -548,6 +661,18 @@ export function NewTicketForm({
                           </div>
                         </>
                       )}
+
+                      {isFondoEditorial && selectedSubcategoryName ? (
+                        <>
+                          <div className="mx-6 border-t border-border" />
+                          <div className="px-6 pb-5 pt-4">
+                            <FedFields
+                              form={form}
+                              subcategoryName={selectedSubcategoryName}
+                            />
+                          </div>
+                        </>
+                      ) : null}
                     </div>
 
                     <div className="mt-5 rounded-xl border border-border bg-card">
@@ -564,7 +689,9 @@ export function NewTicketForm({
                               <p className="text-xs text-muted-foreground mb-1">
                                 {isDiffusion
                                   ? "Recuerda que, para solicitar piezas gráficas u otros materiales, el texto debe estar previamente revisado y validado, cargado en Cendoc y compartido con todo el equipo del CIE en modo lector."
-                                  : "Detalla el problema o solicitud. Incluye pasos para reproducirlo, contexto relevante y el resultado esperado."
+                                  : isFondoEditorial
+                                    ? "Describe tu requerimiento con el mayor detalle posible (máximo 300 palabras)."
+                                    : "Detalla el problema o solicitud. Incluye pasos para reproducirlo, contexto relevante y el resultado esperado."
                                 }
                               </p>
                               <FormControl>
@@ -573,7 +700,9 @@ export function NewTicketForm({
                                   onChange={field.onChange}
                                   placeholder={isDiffusion
                                     ? "Ej: Se requiere la difusión del evento de graduación 2026, que incluye..."
-                                    : "Ej: Al intentar acceder al sistema de notas, aparece un error 500. Esto ocurre desde ayer..."
+                                    : isFondoEditorial
+                                      ? "Ej: Se requiere el diseño de una pieza gráfica para el evento de..."
+                                      : "Ej: Al intentar acceder al sistema de notas, aparece un error 500. Esto ocurre desde ayer..."
                                   }
                                 />
                               </FormControl>
@@ -584,7 +713,7 @@ export function NewTicketForm({
                       </div>
 
                       {/* Archivos adjuntos — solo para áreas que no son Difusión */}
-                      {!isDiffusion && (
+                      {(!isDiffusion && (!isFondoEditorial || (selectedSubcategoryName && getFedFieldConfig(selectedSubcategoryName)?.allowAttachments))) && (
                         <>
                           {/* Separador */}
                           <div className="mx-6 border-t border-border" />

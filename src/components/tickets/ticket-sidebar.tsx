@@ -6,7 +6,8 @@ import { TicketAttachmentUploader } from "@/components/tickets/ticket-attachment
 import { CancelTicketButton } from "@/components/tickets/cancel-ticket-button";
 import { AdminDeleteTicketControl } from "@/components/admin/admin-delete-ticket-control";
 import { formatDateShort } from "@/lib/utils/format";
-import { User, Clock, Tag, Eye } from "lucide-react";
+import { User, Clock, Tag, Eye, ExternalLink } from "lucide-react";
+import type { FedMetadata } from "@/types";
 
 interface SlaInfo {
   slaHours: number;
@@ -33,6 +34,7 @@ interface TicketSidebarProps {
     validationRequestedAt?: Date | null;
     closedAt?: Date | null;
     closedBy?: string | null;
+    metadata?: unknown;
   };
   slaInfo: SlaInfo | null;
   allUsers: { id: string; name: string; email: string; image: string | null }[];
@@ -128,6 +130,52 @@ export function TicketSidebar({
             ) : null}
           </div>
         ) : null}
+
+        {ticket.attentionArea?.slug === "FED" && ticket.metadata ? (() => {
+          const meta = ticket.metadata as FedMetadata;
+          const hasAnyField = meta.requestType || meta.quantity || meta.documentLink || meta.numberOfPages;
+          if (!hasAnyField) return null;
+          return (
+            <div className="bg-sidebar border border-border/50 rounded-xl p-4 grid grid-cols-1 gap-y-4">
+              {meta.requestType ? (
+                <div>
+                  <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Tipo de solicitud</span>
+                  <div className="text-sm text-foreground capitalize">
+                    {meta.requestType === "introduccion_correcciones" ? "Introducción de correcciones" : meta.requestType}
+                  </div>
+                </div>
+              ) : null}
+              {meta.quantity ? (
+                <div>
+                  <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">
+                    {meta.quantityLabel || "Cantidad"}
+                  </span>
+                  <div className="text-sm text-foreground">{meta.quantity}</div>
+                </div>
+              ) : null}
+              {meta.numberOfPages ? (
+                <div>
+                  <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Número de páginas</span>
+                  <div className="text-sm text-foreground">{meta.numberOfPages}</div>
+                </div>
+              ) : null}
+              {meta.documentLink ? (
+                <div>
+                  <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Documento / Carpeta</span>
+                  <a
+                    href={meta.documentLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline inline-flex items-center gap-1.5 break-all"
+                  >
+                    <ExternalLink className="w-3 h-3 shrink-0" />
+                    Abrir enlace
+                  </a>
+                </div>
+              ) : null}
+            </div>
+          );
+        })() : null}
 
         <div className="bg-sidebar border border-border/50 rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">

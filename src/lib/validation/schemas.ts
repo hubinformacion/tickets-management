@@ -12,10 +12,25 @@ const baseTicketFields = {
 
 // ─── Server-side schemas (validación estricta en server actions) ───
 
-// Schema para TSI y Fondo Editorial (con prioridad, sin campos de difusión)
+// Schema para TSI (con prioridad, sin campos de difusión ni metadata)
 export const createTicketSchema = z.object({
   ...baseTicketFields,
   priority: z.enum(["low", "medium", "high", "critical"]),
+});
+
+// Schema para Fondo Editorial (con prioridad + metadata dinámica)
+export const fedMetadataSchema = z.object({
+  requestType: z.enum(["nuevo", "correcciones", "introduccion_correcciones"]).optional(),
+  documentLink: z.string().url("Ingresa una URL válida").optional().or(z.literal("")),
+  quantity: z.coerce.number().min(1, "La cantidad debe ser al menos 1").optional(),
+  quantityLabel: z.string().optional(),
+  numberOfPages: z.coerce.number().min(1, "El número de páginas debe ser al menos 1").optional(),
+}).optional();
+
+export const createFedTicketSchema = z.object({
+  ...baseTicketFields,
+  priority: z.enum(["low", "medium", "high", "critical"]),
+  metadata: fedMetadataSchema,
 });
 
 // Schema para Difusión (con prioridad + campos específicos)
@@ -28,6 +43,7 @@ export const createDiffusionTicketSchema = z.object({
 });
 
 type CreateTicketSchema = z.infer<typeof createTicketSchema>;
+type CreateFedTicketSchema = z.infer<typeof createFedTicketSchema>;
 type CreateDiffusionTicketSchema = z.infer<typeof createDiffusionTicketSchema>;
 
 // ─── Client-side unified schema (para useForm único en el formulario) ───
@@ -36,12 +52,17 @@ type CreateDiffusionTicketSchema = z.infer<typeof createDiffusionTicketSchema>;
 
 export const createTicketFormSchema = z.object({
   ...baseTicketFields,
-  // TSI/FE
+  // TSI/FED
   priority: z.enum(["low", "medium", "high", "critical"]).optional(),
   // Difusión
   activityStartDate: z.string().optional(),
   desiredDiffusionDate: z.string().optional(),
   targetAudience: z.string().optional(),
+  // Fondo Editorial (metadata dinámica)
+  fedRequestType: z.string().optional(),
+  fedDocumentLink: z.string().optional(),
+  fedQuantity: z.coerce.number().optional(),
+  fedNumberOfPages: z.coerce.number().optional(),
 });
 
 export type CreateTicketFormSchema = z.infer<typeof createTicketFormSchema>;

@@ -31,6 +31,15 @@ export type TicketPriority = 'low' | 'medium' | 'high' | 'critical';
 
 export type ClosedBy = 'user' | 'admin' | 'system';
 
+// Metadata dinámica de Fondo Editorial (almacenada como jsonb en tickets.metadata)
+export interface FedMetadata {
+  requestType?: 'nuevo' | 'correcciones' | 'introduccion_correcciones';
+  documentLink?: string;
+  quantity?: number;
+  quantityLabel?: string;   // "Cantidad de piezas", "Cantidad de tesis", etc.
+  numberOfPages?: number;
+}
+
 export type CommentType = 'comment' | 'derivation' | 'system';
 
 // Metadata types for activity entries
