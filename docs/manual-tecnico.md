@@ -23,6 +23,18 @@ Este manual describe la arquitectura, tecnologías y decisiones técnicas del si
 
 ---
 
+## Arquitectura y diagramas del sistema
+
+El diseño estructural y los flujos de interacción del sistema se encuentran documentados visualmente bajo el estándar editorial de **Diagram Design** (`~/.agents/skills/diagram-design`):
+
+- **Diagrama de Arquitectura (HTML):** [docs/diagramas/arquitectura-sistema.html](./diagramas/arquitectura-sistema.html) (incluye selector claro/oscuro y desglose por capas).
+- **Diagrama de Arquitectura (SVG):** [docs/diagramas/arquitectura-sistema.svg](./diagramas/arquitectura-sistema.svg) (vectorial autónomo).
+- **Diagrama de Flujo e Interacción Swimlane (HTML):** [docs/diagramas/proceso-interaccion-swimlane.html](./diagramas/proceso-interaccion-swimlane.html) (interacción usuario-plataforma-agente-proveedor).
+- **Diagrama de Flujo e Interacción Swimlane (SVG):** [docs/diagramas/proceso-interaccion-swimlane.svg](./diagramas/proceso-interaccion-swimlane.svg) (vectorial autónomo).
+- **Índice de Diagramas:** [docs/diagramas/README.md](./diagramas/README.md).
+
+---
+
 ## Estructura del proyecto
 
 ```

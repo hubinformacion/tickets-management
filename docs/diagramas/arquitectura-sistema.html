@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arquitectura del Sistema · Tickets Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokens de Diseño (cathrynlavery/diagram-design System) ──── */
+    :root {
+      --color-paper:       #f5f5f5;
+      --color-paper-2:     #ececec;
+      --color-card-bg:     #ffffff;
+      --color-ink:         #2d3142;
+      --color-muted:       #4f5d75;
+      --color-soft:        #7a8399;
+      --color-rule:        rgba(45, 49, 66, 0.12);
+      --color-rule-solid:  rgba(79, 93, 117, 0.25);
+      --color-accent:      #eb6c36;
+      --color-accent-tint: rgba(235, 108, 54, 0.08);
+      --color-link:        #2e5aa8;
+      --font-sans:   'Geist', system-ui, -apple-system, sans-serif;
+      --font-serif:  'Instrument Serif', 'Times New Roman', serif;
+      --font-mono:   'Geist Mono', ui-monospace, Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      --color-paper:       #1c1e26;
+      --color-paper-2:     #242834;
+      --color-card-bg:     #222633;
+      --color-ink:         #f0f2f5;
+      --color-muted:       #9ba3b4;
+      --color-soft:        #768094;
+      --color-rule:        rgba(240, 242, 245, 0.12);
+      --color-rule-solid:  rgba(155, 163, 180, 0.25);
+      --color-accent:      #f08a59;
+      --color-accent-tint: rgba(240, 138, 89, 0.12);
+      --color-link:        #6a95d8;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      padding: 3rem 2rem;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+    }
+
+    .header-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 3.2vw + 1rem, 2.85rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--color-ink);
+      margin-bottom: 0.6rem;
+    }
+
+    .subtitle {
+      font-family: var(--font-sans);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: var(--color-muted);
+      max-width: 68ch;
+    }
+
+    .theme-toggle {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-rule-solid);
+      color: var(--color-ink);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.5rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    /* ── Diagram Container ────────────────────────────────────────── */
+    .diagram-card {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-rule);
+      border-radius: 10px;
+      padding: 1.5rem 1.25rem;
+      overflow-x: auto;
+      margin-bottom: 2rem;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 1080px;
+      height: auto;
+      display: block;
+    }
+
+    /* ── Info Cards Grid ─────────────────────────────────────────── */
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 1.75rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.25rem;
+      color: var(--color-ink);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .card {
+      background: var(--color-card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--color-rule);
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--color-rule);
+    }
+
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .card-dot.accent { background: var(--color-accent); }
+    .card-dot.ink    { background: var(--color-ink); }
+    .card-dot.muted  { background: var(--color-muted); }
+    .card-dot.link   { background: var(--color-link); }
+
+    .card h3 {
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--color-ink);
+      letter-spacing: -0.01em;
+    }
+
+    .card p {
+      font-size: 0.825rem;
+      color: var(--color-muted);
+      line-height: 1.55;
+      margin-bottom: 0.75rem;
+    }
+
+    .card ul {
+      list-style: none;
+      color: var(--color-muted);
+      font-size: 0.8125rem;
+      line-height: 1.6;
+    }
+
+    .card li {
+      margin-bottom: 0.35rem;
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .card li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--color-soft);
+    }
+
+    .card code {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      background: var(--color-paper-2);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      color: var(--color-ink);
+    }
+
+    /* ── Legend Bar ─────────────────────────────────────────────── */
+    .legend-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      padding: 1rem 1.25rem;
+      background: var(--color-paper-2);
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: var(--color-muted);
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 10px;
+      border-radius: 2px;
+      border: 1px solid currentColor;
+    }
+
+    .footer-bar {
+      border-top: 1px solid var(--color-rule);
+      padding-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-soft);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header-bar">
+      <div>
+        <p class="header-eyebrow">Arquitectura de Sistema · Editorial Design</p>
+        <h1>Plataforma de Gestión de Tickets</h1>
+        <p class="subtitle">
+          Diagrama estructural integral: Flujo de peticiones, separación por capas de confianza, orquestación mediante Server Actions en Next.js 16, persistencia PostgreSQL y sincronización con servicios Cloud.
+        </p>
+      </div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+        <span id="themeIcon">◑</span> Alternar Tema
+      </button>
+    </header>
+
+    <div class="diagram-card">
+      <svg viewBox="0 0 1180 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="arch-title arch-desc">
+        <title id="arch-title">Diagrama de Arquitectura de Tickets Management</title>
+        <desc id="arch-desc">Flujo de arquitectura técnica mostrando clientes, proxy de seguridad, capas de aplicación Next.js 16, base de datos Neon PostgreSQL y servicios externos de Google.</desc>
+        
+        <defs>
+          <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="0.75" fill="var(--color-rule-solid)"/>
+          </pattern>
+
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="var(--color-muted)"/>
+          </marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="var(--color-accent)"/>
+          </marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="var(--color-link)"/>
+          </marker>
+          <marker id="arrow-soft" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="var(--color-soft)"/>
+          </marker>
+        </defs>
+
+        <rect width="1180" height="720" fill="url(#dots)" opacity="0.4"/>
+
+        <!-- ======================================================== -->
+        <!-- 1. REGIONES / BOUNDARIES DE CONFIANZA                   -->
+        <!-- ======================================================== -->
+
+        <!-- Tier 1: Clientes y Presentación -->
+        <rect x="25" y="45" width="240" height="645" rx="8" fill="none" stroke="var(--color-rule-solid)" stroke-dasharray="4,4" stroke-width="1.2"/>
+        <rect x="40" y="36" width="180" height="18" fill="var(--color-paper)"/>
+        <text x="45" y="49" font-family="var(--font-mono)" font-size="8.5" font-weight="600" letter-spacing="0.14em" fill="var(--color-soft)" text-transform="uppercase">1. CLIENTE &amp; PRESENTACIÓN</text>
+
+        <!-- Tier 2: Next.js 16 Application Tier -->
+        <rect x="295" y="45" width="470" height="645" rx="8" fill="none" stroke="var(--color-rule-solid)" stroke-dasharray="4,4" stroke-width="1.2"/>
+        <rect x="310" y="36" width="240" height="18" fill="var(--color-paper)"/>
+        <text x="315" y="49" font-family="var(--font-mono)" font-size="8.5" font-weight="600" letter-spacing="0.14em" fill="var(--color-accent)" text-transform="uppercase">2. NEXT.JS 16 CORE APPLICATION</text>
+
+        <!-- Tier 3: Persistencia PostgreSQL -->
+        <rect x="795" y="45" width="360" height="315" rx="8" fill="none" stroke="var(--color-rule-solid)" stroke-dasharray="4,4" stroke-width="1.2"/>
+        <rect x="810" y="36" width="190" height="18" fill="var(--color-paper)"/>
+        <text x="815" y="49" font-family="var(--font-mono)" font-size="8.5" font-weight="600" letter-spacing="0.14em" fill="var(--color-soft)" text-transform="uppercase">3. PERSISTENCIA &amp; ORM</text>
+
+        <!-- Tier 4: Servicios Cloud Externos -->
+        <rect x="795" y="390" width="360" height="300" rx="8" fill="none" stroke="var(--color-rule-solid)" stroke-dasharray="4,4" stroke-width="1.2"/>
+        <rect x="810" y="381" width="210" height="18" fill="var(--color-paper)"/>
+        <text x="815" y="394" font-family="var(--font-mono)" font-size="8.5" font-weight="600" letter-spacing="0.14em" fill="var(--color-link)" text-transform="uppercase">4. SERVICIOS CLOUD &amp; APIS</text>
+
+        <!-- ======================================================== -->
+        <!-- 2. CONECTORES ORTOGONALES (Z-INDEX DETRÁS DE NODOS)      -->
+        <!-- ======================================================== -->
+        <g class="connectors" fill="none">
+          <!-- User / Agent UI -> Edge Proxy -->
+          <path d="M 145,170 V 230" stroke="var(--color-muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+          
+          <!-- UI Components -> Edge Proxy -->
+          <path d="M 145,320 V 360" stroke="var(--color-muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+          <!-- Edge Proxy -> Server Actions Orchestrator (Elbow r=8) -->
+          <path d="M 245,405 H 272 Q 280,405 280,397 V 163 Q 280,155 288,155 H 315" stroke="var(--color-accent)" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+          <!-- Server Actions -> Ticket Lifecycle Engine -->
+          <path d="M 425,200 V 240" stroke="var(--color-ink)" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+          <!-- Server Actions -> Proveedores & Derivaciones -->
+          <path d="M 640,200 V 240" stroke="var(--color-ink)" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+          <!-- Ticket Engine -> Cron & API Routes -->
+          <path d="M 425,350 V 390" stroke="var(--color-muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+          <!-- Ticket Engine -> Async Dispatcher (after) -->
+          <path d="M 525,295 H 537 Q 545,295 545,303 V 437 Q 545,445 553,445 H 560" stroke="var(--color-accent)" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+
+          <!-- Server Actions -> Drizzle ORM (Horizontal Direct) -->
+          <path d="M 745,150 H 815" stroke="var(--color-accent)" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+          <!-- Drizzle ORM -> Neon PostgreSQL -->
+          <path d="M 975,195 V 230" stroke="var(--color-accent)" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+          <!-- Async Dispatcher -> Gmail API (Elbow r=8) -->
+          <path d="M 745,445 H 782 Q 790,445 790,453 V 467 Q 790,475 798,475 H 815" stroke="var(--color-link)" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-link)"/>
+
+          <!-- Cron / Upload -> Google Drive API (Elbow r=8) -->
+          <path d="M 525,445 H 772 Q 780,445 780,453 V 487 Q 780,495 788,495 H 985" stroke="var(--color-link)" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-link)"/>
+
+          <!-- Better Auth Module -> Google OAuth2 Identity -->
+          <path d="M 745,615 H 815" stroke="var(--color-soft)" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-soft)"/>
+
+          <!-- Better Auth -> Proxy Guard (Session Verification loop) -->
+          <path d="M 315,615 H 205 Q 197,615 197,607 V 462 Q 197,454 205,454 H 245" stroke="var(--color-soft)" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrow-soft)"/>
+        </g>
+
+        <!-- ======================================================== -->
+        <!-- 3. MÁSCARAS Y ETIQUETAS DE CONECTORES                    -->
+        <!-- ======================================================== -->
+        <g class="connector-labels">
+          <rect x="250" y="270" width="60" height="15" fill="var(--color-paper)" rx="3"/>
+          <text x="280" y="281" font-family="var(--font-mono)" font-size="7.5" font-weight="600" fill="var(--color-accent)" text-anchor="middle">AUTH REQ</text>
+
+          <rect x="752" y="142" width="56" height="15" fill="var(--color-paper)" rx="3"/>
+          <text x="780" y="153" font-family="var(--font-mono)" font-size="7.5" font-weight="600" fill="var(--color-accent)" text-anchor="middle">DRIZZLE</text>
+
+          <rect x="945" y="206" width="60" height="15" fill="var(--color-paper)" rx="3"/>
+          <text x="975" y="217" font-family="var(--font-mono)" font-size="7.5" font-weight="600" fill="var(--color-muted)" text-anchor="middle">POOL (SSL)</text>
+
+          <rect x="757" y="437" width="56" height="15" fill="var(--color-paper)" rx="3"/>
+          <text x="785" y="448" font-family="var(--font-mono)" font-size="7.5" font-weight="600" fill="var(--color-link)" text-anchor="middle">after()</text>
+
+          <rect x="755" y="487" width="60" height="15" fill="var(--color-paper)" rx="3"/>
+          <text x="785" y="498" font-family="var(--font-mono)" font-size="7.5" font-weight="600" fill="var(--color-link)" text-anchor="middle">STREAM</text>
+
+          <rect x="755" y="607" width="60" height="15" fill="var(--color-paper)" rx="3"/>
+          <text x="785" y="618" font-family="var(--font-mono)" font-size="7.5" font-weight="600" fill="var(--color-soft)" text-anchor="middle">OAUTH2</text>
+        </g>
+
+        <!-- ======================================================== -->
+        <!-- 4. NODOS / COMPONENTES                                   -->
+        <!-- ======================================================== -->
+
+        <!-- TIER 1: CLIENTES -->
+        <g id="node-users">
+          <rect x="45" y="80" width="200" height="90" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ink)" stroke-width="1.2"/>
+          <text x="57" y="98" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-soft)" text-transform="uppercase">ROLES DE USUARIO</text>
+          <text x="57" y="117" font-family="var(--font-sans)" font-size="12" font-weight="600" fill="var(--color-ink)">Usuarios, Agentes &amp; Admin</text>
+          <text x="57" y="135" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">Role: 'user' | 'agent' | 'admin'</text>
+          <text x="57" y="152" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">TSI · Difusión · Fondo Editorial</text>
+        </g>
+
+        <g id="node-ui">
+          <rect x="45" y="230" width="200" height="90" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ink)" stroke-width="1.2"/>
+          <text x="57" y="248" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-soft)" text-transform="uppercase">FRONTEND ENGINE</text>
+          <text x="57" y="267" font-family="var(--font-sans)" font-size="12" font-weight="600" fill="var(--color-ink)">React 19 &amp; App Router</text>
+          <text x="57" y="285" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">shadcn/ui · Radix · TipTap</text>
+          <text x="57" y="302" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">Split Skeletons · Lucide Icons</text>
+        </g>
+
+        <g id="node-proxy">
+          <rect x="45" y="360" width="200" height="110" rx="6" fill="rgba(79,93,117,0.08)" stroke="var(--color-muted)" stroke-width="1.2"/>
+          <text x="57" y="380" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-accent)" text-transform="uppercase">EDGE GATEWAY</text>
+          <text x="57" y="400" font-family="var(--font-sans)" font-size="12.5" font-weight="600" fill="var(--color-ink)">src/proxy.ts (Next 16)</text>
+          <text x="57" y="420" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">Rate Limiting (10-30/min)</text>
+          <text x="57" y="438" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">Loop Protection &amp; Matchers</text>
+          <text x="57" y="454" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-accent)">Cookie Session Verification</text>
+        </g>
+
+        <!-- TIER 2: NEXT.JS 16 CORE (FOCAL POINT 1) -->
+        <g id="node-focal-actions">
+          <rect x="315" y="80" width="430" height="120" rx="6" fill="var(--color-accent-tint)" stroke="var(--color-accent)" stroke-width="1.6"/>
+          <rect x="325" y="90" width="85" height="16" rx="3" fill="var(--color-accent)"/>
+          <text x="367" y="101" font-family="var(--font-mono)" font-size="7.5" font-weight="700" fill="#ffffff" text-anchor="middle">FOCAL ENGINE</text>
+          <text x="420" y="102" font-family="var(--font-mono)" font-size="8" font-weight="600" fill="var(--color-accent)" letter-spacing="0.08em">"use server" · src/actions/*</text>
+          
+          <text x="330" y="132" font-family="var(--font-sans)" font-size="14.5" font-weight="600" fill="var(--color-ink)">Server Actions Orchestrator</text>
+          <text x="330" y="152" font-family="var(--font-mono)" font-size="9" fill="var(--color-muted)">Guards: requireAuth() · requireAgent() · requireAdmin()</text>
+          <text x="330" y="170" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-ink)">Validación Zod Schemas · Transacciones Atómicas</text>
+          <text x="330" y="186" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">No Waterfalls · Promise.all() Concurrent Execution</text>
+        </g>
+
+        <g id="node-ticket-core">
+          <rect x="315" y="240" width="210" height="110" rx="6" fill="#ffffff" stroke="var(--color-ink)" stroke-width="1.2"/>
+          <text x="327" y="258" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-soft)" text-transform="uppercase">DOMINIO PRINCIPAL</text>
+          <text x="327" y="278" font-family="var(--font-sans)" font-size="12" font-weight="600" fill="var(--color-ink)">Ticket Lifecycle &amp; SLA</text>
+          <text x="327" y="297" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">{AREA}-{YYYY}-{SEQ}</text>
+          <text x="327" y="315" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">Flujo: Open → InProg → Resolv</text>
+          <text x="327" y="333" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-ink)">Contador ticket_sequence atómico</text>
+        </g>
+
+        <g id="node-providers-core">
+          <rect x="540" y="240" width="205" height="110" rx="6" fill="#ffffff" stroke="var(--color-ink)" stroke-width="1.2"/>
+          <text x="552" y="258" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-soft)" text-transform="uppercase">MÓDULO PROVEEDORES</text>
+          <text x="552" y="278" font-family="var(--font-sans)" font-size="12" font-weight="600" fill="var(--color-ink)">Derivación &amp; Seguimiento</text>
+          <text x="552" y="297" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">/dashboard/proveedores</text>
+          <text x="552" y="315" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">Estados: en_proceso | cerrado</text>
+          <text x="552" y="333" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-ink)">Evaluación SLA Proveedor</text>
+        </g>
+
+        <g id="node-crons">
+          <rect x="315" y="390" width="210" height="110" rx="6" fill="#ffffff" stroke="var(--color-ink)" stroke-width="1.2"/>
+          <text x="327" y="408" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-soft)" text-transform="uppercase">TAREAS EN SEGUNDO PLANO</text>
+          <text x="327" y="428" font-family="var(--font-sans)" font-size="12" font-weight="600" fill="var(--color-ink)">Cron Jobs &amp; File Stream</text>
+          <text x="327" y="447" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">/api/cron/auto-close-tickets</text>
+          <text x="327" y="465" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">/api/cron/survey-reminder</text>
+          <text x="327" y="483" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-ink)">/api/upload (Stream a Drive)</text>
+        </g>
+
+        <g id="node-dispatcher">
+          <rect x="540" y="390" width="205" height="110" rx="6" fill="#ffffff" stroke="var(--color-ink)" stroke-width="1.2"/>
+          <text x="552" y="408" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-accent)" text-transform="uppercase">ASYNCHRONOUS BUS</text>
+          <text x="552" y="428" font-family="var(--font-sans)" font-size="12" font-weight="600" fill="var(--color-ink)">Event Dispatcher</text>
+          <text x="552" y="447" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">Next.js 16 after() API</text>
+          <text x="552" y="465" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">7 Plantillas Transaccionales</text>
+          <text x="552" y="483" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-accent)">Thread-Aware Email Sender</text>
+        </g>
+
+        <g id="node-better-auth">
+          <rect x="315" y="560" width="430" height="105" rx="6" fill="var(--color-paper-2)" stroke="var(--color-soft)" stroke-width="1.2"/>
+          <text x="327" y="578" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-soft)" text-transform="uppercase">IDENTITY &amp; SESSIONS</text>
+          <text x="327" y="598" font-family="var(--font-sans)" font-size="12.5" font-weight="600" fill="var(--color-ink)">Better Auth Engine (src/lib/auth/*)</text>
+          <text x="327" y="618" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">Endpoints: /api/auth/[...all] · Google Provider</text>
+          <text x="327" y="636" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">Tablas: user, session, account, verification</text>
+          <text x="327" y="652" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-ink)">Roles &amp; Vinculación a Áreas de Atención</text>
+        </g>
+
+        <!-- TIER 3: PERSISTENCIA (FOCAL POINT 2) -->
+        <g id="node-drizzle">
+          <rect x="815" y="80" width="320" height="115" rx="6" fill="#ffffff" stroke="var(--color-ink)" stroke-width="1.2"/>
+          <text x="827" y="98" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-soft)" text-transform="uppercase">ORM CAPA TIPADA</text>
+          <text x="827" y="118" font-family="var(--font-sans)" font-size="13" font-weight="600" fill="var(--color-ink)">Drizzle ORM 0.45</text>
+          <text x="827" y="137" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">src/db/schema.ts · Strict Mode</text>
+          <text x="827" y="155" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">Relational Query API · Infer Select/Insert</text>
+          <text x="827" y="172" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-ink)">Migrations &amp; Schema Validation</text>
+        </g>
+
+        <g id="node-focal-db">
+          <rect x="815" y="230" width="320" height="115" rx="6" fill="var(--color-accent-tint)" stroke="var(--color-accent)" stroke-width="1.6"/>
+          <rect x="825" y="240" width="85" height="16" rx="3" fill="var(--color-accent)"/>
+          <text x="867" y="251" font-family="var(--font-mono)" font-size="7.5" font-weight="700" fill="#ffffff" text-anchor="middle">CORE STORE</text>
+          <text x="920" y="252" font-family="var(--font-mono)" font-size="8" font-weight="600" fill="var(--color-accent)" letter-spacing="0.08em">PostgreSQL Serverless</text>
+          
+          <text x="827" y="280" font-family="var(--font-sans)" font-size="14" font-weight="600" fill="var(--color-ink)">Neon PostgreSQL DB</text>
+          <text x="827" y="299" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">16 Tablas Normalizadas · ACID</text>
+          <text x="827" y="316" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-ink)">tickets, comments, attention_area, surveys</text>
+          <text x="827" y="332" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-soft)">provider_tickets, ticket_sequence, priority_config</text>
+        </g>
+
+        <!-- TIER 4: SERVICIOS CLOUD -->
+        <g id="node-gmail">
+          <rect x="815" y="420" width="150" height="110" rx="6" fill="rgba(45,49,66,0.03)" stroke="var(--color-link)" stroke-dasharray="4,3" stroke-width="1.2"/>
+          <text x="825" y="438" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-link)" text-transform="uppercase">EMAIL SERVICE</text>
+          <text x="825" y="458" font-family="var(--font-sans)" font-size="12" font-weight="600" fill="var(--color-ink)">Gmail API</text>
+          <text x="825" y="476" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">googleapis v173</text>
+          <text x="825" y="494" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">In-Reply-To Threading</text>
+          <text x="825" y="511" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-link)">OAuth2 Refresh Flow</text>
+        </g>
+
+        <g id="node-drive">
+          <rect x="985" y="420" width="150" height="110" rx="6" fill="rgba(45,49,66,0.03)" stroke="var(--color-link)" stroke-dasharray="4,3" stroke-width="1.2"/>
+          <text x="995" y="438" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-link)" text-transform="uppercase">STORAGE</text>
+          <text x="995" y="458" font-family="var(--font-sans)" font-size="12" font-weight="600" fill="var(--color-ink)">Google Drive</text>
+          <text x="995" y="476" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">v3 Drive Client</text>
+          <text x="995" y="494" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">Carpeta Institucional</text>
+          <text x="995" y="511" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-link)">Enlaces Compartidos</text>
+        </g>
+
+        <g id="node-oauth">
+          <rect x="815" y="560" width="320" height="105" rx="6" fill="rgba(45,49,66,0.03)" stroke="var(--color-soft)" stroke-dasharray="4,3" stroke-width="1.2"/>
+          <text x="827" y="578" font-family="var(--font-mono)" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="var(--color-soft)" text-transform="uppercase">FEDERATED IDENTITY</text>
+          <text x="827" y="598" font-family="var(--font-sans)" font-size="12.5" font-weight="600" fill="var(--color-ink)">Google Cloud OAuth 2.0</text>
+          <text x="827" y="618" font-family="var(--font-mono)" font-size="8.5" fill="var(--color-muted)">accounts.google.com / OpenID Connect</text>
+          <text x="827" y="636" font-family="var(--font-mono)" font-size="8" fill="var(--color-soft)">Validación de dominio institucional</text>
+          <text x="827" y="652" font-family="var(--font-mono)" font-size="7.8" fill="var(--color-ink)">Permisos de lectura/escritura de API</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Leyenda -->
+    <div class="legend-bar">
+      <span class="legend-item">
+        <span class="legend-swatch" style="background: var(--color-accent); border-color: var(--color-accent);"></span>
+        <strong>Nodos Focales:</strong> Orquestador Server Actions &amp; Core PostgreSQL
+      </span>
+      <span class="legend-item">
+        <span class="legend-swatch" style="background: #ffffff; border-color: var(--color-ink);"></span>
+        <strong>Módulos de Aplicación:</strong> Controladores y lógica de negocio
+      </span>
+      <span class="legend-item">
+        <span class="legend-swatch" style="background: rgba(45,49,66,0.03); border-color: var(--color-link); border-style: dashed;"></span>
+        <strong>Integraciones Cloud:</strong> Gmail API, Google Drive &amp; OAuth
+      </span>
+      <span class="legend-item">
+        <span class="legend-swatch" style="background: var(--color-paper-2); border-color: var(--color-soft);"></span>
+        <strong>Identidad &amp; Sesión:</strong> Better-Auth &amp; Proxy Edge
+      </span>
+    </div>
+
+    <!-- Cards descriptivas por Capa Arquitectónica -->
+    <div>
+      <h2 class="section-title">Detalle de Componentes &amp; Decisiones de Arquitectura</h2>
+      
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-dot accent"></div>
+            <h3>Orquestación Server Actions</h3>
+          </div>
+          <p>
+            Toda mutación y consulta pasa por Server Actions dedicadas en <code>src/actions/</code>, eliminando controladores REST redundantes y garantizando tipos TypeScript de extremo a extremo.
+          </p>
+          <ul>
+            <li>Autenticación estricta con <code>requireAuth()</code>, <code>requireAgent()</code> y <code>requireAdmin()</code>.</li>
+            <li>Validación robusta con esquemas Zod en <code>src/lib/validation/schemas.ts</code>.</li>
+            <li>Resolución de waterfalls mediante <code>Promise.all()</code> concurrente.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-dot ink"></div>
+            <h3>Proxy &amp; Seguridad de Borde</h3>
+          </div>
+          <p>
+            Implementación moderna con <code>src/proxy.ts</code> en Next.js 16 (reemplazo estandarizado de middleware.ts) para intercepción centralizada y protección perimetral.
+          </p>
+          <ul>
+            <li>Protección contra <em>Redirect Loops</em> en cookies expiradas.</li>
+            <li>Rate Limiting en memoria para tickets (10/min), comentarios (10/min) y admin (30/min).</li>
+            <li>Aislamiento de rutas <code>/dashboard/(admin)</code> y <code>/dashboard/(agent)</code>.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-dot accent"></div>
+            <h3>Persistencia &amp; Secuencias Atómicas</h3>
+          </div>
+          <p>
+            Neon PostgreSQL junto a Drizzle ORM garantizan integridad referencial y códigos autoincrementales sin colisiones por área y año.
+          </p>
+          <ul>
+            <li>Tabla <code>ticket_sequence</code> para generación atómica de <code>{SLUG}-{YEAR}-{SEQ}</code>.</li>
+            <li>Soporte multi-área fija: <code>TSI</code>, <code>DIF</code> y <code>FED</code> con SLA diferenciado.</li>
+            <li>Bitácora de estados completa en <code>ticket_status_history</code>.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-dot link"></div>
+            <h3>Notificaciones &amp; Almacenamiento Asíncrono</h3>
+          </div>
+          <p>
+            Integración de alto rendimiento con Google Workspace usando <code>after()</code> de Next.js para ejecuciones en segundo plano sin ralentizar la respuesta HTTP.
+          </p>
+          <ul>
+            <li>Gmail API con threading RFC (<code>In-Reply-To</code>, <code>References</code>) para 7 plantillas.</li>
+            <li>Google Drive API para adjuntos pesados en carpeta institucional.</li>
+            <li>Cron jobs automáticos para cierre de tickets validados y encuestas.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer-bar">
+      <span>Tickets Management System · Architecture Specification</span>
+      <span>Generado con skill diagram-design</span>
+    </footer>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      document.getElementById('themeIcon').textContent = next === 'dark' ? '☼' : '◑';
+    }
+  </script>
+</body>
+</html>
