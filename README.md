@@ -37,10 +37,10 @@ Diseñada con un estándar editorial moderno, flujos *classification-first*, sop
 El sistema cuenta con diagramas interactivos y vectoriales diseñados bajo la especificación editorial de la skill **Diagram Design**:
 
 - **[Diagrama de Arquitectura (HTML Interactivo)](./public/diagramas/arquitectura-sistema.html):** Desglose de las 4 capas estructurales (Cliente, Next.js 16 Application, Persistencia PostgreSQL y Servicios Cloud).
-- **[Diagrama de Arquitectura (SVG)](./docs/diagramas/arquitectura-sistema.svg):** Vectorial autónomo.
+- **[Diagrama de Arquitectura (SVG)](./public/diagramas/arquitectura-sistema.svg):** Vectorial autónomo.
 - **[Diagrama Swimlane de Interacción (HTML Interactivo)](./public/diagramas/proceso-interaccion-swimlane.html):** Flujo multi-actor (Usuario → Plataforma → Agente → Proveedor Externo).
-- **[Diagrama Swimlane de Interacción (SVG)](./docs/diagramas/proceso-interaccion-swimlane.svg):** Vectorial autónomo.
-- **[Índice Completo de Diagramas](./docs/diagramas/README.md):** Documentación técnica de diagramas.
+- **[Diagrama Swimlane de Interacción (SVG)](./public/diagramas/proceso-interaccion-swimlane.svg):** Vectorial autónomo.
+- **[Documentación de Diagramas](./docs/manual-diagramas.md):** Índice técnico y especificaciones de diseño editorial.
 
 ---
 
@@ -165,7 +165,7 @@ pnpm db:drop          # Eliminar todas las tablas de la BD
 | **Manual de Agente** | [docs/manual-agente.md](./docs/manual-agente.md) | Guía de atención, derivaciones y estados |
 | **Manual de Administrador** | [docs/manual-admin.md](./docs/manual-admin.md) | Configuración de áreas, SLAs y gobernanza |
 | **Manual Técnico** | [docs/manual-tecnico.md](./docs/manual-tecnico.md) | Arquitectura, proxy, server actions y base de datos |
-| **Índice de Diagramas** | [docs/diagramas/README.md](./docs/diagramas/README.md) | Documentación editorial de diagramas |
+| **Diagramas del Sistema** | [docs/manual-diagramas.md](./docs/manual-diagramas.md) | Arquitectura y flujos de interacción |
 | **Guía para Agentes AI** | [AGENTS.md](./AGENTS.md) | Reglas estrictas y arquitectura para agentes |
 
 ---

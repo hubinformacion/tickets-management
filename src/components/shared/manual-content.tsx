@@ -19,6 +19,9 @@ export function ManualContent({ content }: ManualContentProps) {
 
             // Handle relative markdown links to manuals or diagrams
             if (
+              normalizedHref.includes("manual-diagramas.md") ||
+              normalizedHref === "./manual-diagramas.md" ||
+              normalizedHref === "manual-diagramas.md" ||
               normalizedHref.includes("diagramas/README.md") ||
               normalizedHref === "./diagramas/README.md" ||
               normalizedHref === "diagramas/README.md"

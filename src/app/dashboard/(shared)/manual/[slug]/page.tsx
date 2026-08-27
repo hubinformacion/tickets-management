@@ -27,7 +27,7 @@ const MANUALS: Record<string, { file: string; title: string; roles: string[] }> 
     roles: ["admin"],
   },
   "diagramas": {
-    file: path.join("diagramas", "README.md"),
+    file: "manual-diagramas.md",
     title: "Diagramas del sistema",
     roles: ["user", "agent", "admin"],
   },

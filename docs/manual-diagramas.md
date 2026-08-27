@@ -1,6 +1,6 @@
 # Diagramas del Sistema · Gestión de Tickets
 
-Este directorio contiene los diagramas técnicos y de interacción del sistema, diseñados con la especificación y sistema de diseño editorial de **`diagram-design`** (ubicado en `~/.agents/skills/diagram-design`).
+Este manual describe los diagramas técnicos y de interacción del sistema, diseñados con la especificación y sistema de diseño editorial de **`diagram-design`** (`~/.agents/skills/diagram-design`).
 
 ---
 
