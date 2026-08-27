@@ -1,0 +1,232 @@
+<svg viewBox="0 0 1180 720" width="1180" height="720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="arch-title arch-desc">
+  <title id="arch-title">Diagrama de Arquitectura de Tickets Management</title>
+  <desc id="arch-desc">Flujo de arquitectura técnica mostrando clientes, proxy de seguridad, capas de aplicación Next.js 16, base de datos Neon PostgreSQL y servicios externos de Google.</desc>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');
+    
+    .bg { fill: #f5f5f5; }
+    .tier-box { fill: none; stroke: rgba(79, 93, 117, 0.25); stroke-dasharray: 4,4; stroke-width: 1.2; }
+    .tier-mask { fill: #f5f5f5; }
+    .node-base { fill: #ffffff; stroke: #2d3142; stroke-width: 1.2; }
+    .node-neutral { fill: #ececec; stroke: #2d3142; stroke-width: 1.2; }
+    .node-proxy { fill: rgba(79,93,117,0.08); stroke: #4f5d75; stroke-width: 1.2; }
+    .node-auth { fill: #ececec; stroke: #7a8399; stroke-width: 1.2; }
+    .node-focal { fill: rgba(235,108,54,0.08); stroke: #eb6c36; stroke-width: 1.6; }
+    .node-cloud { fill: rgba(45,49,66,0.03); stroke: #2e5aa8; stroke-dasharray: 4,3; stroke-width: 1.2; }
+    .node-oauth { fill: rgba(45,49,66,0.03); stroke: #7a8399; stroke-dasharray: 4,3; stroke-width: 1.2; }
+    .badge-focal { fill: #eb6c36; }
+    .label-mask { fill: #f5f5f5; rx: 3px; }
+  </style>
+
+  <defs>
+    <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.75" fill="rgba(79,93,117,0.25)"/>
+    </pattern>
+
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+    </marker>
+    <marker id="arrow-soft" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#7a8399"/>
+    </marker>
+  </defs>
+
+  <rect width="1180" height="720" class="bg"/>
+  <rect width="1180" height="720" fill="url(#dots)" opacity="0.4"/>
+
+  <!-- Tier 1: Clientes y Presentación -->
+  <rect x="25" y="45" width="240" height="645" rx="8" class="tier-box"/>
+  <rect x="40" y="36" width="180" height="18" class="tier-mask"/>
+  <text x="45" y="49" font-family="'Geist Mono', monospace" font-size="8.5" font-weight="600" letter-spacing="0.14em" fill="#7a8399">1. CLIENTE &amp; PRESENTACIÓN</text>
+
+  <!-- Tier 2: Next.js 16 Application Tier -->
+  <rect x="295" y="45" width="470" height="645" rx="8" class="tier-box"/>
+  <rect x="310" y="36" width="240" height="18" class="tier-mask"/>
+  <text x="315" y="49" font-family="'Geist Mono', monospace" font-size="8.5" font-weight="600" letter-spacing="0.14em" fill="#eb6c36">2. NEXT.JS 16 CORE APPLICATION</text>
+
+  <!-- Tier 3: Persistencia PostgreSQL -->
+  <rect x="795" y="45" width="360" height="315" rx="8" class="tier-box"/>
+  <rect x="810" y="36" width="190" height="18" class="tier-mask"/>
+  <text x="815" y="49" font-family="'Geist Mono', monospace" font-size="8.5" font-weight="600" letter-spacing="0.14em" fill="#7a8399">3. PERSISTENCIA &amp; ORM</text>
+
+  <!-- Tier 4: Servicios Cloud Externos -->
+  <rect x="795" y="390" width="360" height="300" rx="8" class="tier-box"/>
+  <rect x="810" y="381" width="210" height="18" class="tier-mask"/>
+  <text x="815" y="394" font-family="'Geist Mono', monospace" font-size="8.5" font-weight="600" letter-spacing="0.14em" fill="#2e5aa8">4. SERVICIOS CLOUD &amp; APIS</text>
+
+  <!-- Conectores Ortogonales -->
+  <g class="connectors" fill="none">
+    <path d="M 145,170 V 230" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <path d="M 145,320 V 360" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <path d="M 245,405 H 272 Q 280,405 280,397 V 163 Q 280,155 288,155 H 315" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+    <path d="M 425,200 V 240" stroke="#2d3142" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <path d="M 640,200 V 240" stroke="#2d3142" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <path d="M 425,350 V 390" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <path d="M 525,295 H 537 Q 545,295 545,303 V 437 Q 545,445 553,445 H 560" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+    <path d="M 745,150 H 815" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+    <path d="M 975,195 V 230" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+    <path d="M 745,445 H 782 Q 790,445 790,453 V 467 Q 790,475 798,475 H 815" stroke="#2e5aa8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-link)"/>
+    <path d="M 525,445 H 772 Q 780,445 780,453 V 487 Q 780,495 788,495 H 985" stroke="#2e5aa8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-link)"/>
+    <path d="M 745,615 H 815" stroke="#7a8399" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-soft)"/>
+    <path d="M 315,615 H 205 Q 197,615 197,607 V 462 Q 197,454 205,454 H 245" stroke="#7a8399" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrow-soft)"/>
+  </g>
+
+  <!-- Máscaras y Etiquetas -->
+  <g class="connector-labels">
+    <rect x="250" y="270" width="60" height="15" class="label-mask"/>
+    <text x="280" y="281" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" fill="#eb6c36" text-anchor="middle">AUTH REQ</text>
+
+    <rect x="752" y="142" width="56" height="15" class="label-mask"/>
+    <text x="780" y="153" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" fill="#eb6c36" text-anchor="middle">DRIZZLE</text>
+
+    <rect x="945" y="206" width="60" height="15" class="label-mask"/>
+    <text x="975" y="217" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" fill="#4f5d75" text-anchor="middle">POOL (SSL)</text>
+
+    <rect x="757" y="437" width="56" height="15" class="label-mask"/>
+    <text x="785" y="448" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" fill="#2e5aa8" text-anchor="middle">after()</text>
+
+    <rect x="755" y="487" width="60" height="15" class="label-mask"/>
+    <text x="785" y="498" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" fill="#2e5aa8" text-anchor="middle">STREAM</text>
+
+    <rect x="755" y="607" width="60" height="15" class="label-mask"/>
+    <text x="785" y="618" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" fill="#7a8399" text-anchor="middle">OAUTH2</text>
+  </g>
+
+  <!-- Nodos -->
+  <g id="node-users">
+    <rect x="45" y="80" width="200" height="90" rx="6" class="node-neutral"/>
+    <text x="57" y="98" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#7a8399">ROLES DE USUARIO</text>
+    <text x="57" y="117" font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142">Usuarios, Agentes &amp; Admin</text>
+    <text x="57" y="135" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">Role: 'user' | 'agent' | 'admin'</text>
+    <text x="57" y="152" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">TSI · Difusión · Fondo Editorial</text>
+  </g>
+
+  <g id="node-ui">
+    <rect x="45" y="230" width="200" height="90" rx="6" class="node-neutral"/>
+    <text x="57" y="248" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#7a8399">FRONTEND ENGINE</text>
+    <text x="57" y="267" font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142">React 19 &amp; App Router</text>
+    <text x="57" y="285" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">shadcn/ui · Radix · TipTap</text>
+    <text x="57" y="302" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">Split Skeletons · Lucide Icons</text>
+  </g>
+
+  <g id="node-proxy">
+    <rect x="45" y="360" width="200" height="110" rx="6" class="node-proxy"/>
+    <text x="57" y="380" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#eb6c36">EDGE GATEWAY</text>
+    <text x="57" y="400" font-family="'Geist', sans-serif" font-size="12.5" font-weight="600" fill="#2d3142">src/proxy.ts (Next 16)</text>
+    <text x="57" y="420" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">Rate Limiting (10-30/min)</text>
+    <text x="57" y="438" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">Loop Protection &amp; Matchers</text>
+    <text x="57" y="454" font-family="'Geist Mono', monospace" font-size="7.8" fill="#eb6c36">Cookie Session Verification</text>
+  </g>
+
+  <g id="node-focal-actions">
+    <rect x="315" y="80" width="430" height="120" rx="6" class="node-focal"/>
+    <rect x="325" y="90" width="85" height="16" rx="3" class="badge-focal"/>
+    <text x="367" y="101" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="700" fill="#ffffff" text-anchor="middle">FOCAL ENGINE</text>
+    <text x="420" y="102" font-family="'Geist Mono', monospace" font-size="8" font-weight="600" fill="#eb6c36" letter-spacing="0.08em">"use server" · src/actions/*</text>
+    
+    <text x="330" y="132" font-family="'Geist', sans-serif" font-size="14.5" font-weight="600" fill="#2d3142">Server Actions Orchestrator</text>
+    <text x="330" y="152" font-family="'Geist Mono', monospace" font-size="9" fill="#4f5d75">Guards: requireAuth() · requireAgent() · requireAdmin()</text>
+    <text x="330" y="170" font-family="'Geist Mono', monospace" font-size="8.5" fill="#2d3142">Validación Zod Schemas · Transacciones Atómicas</text>
+    <text x="330" y="186" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">No Waterfalls · Promise.all() Concurrent Execution</text>
+  </g>
+
+  <g id="node-ticket-core">
+    <rect x="315" y="240" width="210" height="110" rx="6" class="node-base"/>
+    <text x="327" y="258" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#7a8399">DOMINIO PRINCIPAL</text>
+    <text x="327" y="278" font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142">Ticket Lifecycle &amp; SLA</text>
+    <text x="327" y="297" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">{AREA}-{YYYY}-{SEQ}</text>
+    <text x="327" y="315" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">Flujo: Open → InProg → Resolv</text>
+    <text x="327" y="333" font-family="'Geist Mono', monospace" font-size="7.8" fill="#2d3142">Contador ticket_sequence atómico</text>
+  </g>
+
+  <g id="node-providers-core">
+    <rect x="540" y="240" width="205" height="110" rx="6" class="node-base"/>
+    <text x="552" y="258" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#7a8399">MÓDULO PROVEEDORES</text>
+    <text x="552" y="278" font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142">Derivación &amp; Seguimiento</text>
+    <text x="552" y="297" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">/dashboard/proveedores</text>
+    <text x="552" y="315" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">Estados: en_proceso | cerrado</text>
+    <text x="552" y="333" font-family="'Geist Mono', monospace" font-size="7.8" fill="#2d3142">Evaluación SLA Proveedor</text>
+  </g>
+
+  <g id="node-crons">
+    <rect x="315" y="390" width="210" height="110" rx="6" class="node-base"/>
+    <text x="327" y="408" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#7a8399">TAREAS EN SEGUNDO PLANO</text>
+    <text x="327" y="428" font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142">Cron Jobs &amp; File Stream</text>
+    <text x="327" y="447" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">/api/cron/auto-close-tickets</text>
+    <text x="327" y="465" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">/api/cron/survey-reminder</text>
+    <text x="327" y="483" font-family="'Geist Mono', monospace" font-size="7.8" fill="#2d3142">/api/upload (Stream a Drive)</text>
+  </g>
+
+  <g id="node-dispatcher">
+    <rect x="540" y="390" width="205" height="110" rx="6" class="node-base"/>
+    <text x="552" y="408" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#eb6c36">ASYNCHRONOUS BUS</text>
+    <text x="552" y="428" font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142">Event Dispatcher</text>
+    <text x="552" y="447" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">Next.js 16 after() API</text>
+    <text x="552" y="465" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">7 Plantillas Transaccionales</text>
+    <text x="552" y="483" font-family="'Geist Mono', monospace" font-size="7.8" fill="#eb6c36">Thread-Aware Email Sender</text>
+  </g>
+
+  <g id="node-better-auth">
+    <rect x="315" y="560" width="430" height="105" rx="6" class="node-auth"/>
+    <text x="327" y="578" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#7a8399">IDENTITY &amp; SESSIONS</text>
+    <text x="327" y="598" font-family="'Geist', sans-serif" font-size="12.5" font-weight="600" fill="#2d3142">Better Auth Engine (src/lib/auth/*)</text>
+    <text x="327" y="618" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">Endpoints: /api/auth/[...all] · Google Provider</text>
+    <text x="327" y="636" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">Tablas: user, session, account, verification</text>
+    <text x="327" y="652" font-family="'Geist Mono', monospace" font-size="7.8" fill="#2d3142">Roles &amp; Vinculación a Áreas de Atención</text>
+  </g>
+
+  <g id="node-drizzle">
+    <rect x="815" y="80" width="320" height="115" rx="6" class="node-base"/>
+    <text x="827" y="98" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#7a8399">ORM CAPA TIPADA</text>
+    <text x="827" y="118" font-family="'Geist', sans-serif" font-size="13" font-weight="600" fill="#2d3142">Drizzle ORM 0.45</text>
+    <text x="827" y="137" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">src/db/schema.ts · Strict Mode</text>
+    <text x="827" y="155" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">Relational Query API · Infer Select/Insert</text>
+    <text x="827" y="172" font-family="'Geist Mono', monospace" font-size="7.8" fill="#2d3142">Migrations &amp; Schema Validation</text>
+  </g>
+
+  <g id="node-focal-db">
+    <rect x="815" y="230" width="320" height="115" rx="6" class="node-focal"/>
+    <rect x="825" y="240" width="85" height="16" rx="3" class="badge-focal"/>
+    <text x="867" y="251" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="700" fill="#ffffff" text-anchor="middle">CORE STORE</text>
+    <text x="920" y="252" font-family="'Geist Mono', monospace" font-size="8" font-weight="600" fill="#eb6c36" letter-spacing="0.08em">PostgreSQL Serverless</text>
+    
+    <text x="827" y="280" font-family="'Geist', sans-serif" font-size="14" font-weight="600" fill="#2d3142">Neon PostgreSQL DB</text>
+    <text x="827" y="299" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">16 Tablas Normalizadas · ACID</text>
+    <text x="827" y="316" font-family="'Geist Mono', monospace" font-size="7.8" fill="#2d3142">tickets, comments, attention_area, surveys</text>
+    <text x="827" y="332" font-family="'Geist Mono', monospace" font-size="7.8" fill="#7a8399">provider_tickets, ticket_sequence, priority_config</text>
+  </g>
+
+  <g id="node-gmail">
+    <rect x="815" y="420" width="150" height="110" rx="6" class="node-cloud"/>
+    <text x="825" y="438" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#2e5aa8">EMAIL SERVICE</text>
+    <text x="825" y="458" font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142">Gmail API</text>
+    <text x="825" y="476" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">googleapis v173</text>
+    <text x="825" y="494" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">In-Reply-To Threading</text>
+    <text x="825" y="511" font-family="'Geist Mono', monospace" font-size="7.8" fill="#2e5aa8">OAuth2 Refresh Flow</text>
+  </g>
+
+  <g id="node-drive">
+    <rect x="985" y="420" width="150" height="110" rx="6" class="node-cloud"/>
+    <text x="995" y="438" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#2e5aa8">STORAGE</text>
+    <text x="995" y="458" font-family="'Geist', sans-serif" font-size="12" font-weight="600" fill="#2d3142">Google Drive</text>
+    <text x="995" y="476" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">v3 Drive Client</text>
+    <text x="995" y="494" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">Carpeta Institucional</text>
+    <text x="995" y="511" font-family="'Geist Mono', monospace" font-size="7.8" fill="#2e5aa8">Enlaces Compartidos</text>
+  </g>
+
+  <g id="node-oauth">
+    <rect x="815" y="560" width="320" height="105" rx="6" class="node-oauth"/>
+    <text x="827" y="578" font-family="'Geist Mono', monospace" font-size="7.5" font-weight="600" letter-spacing="0.08em" fill="#7a8399">FEDERATED IDENTITY</text>
+    <text x="827" y="598" font-family="'Geist', sans-serif" font-size="12.5" font-weight="600" fill="#2d3142">Google Cloud OAuth 2.0</text>
+    <text x="827" y="618" font-family="'Geist Mono', monospace" font-size="8.5" fill="#4f5d75">accounts.google.com / OpenID Connect</text>
+    <text x="827" y="636" font-family="'Geist Mono', monospace" font-size="8" fill="#7a8399">Validación de dominio institucional</text>
+    <text x="827" y="652" font-family="'Geist Mono', monospace" font-size="7.8" fill="#2d3142">Permisos de lectura/escritura de API</text>
+  </g>
+</svg>

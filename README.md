@@ -1,204 +1,181 @@
 # 🎫 Sistema de Gestión de Tickets
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black.svg)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2.7-black.svg)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2.7-blue.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-0.45-green.svg)](https://orm.drizzle.team/)
 [![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
 
-Sistema de gestión de tickets construido con **Next.js 16**, **TypeScript**, **PostgreSQL** y **Better Auth**. Diseñado para organizaciones que requieren gestión eficiente de solicitudes de soporte.
+Plataforma integral de gestión, trazabilidad y resolución de requerimientos institucionales construida con **Next.js 16 (App Router)**, **React 19**, **PostgreSQL (Neon Serverless)**, **Drizzle ORM** y **Better Auth**.
+
+Diseñada con un estándar editorial moderno, flujos *classification-first*, soporte multi-área fija, derivaciones a proveedores externos, auditoría inmutable y encuestas de satisfacción.
 
 ---
 
 ## ✨ Características Principales
 
-- 🔐 **Autenticación**: Better Auth con Google OAuth
-- 👥 **Roles**: Admin, Agent, User con permisos diferenciados
-- 🎫 **Tickets**: Códigos por área (`TSI-2026-0001`), estados, prioridades configurables por área, asignación, seguimiento y SLA
-- 📋 **Formularios por área**: Flujo classification-first con campos específicos (ej: fechas de difusión)
-- 💬 **Actividad**: Timeline diferenciada con comentarios, derivaciones y eventos del sistema
-- 🔀 **Derivaciones**: Derivar tickets a proveedores con fecha estimada y notificación por email
-- 🏢 **Proveedores**: CRUD de proveedores por área y tickets de proveedores con filtros y estados
-- ⚙️ **Configuración**: Áreas de atención, categorías, subcategorías, prioridades (descripción + SLA) editables por admin
-- 📊 **Dashboards**: Personalizados por rol con estadísticas y filtros
-- 📧 **Emails**: Gmail API con 7 tipos de notificación y threading completo
-- 📎 **Archivos**: Adjuntos con FilePond (límite 5MB, excluido para Difusión)
-- 🎨 **UI Moderna**: Tailwind CSS + shadcn/ui + modo oscuro
-- ⚡ **Performance**: Direct rendering, zero delay
-- 🛡️ **Seguridad**: Rate limiting, validación Zod, CSRF protection
+- 🔐 **Autenticación Federada**: Better Auth integrado con Google Cloud OAuth 2.0 y control de sesiones seguro.
+- 👥 **Roles y Permisos**: Roles `user`, `agent` y `admin` con navegación y acciones aisladas por permisos.
+- 🏢 **Áreas de Atención Especializadas**:
+  - **TSI** (Tecnologías y Sistemas de Información): Soporte técnico, infraestructura, encuestas de satisfacción.
+  - **DIF** (Difusión): Requerimientos de comunicación con fechas de inicio de actividad y público objetivo.
+  - **FED** (Fondo Editorial): Solicitudes de publicación y cotización con metadatos dinámicos.
+- 🎫 **Generación Atómica de Códigos**: Formato `{AREA}-{YYYY}-{SEQ}` (ej: `TSI-2026-0001`) gestionado por la tabla `ticket_sequence` para prevenir colisiones concurrentes.
+- 📋 **Formularios Classification-First**: Flujo de selección en cascada (Área → Categoría → Subcategoría) antes de renderizar campos específicos con animaciones fluidas.
+- 💬 **Línea de Tiempo de Actividad**: Distinción visual entre comentarios de usuarios, derivaciones a terceros (banner ámbar) y eventos del sistema.
+- 🔀 **Módulo de Proveedores y Derivaciones**: Seguimiento a terceros vía `provider_tickets` con evaluación de desempeño (calidad, plazos, atención).
+- ⭐ **Encuestas de Satisfacción (CSAT)**: Calificación de 1 a 5 estrellas en tiempo de respuesta, comunicación, solución y calidad general.
+- 📧 **Notificaciones Asíncronas (Gmail API)**: Despacho no bloqueante mediante `Next.js after()` con threading RFC (`In-Reply-To`, `References`) y 7 plantillas transaccionales.
+- 📎 **Almacenamiento en Google Drive**: Carga en streaming de archivos adjuntos directamente a carpetas institucionales con enlaces seguros de visualización.
+- 🛡️ **Seguridad y Control de Borde**: Proxy moderno (`src/proxy.ts`) para protección de rutas y *Rate Limiting* en memoria contra abusos (10 a 30 req/min).
+- 🎨 **UI de Alto Rendimiento**: Tailwind CSS v4, componentes accesibles shadcn/ui + Radix UI, editor TipTap, modo claro/oscuro y *skeletons* nativos split-screen.
+
+---
+
+## 🏛️ Arquitectura y Diagramas del Sistema
+
+El sistema cuenta con diagramas interactivos y vectoriales diseñados bajo la especificación editorial de la skill **Diagram Design**:
+
+- **[Diagrama de Arquitectura (HTML Interactivo)](./public/diagramas/arquitectura-sistema.html):** Desglose de las 4 capas estructurales (Cliente, Next.js 16 Application, Persistencia PostgreSQL y Servicios Cloud).
+- **[Diagrama de Arquitectura (SVG)](./docs/diagramas/arquitectura-sistema.svg):** Vectorial autónomo.
+- **[Diagrama Swimlane de Interacción (HTML Interactivo)](./public/diagramas/proceso-interaccion-swimlane.html):** Flujo multi-actor (Usuario → Plataforma → Agente → Proveedor Externo).
+- **[Diagrama Swimlane de Interacción (SVG)](./docs/diagramas/proceso-interaccion-swimlane.svg):** Vectorial autónomo.
+- **[Índice Completo de Diagramas](./docs/diagramas/README.md):** Documentación técnica de diagramas.
 
 ---
 
 ## 🏗️ Stack Tecnológico
 
-- **Framework**: Next.js 16.1.1 (App Router + Turbopack)
-- **Lenguaje**: TypeScript (strict mode)
-- **Base de Datos**: PostgreSQL + Drizzle ORM
-- **Autenticación**: Better Auth
-- **UI**: Tailwind CSS + shadcn/ui + Radix UI
-- **Validación**: Zod + React Hook Form
-- **Package Manager**: pnpm
+| Capa | Tecnologías |
+|---|---|
+| **Framework Fullstack** | Next.js 16.2.7 (App Router + Turbopack) |
+| **Librería UI & Core** | React 19.2.7 + TypeScript 5.9 (Strict Mode) |
+| **Base de Datos** | PostgreSQL (Neon Serverless) |
+| **ORM & Tipado** | Drizzle ORM 0.45 + Drizzle Kit |
+| **Autenticación** | Better Auth 1.6 + Google OAuth 2.0 |
+| **Estilos & Componentes** | Tailwind CSS v4 + shadcn/ui + Radix UI + Lucide Icons |
+| **Formularios & Validación** | React Hook Form 7 + Zod 4 |
+| **Editor Enriquecido** | TipTap 3.26 StarterKit |
+| **Servicios Externos** | Google APIs (Gmail API v1 & Google Drive API v3) |
+| **Gestor de Paquetes** | pnpm |
 
 ---
 
 ## 🚀 Inicio Rápido
 
-### Requisitos
-- Node.js v18+
-- pnpm
-- PostgreSQL v14+
-- Google Cloud Console project (OAuth)
+### Requisitos Previos
+- Node.js v20+
+- pnpm v9+
+- Base de datos PostgreSQL (local o Neon)
+- Credenciales en Google Cloud Console (OAuth 2.0 y Gmail API activada)
 
 ### Instalación
 
 ```bash
-# Clonar repositorio
+# 1. Clonar el repositorio
 git clone https://github.com/r3-fresh/tickets-management.git
 cd tickets-management
 
-# Instalar dependencias
+# 2. Instalar dependencias
 pnpm install
 
-# Configurar variables de entorno
+# 3. Configurar variables de entorno
 cp .env.example .env.local
-# Editar .env.local con tus credenciales
 ```
 
-### Configuración (.env.local)
+### Variables de Entorno (`.env.local`)
 
 ```env
-# Base de Datos
-DATABASE_URL="postgresql://usuario:password@localhost:5432/tickets_db"
+# Conexión a Base de Datos (Neon / PostgreSQL)
+DATABASE_URL="postgresql://usuario:password@ep-sample.us-east-2.aws.neon.tech/tickets_db?sslmode=require"
 
-# Better Auth (genera con: openssl rand -base64 32)
-BETTER_AUTH_SECRET="tu-secret-generado"
+# Better Auth & URL de la App
+BETTER_AUTH_SECRET="tu-secreto-generado-con-openssl"
 BETTER_AUTH_URL="http://localhost:3000"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
-# Google OAuth
+# Google Cloud OAuth 2.0 (Autenticación)
 GOOGLE_CLIENT_ID="tu-google-client-id"
 GOOGLE_CLIENT_SECRET="tu-google-client-secret"
 
-# Gmail API (para envío de emails)
+# Gmail API & Notificaciones (OAuth2 Refresh Token)
 GMAIL_REFRESH_TOKEN="tu-gmail-refresh-token"
-EMAIL_FROM="tu-email@example.com"
+EMAIL_FROM="mesa-de-ayuda@institucion.edu.pe"
 
-# CRON Jobs
-CRON_SECRET="secret-para-cron-jobs"
+# Google Drive (Almacenamiento de Adjuntos)
+GOOGLE_DRIVE_FOLDER_ID="id-de-carpeta-institucional-en-drive"
+
+# Cron Jobs de Mantenimiento
+CRON_SECRET="secret-para-endpoints-cron"
 ```
 
-### Setup de Base de Datos
+### Inicialización de Base de Datos
 
 ```bash
-# Setup completo
+# Ejecutar sincronización de esquema y carga de seeds
 pnpm setup
 ```
 
-### Iniciar Aplicación
+### Servidor de Desarrollo
 
 ```bash
-# Desarrollo
+# Iniciar servidor local con Turbopack
 pnpm dev
-
-# Producción
-pnpm build
-pnpm start
 ```
 
-### Primer Usuario Admin
-
-```sql
--- Ejecutar en PostgreSQL después del primer login
-UPDATE "user" SET role = 'admin' WHERE email = 'tu-email@example.com';
-```
+La aplicación estará disponible en `http://localhost:3000`.
 
 ---
 
 ## 📦 Scripts Disponibles
 
 ```bash
-pnpm dev              # Desarrollo (puerto 3000)
-pnpm build            # Build de producción
-pnpm start            # Servidor de producción
-pnpm lint             # ESLint
+# Desarrollo y Compilación
+pnpm dev              # Iniciar servidor de desarrollo en puerto 3000
+pnpm build            # Compilar bundle de producción
+pnpm start            # Iniciar servidor compilado en producción
+pnpm lint             # Ejecutar análisis estático con ESLint
 
-# Base de Datos
-pnpm setup            # Setup completo
-pnpm db:push          # Sincronizar esquema
-pnpm db:seed          # Cargar datos iniciales
-pnpm db:studio        # Drizzle Studio (UI)
-pnpm db:reset         # Reset completo (⚠️ destructivo)
+# Gestión de Base de Datos (Drizzle)
+pnpm setup            # Setup completo: install + db:push + db:seed
+pnpm db:push          # Sincronizar esquema de TypeScript con la BD
+pnpm db:seed          # Cargar catálogo de áreas, prioridades y categorías
+pnpm db:studio        # Abrir Drizzle Studio (interfaz gráfica de BD)
+pnpm db:reset         # Reset completo (⚠️ destructivo: drop + push + seed)
+pnpm db:drop          # Eliminar todas las tablas de la BD
 ```
 
 ---
 
-## 🌍 Deployment en Vercel
+## 🔐 Roles y Accesos
 
-### 1. Base de Datos
-Crea una base de datos en [Neon](https://neon.tech) y ejecuta:
-```bash
-DATABASE_URL="tu-connection-string" pnpm db:push
-DATABASE_URL="tu-connection-string" pnpm db:seed
-```
-
-### 2. Variables de Entorno en Vercel
-Configura las mismas variables de `.env.local` en el panel de Vercel.
-
-### 3. Google OAuth
-Agrega la redirect URI en Google Cloud Console:
-```
-https://tu-app.vercel.app/api/auth/callback/google
-```
-
-### 4. Deploy
-Conecta el repositorio en Vercel y despliega.
-
-### 5. Configuración Post-Deploy
-```sql
--- Promover primer usuario a admin
-UPDATE "user" SET role = 'admin' WHERE email = 'tu-email@example.com';
-```
+| Rol | Alcance y Funcionalidades |
+|---|---|
+| **`user` (Usuario)** | Crear requerimientos, consultar historial propio, interactuar en timeline, validar resolución y responder encuestas CSAT. |
+| **`agent` (Agente)** | Gestión del tablero de su área asignada (`TSI`, `DIF` o `FED`), derivación a proveedores externos, asignación y cierre técnico. |
+| **`admin` (Administrador)** | Acceso global irrestricto, configuración de catálogos, ajuste de SLAs y horarios hábiles, gestión de usuarios y métricas avanzadas. |
 
 ---
 
-## 🔐 Roles y Permisos
+## 📚 Documentación Técnica y Manuales
 
-| Rol | Permisos |
-|-----|----------|
-| **Admin** | Gestión completa: usuarios, áreas, categorías, todos los tickets |
-| **Agent** | Gestión de tickets del área asignada + tickets propios |
-| **User** | Creación y seguimiento de tickets propios |
-
----
-
-## 📚 Documentación
-
-- **[AGENTS.md](./AGENTS.md)** - Guía completa para agentes de código AI (stack, arquitectura, convenciones)
+| Documento | Enlace | Descripción |
+|---|---|---|
+| **Manual de Usuario** | [docs/manual-usuario.md](./docs/manual-usuario.md) | Guía para usuarios solicitantes |
+| **Manual de Agente** | [docs/manual-agente.md](./docs/manual-agente.md) | Guía de atención, derivaciones y estados |
+| **Manual de Administrador** | [docs/manual-admin.md](./docs/manual-admin.md) | Configuración de áreas, SLAs y gobernanza |
+| **Manual Técnico** | [docs/manual-tecnico.md](./docs/manual-tecnico.md) | Arquitectura, proxy, server actions y base de datos |
+| **Índice de Diagramas** | [docs/diagramas/README.md](./docs/diagramas/README.md) | Documentación editorial de diagramas |
+| **Guía para Agentes AI** | [AGENTS.md](./AGENTS.md) | Reglas estrictas y arquitectura para agentes |
 
 ---
 
 ## 📝 Licencia
 
-Este proyecto está bajo una **licencia propietaria**. Ver [LICENSE](./LICENSE) para más detalles.
-
-**Uso Comercial**: Requiere licencia comercial. Contactar al autor para más información.
+Este proyecto está bajo una **Licencia Propietaria**. Consulte [LICENSE](./LICENSE) para más detalles.
 
 ---
 
 ## 👤 Autor
 
-**r3-fresh**
-
-Para consultas comerciales o licencias empresariales, contactar a través de GitHub.
-
----
-
-## 🙏 Agradecimientos
-
-- [Next.js](https://nextjs.org/)
-- [Better Auth](https://www.better-auth.com/)
-- [Drizzle ORM](https://orm.drizzle.team/)
-- [shadcn/ui](https://ui.shadcn.com/)
-- [Vercel](https://vercel.com/)
-
----
-
-**Sistema de Gestión de Tickets** - © 2026 r3-fresh. Todos los derechos reservados.
+**r3-fresh** · © 2026. Todos los derechos reservados.

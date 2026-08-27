@@ -26,6 +26,11 @@ const MANUALS: Record<string, { file: string; title: string; roles: string[] }> 
     title: "Manual técnico",
     roles: ["admin"],
   },
+  "diagramas": {
+    file: path.join("diagramas", "README.md"),
+    title: "Diagramas del sistema",
+    roles: ["user", "agent", "admin"],
+  },
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
