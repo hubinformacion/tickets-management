@@ -1,14 +1,14 @@
 "use server";
 
 import { db } from "@/db";
-import { tickets, users, comments } from "@/db/schema";
+import { tickets, users } from "@/db/schema";
 import { requireAuth, requireAgent } from "@/lib/auth/helpers";
 import { eq, inArray, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
-import { TICKET_STATUS, CLOSURE_TYPE } from "@/lib/constants/tickets";
+import { TICKET_STATUS } from "@/lib/constants/tickets";
 import { sendValidationRequestEmail, sendTicketResolvedEmail, sendTicketRejectedEmail } from "@/lib/email/send-emails";
-import { recordStatusChange } from "@/lib/utils/status-history";
+import { transitionTicket } from "@/lib/utils/ticket-transition";
 import { canManageTicket } from "@/lib/auth/ticket-permissions";
 import { ticketIdSchema, ticketMessageSchema } from "@/lib/validation/schemas";
 
@@ -43,19 +43,8 @@ export async function approveTicketValidation(ticketId: number) {
       return { error: "El ticket no está pendiente de validación" };
     }
 
-    // Approve and close ticket
-    await db.update(tickets)
-      .set({
-        status: TICKET_STATUS.RESOLVED,
-        closedBy: CLOSURE_TYPE.USER,
-        closedAt: new Date(),
-        closedByUserId: session.user.id,
-        updatedAt: new Date()
-      })
-      .where(eq(tickets.id, ticketId));
-
-    // Registrar cambio de estado en historial
-    await recordStatusChange(ticketId, TICKET_STATUS.PENDING_VALIDATION, TICKET_STATUS.RESOLVED, session.user.id);
+    const updated = await transitionTicket(ticket, TICKET_STATUS.RESOLVED, session.user.id, { closedBy: "user" });
+    if (!updated) return { error: "El ticket cambió. Actualiza la página e intenta de nuevo" };
 
     // Defer email notification after response is sent to user
     if (ticket.attentionAreaId) {
@@ -143,28 +132,8 @@ export async function rejectTicketValidation(ticketId: number, rejectionMessage:
       return { error: "El ticket no está pendiente de validación" };
     }
 
-    // Reject and move back to in_progress + insert rejection comment
-    await db.transaction(async (tx) => {
-      await tx.update(tickets)
-        .set({
-          status: TICKET_STATUS.IN_PROGRESS,
-          validationRequestedAt: null, // Clear validation request
-          updatedAt: new Date()
-        })
-        .where(eq(tickets.id, ticketId));
-
-      // Registrar cambio de estado en historial
-      await recordStatusChange(ticketId, TICKET_STATUS.PENDING_VALIDATION, TICKET_STATUS.IN_PROGRESS, session.user.id);
-
-      // Always insert rejection comment so agents see why it was rejected
-      await tx.insert(comments).values({
-        content: rejectionMessage,
-        ticketId: ticketId,
-        userId: session.user.id,
-        isInternal: false,
-        type: "comment",
-      });
-    });
+    const updated = await transitionTicket(ticket, TICKET_STATUS.IN_PROGRESS, session.user.id, { comment: rejectionMessage });
+    if (!updated) return { error: "El ticket cambió. Actualiza la página e intenta de nuevo" };
 
     // Defer email notification after response is sent to user
     if (ticket.attentionAreaId) {
@@ -255,26 +224,8 @@ export async function requestValidation(ticketId: number, message?: string) {
       return { error: "El ticket debe estar asignado para solicitar validación" };
     }
 
-    await db.update(tickets)
-      .set({
-        status: TICKET_STATUS.PENDING_VALIDATION,
-        validationRequestedAt: new Date(),
-        updatedAt: new Date()
-      })
-      .where(eq(tickets.id, ticketId));
-
-    // Registrar cambio de estado en historial
-    await recordStatusChange(ticketId, TICKET_STATUS.IN_PROGRESS, TICKET_STATUS.PENDING_VALIDATION, session.user.id);
-
-    if (message) {
-      await db.insert(comments).values({
-        content: message,
-        ticketId: ticketId,
-        userId: session.user.id,
-        isInternal: false,
-        type: "comment",
-      });
-    }
+    const updated = await transitionTicket(ticket, TICKET_STATUS.PENDING_VALIDATION, session.user.id, { comment: message });
+    if (!updated) return { error: "El ticket cambió. Actualiza la página e intenta de nuevo" };
 
     // Defer email notification after response is sent to user
     if (ticket.attentionAreaId) {

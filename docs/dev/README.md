@@ -1,26 +1,32 @@
-# Documentación de auditoría
+# Estado de la estabilización
 
-El bloque actual se prepara en `fix/autorizacion-tickets`, sobre la limpieza todavía sin integrar. Incluye permisos compartidos, observadores, acceso a metadata/actividad, controles de agentes sin área y reportes HTML. Su alcance y límites están en [Autorización y validación](2026-10-27-autorizacion.md). No está desplegado.
+## Integrado y desplegado
 
-La limpieza de mantenimiento se prepara en `chore/organizacion-mantenimiento`: atribuciones retiradas de los diagramas y manuales, documentación de entrada actualizada y declaraciones sin uso eliminadas. Conserva `AGENTS.md`, configuración, licencias y contratos públicos. Tipos y lint aprobados: las advertencias bajaron de 64 a 3. Quedan por revisar los avisos de navegación en páginas de error y compatibilidad de React Hook Form con el compilador. Este bloque aún no está integrado ni desplegado.
+El commit `709e333` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye las dependencias actualizadas, la limpieza de mantenimiento, la retirada de `doctor.config.ts` y el bloque de autorización por ticket/área.
 
-Se retiró `doctor.config.ts`, que desactivaba 26 reglas globalmente sin justificación por caso. React Doctor queda con su configuración predeterminada; cualquier excepción futura deberá documentar el diagnóstico concreto y su alcance. Esta retirada no equivale a aprobar un nuevo análisis de React Doctor.
+Vercel aprobó Preview y Production. Se verificaron login público, sesión anónima y redirección del dashboard. El recorrido autenticado de Google y los escenarios con datos reales no se presentan como aprobados. No se ejecutaron migraciones, reset, drop, seed ni operaciones manuales sobre datos de producción.
 
-El primer bloque está integrado en `main` y desplegado en [producción](https://requerimientos-hub.vercel.app). El código publicado corresponde a `1fe7997`. Las ramas de sandbox y estabilización inicial ya fueron cerradas.
+Las ramas de limpieza y autorización se eliminaron después de integrarlas. El alcance de permisos y sus verificaciones están en [Autorización y validación](2026-10-27-autorizacion.md).
 
-Quedó publicado: actualización de dependencias, correcciones de calidad/autenticación y comprobación de fallo de envío de recordatorios. La auditoría funcional completa sigue pendiente.
+## Trabajo actual
 
-Pendiente, en orden: permisos y validación de entradas; transiciones y fechas; recuperación de recordatorios/archivos y rate limiting; métricas, esquema, CI y accesibilidad. También falta el recorrido autenticado de Google y el análisis de cuatro avisos transitivos. No se han aplicado migraciones ni cambios de datos en producción.
+`fix/integridad-tickets` prepara transiciones condicionales con historial/comentarios en la misma transacción, creación atómica con adjuntos, año del código en Lima y cierre automático sin sobrescribir una transición ganadora. Este bloque no está integrado ni desplegado. Ver [Integridad de tickets](2026-10-27-integridad.md).
 
-Los detalles y comprobaciones están en [Estabilización del 27 de octubre](2026-10-27-estabilizacion.md).
+## Pendientes
 
-La secuencia vigente está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md).
+- Validación de concurrencia real y recorrido autenticado antes de cerrar los hallazgos de integridad.
+- Recordatorios recuperables, compensaciones de archivos y limpieza de huérfanos.
+- Formatos/contenido, tamaño global/cantidad de uploads y rate limiting compartido.
+- Protección de scripts destructivos, fechas, proveedores, ordenamiento e índices/constraints.
+- Métricas, paginación, CI y accesibilidad; tres advertencias de ESLint y cuatro avisos transitivos.
 
-Los documentos fechados son registros de revisión y planes de trabajo, no instrucciones operativas vigentes. La propuesta de crear un sandbox fue cancelada y no debe usarse para configurar Neon, Vercel, Google ni el entorno local.
+La secuencia general está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md). Las siguientes funcionalidades se incorporarán después de estabilizar los riesgos aplicables.
 
-- [Auditoría integral](2026-10-06-auditoria.md): hallazgos sobre el estado revisado.
-- [Plan de estabilización](2026-10-06-plan-estabilizacion.md): borrador que requiere actualizar sus supuestos antes de ejecutar fases.
-- [Registro de validación](2026-10-06-validacion.md): evidencia histórica y escenarios propuestos en esa fecha.
-- [Evidencia resumida](evidencias/2026-10-06.json): inventario sin credenciales.
+## Registros históricos
 
-No se ha aplicado ninguna corrección de base de datos ni se debe interpretar esta documentación como autorización para operar sobre producción.
+- [Auditoría del 6 de octubre](2026-10-06-auditoria.md).
+- [Plan original](2026-10-06-plan-estabilizacion.md), sustituido por el plan de ejecución actual.
+- [Validación original](2026-10-06-validacion.md) y [evidencia](evidencias/2026-10-06.json).
+- [Actualización de dependencias y primer despliegue](2026-10-27-estabilizacion.md).
+
+La propuesta de sandbox de demos fue cancelada. Los documentos históricos no autorizan configurar recursos ni operar sobre producción. React Doctor usa sus valores predeterminados; su comprobación completa continúa pendiente.

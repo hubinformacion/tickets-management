@@ -1,8 +1,10 @@
 # Autorización y validación de tickets
 
-## Entrega preparada
+## Estado actual
 
-Rama `fix/autorizacion-tickets`, creada sobre la limpieza de `chore/organizacion-mantenimiento`. El cambio no está integrado ni desplegado. No modifica esquema, dependencias ni recursos externos.
+El commit `709e333` fue integrado en `main` con aprobación del usuario. Vercel completó Preview y Production (deployment `BftMKTab1cDSDxYaXvTMNo2scPx5`, registro GitHub `7372804488`). Las ramas `fix/autorizacion-tickets` y `chore/organizacion-mantenimiento` se cerraron después de integrarse. No se modificó el esquema ni se ejecutaron operaciones manuales sobre datos o recursos de producción.
+
+La comprobación pública confirmó `/login` → 200, `/api/auth/get-session` sin cookies → 200 con `null`, y `/dashboard` → 307 a `/login`. No certifica el recorrido autenticado ni los permisos efectivos de usuarios reales.
 
 La política compartida distingue lectura/participación, gestión del ticket y administración de observadores. Un administrador activo tiene alcance global; un agente activo gestiona únicamente tickets de su área válida. Creador y observador autorizado pueden leer y participar; el observador no puede redistribuir acceso. Tener el ticket asignado no concede acceso de gestión fuera del área.
 
@@ -30,6 +32,6 @@ Se comprobó el comportamiento con fixtures en memoria y dobles de BD, sesión, 
 
 Resultado: 146 comprobaciones en memoria aprobadas; `tsc --noEmit --incremental false` aprobado; ESLint aprobado con 0 errores y las 3 advertencias ya conocidas (navegación de páginas de error y React Hook Form/compilador). El verificador temporal no se incorpora al repositorio ni configura un framework de pruebas.
 
-Estas comprobaciones no certifican carreras reales de PostgreSQL, OAuth, permisos efectivos de Drive ni el recorrido visual/autenticado completo. Ninguno de esos flujos se probó contra producción. El build de este bloque aún está pendiente; el build aprobado del despliegue anterior no se presenta como evidencia de estos cambios.
+Estas comprobaciones no certifican carreras reales de PostgreSQL, OAuth, permisos efectivos de Drive ni el recorrido visual/autenticado completo. Ninguno de esos flujos se probó contra producción. El build de este bloque fue aprobado por Vercel antes del merge.
 
-Antes de integrar, revisar el diff y ejecutar el build y los escenarios autenticados acordados. Continúan pendientes: el resto de transiciones/historial, atomicidad de creación, cron, compensaciones, límites de uploads, protección de scripts, rate limiting compartido, fechas, métricas, migraciones y accesibilidad. La autorización para este trabajo no implica aplicar cambios de datos o desplegarlo.
+Continúan pendientes las comprobaciones autenticadas y el resto de la estabilización. Transiciones, creación y cierre automático se preparan en `fix/integridad-tickets`; compensaciones, límites de uploads, protección de scripts, rate limiting compartido, fechas, métricas, migraciones y accesibilidad siguen en el plan. Cada bloque nuevo requiere revisión antes de integrarse; la autorización de código no incluye aplicar cambios de datos.

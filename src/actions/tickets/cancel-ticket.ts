@@ -6,7 +6,7 @@ import { requireAuth } from "@/lib/auth/helpers";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { TICKET_STATUS } from "@/lib/constants/tickets";
-import { recordStatusChange } from "@/lib/utils/status-history";
+import { transitionTicket } from "@/lib/utils/ticket-transition";
 import { ticketIdSchema } from "@/lib/validation/schemas";
 
 export async function userCancelTicketAction(ticketId: number) {
@@ -25,19 +25,12 @@ export async function userCancelTicketAction(ticketId: number) {
       return { error: "Solo el creador puede anular este ticket" };
     }
 
-    if (ticket.status === TICKET_STATUS.RESOLVED || ticket.status === TICKET_STATUS.VOIDED) {
+    if (!["open", "in_progress", "pending_validation"].includes(ticket.status)) {
       return { error: "El ticket ya está cerrado" };
     }
 
-    await db.update(tickets)
-      .set({
-        status: TICKET_STATUS.VOIDED,
-        updatedAt: new Date()
-      })
-      .where(eq(tickets.id, ticketId));
-
-    // Registrar cambio de estado en historial
-    await recordStatusChange(ticketId, ticket.status as typeof TICKET_STATUS[keyof typeof TICKET_STATUS], TICKET_STATUS.VOIDED, session.user.id);
+    const updated = await transitionTicket(ticket, TICKET_STATUS.VOIDED, session.user.id, { closedBy: "user" });
+    if (!updated) return { error: "El ticket cambió. Actualiza la página e intenta de nuevo" };
 
     revalidatePath(`/dashboard/tickets/${ticket.ticketCode}`);
     revalidatePath("/dashboard/tickets");

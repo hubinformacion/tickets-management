@@ -1,20 +1,39 @@
 import { db } from "@/db";
-import { tickets, attentionAreas } from "@/db/schema";
-import { sql, eq } from "drizzle-orm";
+import { tickets, attentionAreas, ticketAttachments } from "@/db/schema";
+import { sql, eq, and, isNull } from "drizzle-orm";
+import { recordStatusChange } from "@/lib/utils/status-history";
+import type { TicketStatus } from "@/types";
+
+interface TicketCreationOptions {
+  uploadToken?: string;
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  let current = error;
+  for (let depth = 0; depth < 4; depth++) {
+    if (typeof current !== "object" || current === null) return false;
+    if ("code" in current && current.code === "23505") return true;
+    current = "cause" in current ? current.cause : undefined;
+  }
+  return false;
+}
 
 /**
  * Inserta un ticket con código atómico generado por la BD.
  * Formato: {SLUG}-YYYY-#### (ej: TSI-2026-0001). Se reinicia cada año por área.
  *
- * Usa una transacción con SELECT ... FOR UPDATE sobre la fila del contador
- * para garantizar secuencialidad sin colisiones. Reintenta hasta 3 veces
- * como red de seguridad ante conflictos de constraint UNIQUE.
+ * El UPSERT del contador bloquea su fila y confirma ticket, historial inicial
+ * y vinculación de adjuntos juntos. Reintenta hasta 3 veces ante un conflicto
+ * de constraint UNIQUE; cualquier fallo revierte toda la transacción.
  */
 export async function insertTicketWithCode(
-  values: Omit<typeof tickets.$inferInsert, "ticketCode">
+  values: Omit<typeof tickets.$inferInsert, "ticketCode" | "status"> & { status?: TicketStatus },
+  options: TicketCreationOptions = {},
 ): Promise<{ id: number; ticketCode: string }> {
   const maxRetries = 3;
-  const currentYear = new Date().getFullYear();
+  const currentYear = Number(new Intl.DateTimeFormat("en", {
+    year: "numeric", timeZone: "America/Lima",
+  }).format(new Date()));
 
   if (!values.attentionAreaId) {
     throw new Error("Se requiere un área de atención para generar el código de ticket");
@@ -24,7 +43,7 @@ export async function insertTicketWithCode(
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const [result] = await db.transaction(async (tx) => {
+      const result = await db.transaction(async (tx) => {
         // 1. Obtener el slug del área de atención
         const area = await tx.query.attentionAreas.findFirst({
           where: eq(attentionAreas.id, areaId),
@@ -48,21 +67,28 @@ export async function insertTicketWithCode(
         const ticketCode = `${area.slug}-${currentYear}-${nextNum.toString().padStart(4, "0")}`;
 
         // 3. Insertar el ticket con el código generado
-        return tx
+        const [created] = await tx
           .insert(tickets)
           .values({ ...values, ticketCode })
           .returning({ id: tickets.id, ticketCode: tickets.ticketCode });
+
+        if (!created) throw new Error("No se pudo crear el ticket");
+        await recordStatusChange(created.id, null, values.status ?? "open", values.createdById, undefined, tx);
+        if (options.uploadToken) {
+          await tx.update(ticketAttachments).set({ ticketId: created.id, uploadToken: null })
+            .where(and(
+              eq(ticketAttachments.uploadToken, options.uploadToken),
+              eq(ticketAttachments.uploadedById, values.createdById),
+              isNull(ticketAttachments.ticketId),
+            ));
+        }
+        return created;
       });
 
       return result;
     } catch (error: unknown) {
       // Si es violación de UNIQUE constraint, reintentar
-      const isUniqueViolation =
-        error instanceof Error &&
-        "code" in error &&
-        (error as { code: string }).code === "23505";
-
-      if (isUniqueViolation && attempt < maxRetries) {
+      if (isUniqueViolation(error) && attempt < maxRetries) {
         continue;
       }
       throw error;

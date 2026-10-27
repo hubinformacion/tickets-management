@@ -1,16 +1,15 @@
 "use server";
 
 import { db } from "@/db";
-import { tickets, users, attentionAreas, ticketCategories, ticketSubcategories, ticketAttachments, appSettings } from "@/db/schema";
-import { createTicketSchema, createFedTicketSchema, createDiffusionTicketSchema, watcherIdsSchema } from "@/lib/validation/schemas";
+import { tickets, users, attentionAreas, ticketCategories, ticketSubcategories, appSettings } from "@/db/schema";
+import { createTicketSchema, createFedTicketSchema, createDiffusionTicketSchema, watcherIdsSchema, uploadTokenSchema } from "@/lib/validation/schemas";
 import { requireAuth } from "@/lib/auth/helpers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { TICKET_STATUS } from "@/lib/constants/tickets";
 import { sendTicketCreatedEmail } from "@/lib/email/send-emails";
-import { eq, inArray, and, isNull } from "drizzle-orm";
+import { eq, inArray, and } from "drizzle-orm";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
-import { recordStatusChange } from "@/lib/utils/status-history";
 import { getFedFieldConfig } from "@/lib/constants/fed-fields";
 
 // Rate limiter: 5 tickets por minuto por usuario
@@ -188,6 +187,8 @@ export async function createTicketAction(formData: FormData) {
   const watchersResult = watcherIdsSchema.safeParse(parsedWatchers);
   if (!watchersResult.success) return { error: "Lista de observadores inválida" };
   const watcherList = watchersResult.data;
+  const uploadTokenResult = uploadTokenSchema.optional().safeParse(formData.get("uploadToken") || undefined);
+  if (!uploadTokenResult.success) return { error: "Token de carga inválido" };
 
   let ticketId: number;
   let ticketCode: string;
@@ -230,29 +231,10 @@ export async function createTicketAction(formData: FormData) {
       targetAudience,
       // Metadata dinámica (FED)
       metadata,
-    });
+    }, { uploadToken: !isDiffusion && allowAttachments ? uploadTokenResult.data : undefined });
 
     ticketId = newTicket.id;
     ticketCode = newTicket.ticketCode;
-
-    // Registrar estado inicial en historial
-    await recordStatusChange(ticketId, null, TICKET_STATUS.OPEN, session.user.id);
-
-    // Vincular archivos adjuntos al ticket (solo para áreas que no son Difusión y que permitan adjuntos)
-    if (!isDiffusion && allowAttachments) {
-      const uploadToken = formData.get("uploadToken") as string | null;
-      if (uploadToken) {
-        await db.update(ticketAttachments)
-          .set({ ticketId: ticketId, uploadToken: null })
-          .where(
-            and(
-              eq(ticketAttachments.uploadToken, uploadToken),
-              eq(ticketAttachments.uploadedById, session.user.id),
-              isNull(ticketAttachments.ticketId)
-            )
-          );
-      }
-    }
 
     // Defer email notification after response is sent to user
     after(async () => {

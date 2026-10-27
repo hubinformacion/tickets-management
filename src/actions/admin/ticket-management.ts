@@ -13,6 +13,7 @@ import { recordStatusChange } from "@/lib/utils/status-history";
 import type { TicketStatus } from "@/types";
 import { canManageTicket } from "@/lib/auth/ticket-permissions";
 import { ticketIdSchema, ticketStatusSchema } from "@/lib/validation/schemas";
+import { transitionTicket } from "@/lib/utils/ticket-transition";
 
 export async function assignTicketToSelf(ticketId: number) {
   const session = await requireAgent();
@@ -40,6 +41,7 @@ export async function assignTicketToSelf(ticketId: number) {
       const rows = await tx.update(tickets).set({
         assignedToId: session.user.id, status: TICKET_STATUS.IN_PROGRESS,
         assignedAt: new Date(), updatedAt: new Date(),
+        closedAt: null, closedBy: null, closedByUserId: null, validationRequestedAt: null,
       }).where(and(
         eq(tickets.id, ticketId), eq(tickets.status, TICKET_STATUS.OPEN), isNull(tickets.assignedToId),
         ticket.attentionAreaId === null ? isNull(tickets.attentionAreaId) : eq(tickets.attentionAreaId, ticket.attentionAreaId),
@@ -112,7 +114,7 @@ export async function unassignTicket(ticketId: number) {
     // Obtener ticketCode antes de actualizar
     const ticket = await db.query.tickets.findFirst({
       where: eq(tickets.id, ticketId),
-      columns: { ticketCode: true, attentionAreaId: true, assignedToId: true },
+      columns: { ticketCode: true, attentionAreaId: true, assignedToId: true, status: true },
     });
 
     if (!ticket || !canManageTicket(session.user, ticket)) {
@@ -127,7 +129,7 @@ export async function unassignTicket(ticketId: number) {
         updatedAt: new Date()
       })
       .where(and(
-        eq(tickets.id, ticketId), eq(tickets.assignedToId, ticket.assignedToId),
+        eq(tickets.id, ticketId), eq(tickets.assignedToId, ticket.assignedToId), eq(tickets.status, ticket.status),
         ticket.attentionAreaId === null ? isNull(tickets.attentionAreaId) : eq(tickets.attentionAreaId, ticket.attentionAreaId),
       )).returning({ id: tickets.id });
     if (updated.length === 0) return { error: "El ticket cambió. Actualiza la página e intenta de nuevo" };
@@ -147,12 +149,14 @@ export async function updateTicketStatus(ticketId: number, newStatus: TicketStat
   if (!ticketIdSchema.safeParse(ticketId).success || !ticketStatusSchema.safeParse(newStatus).success) {
     return { error: "Ticket o estado inválido" };
   }
+  if (newStatus === TICKET_STATUS.PENDING_VALIDATION) {
+    return { error: "Usa la solicitud de validación para notificar al creador" };
+  }
 
   try {
     // Obtener el estado actual del ticket para validar la transición
     const ticket = await db.query.tickets.findFirst({
       where: eq(tickets.id, ticketId),
-      columns: { status: true, ticketCode: true, attentionAreaId: true },
     });
 
     if (!ticket || !canManageTicket(session.user, ticket)) {
@@ -168,16 +172,7 @@ export async function updateTicketStatus(ticketId: number, newStatus: TicketStat
       };
     }
 
-    const updated = await db.transaction(async tx => {
-      const rows = await tx.update(tickets).set({ status: newStatus, updatedAt: new Date() })
-        .where(and(
-          eq(tickets.id, ticketId), eq(tickets.status, currentStatus),
-          ticket.attentionAreaId === null ? isNull(tickets.attentionAreaId) : eq(tickets.attentionAreaId, ticket.attentionAreaId),
-        )).returning({ id: tickets.id });
-      if (rows.length === 0) return false;
-      await recordStatusChange(ticketId, currentStatus, newStatus, session.user.id, undefined, tx);
-      return true;
-    });
+    const updated = await transitionTicket(ticket, newStatus, session.user.id);
     if (!updated) return { error: "El ticket cambió. Actualiza la página e intenta de nuevo" };
 
     revalidatePath(`/dashboard/tickets/${ticket.ticketCode}`);
