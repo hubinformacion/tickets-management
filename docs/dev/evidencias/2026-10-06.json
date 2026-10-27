@@ -1,0 +1,3569 @@
+{
+  "date": "2026-10-06",
+  "commit": "90676d95f4ec9a8ce497ce77781a3a88f35bccbb",
+  "branch": "chore/auditoria-2026-10-06",
+  "runtime": {
+    "node": "v24.16.0",
+    "pnpm": "11.3.0"
+  },
+  "limitations": [
+    "Revision local y estatica; no se verifico despliegue efectivo ni infraestructura.",
+    "Conteos de guard/Zod/limiter son sintacticos; no certifican permiso sobre recurso.",
+    "No se ejecutaron escenarios V00-V16 ni acciones contra datos reales.",
+    "Advisories se revisaron por condiciones y consumidores; no se demostraron exploits."
+  ],
+  "checks": {
+    "types": {
+      "exitCode": 0,
+      "command": "pnpm exec tsc --noEmit --incremental false"
+    },
+    "build": {
+      "default": {
+        "exitCode": 1,
+        "reason": "Heap OOM during type checker (~2 GB)"
+      },
+      "heap4096": {
+        "exitCode": 0
+      },
+      "environment": "Synthetic DB and OAuth; Gmail/Drive credentials empty"
+    },
+    "lint": {
+      "exitCode": 1,
+      "errors": 4,
+      "warnings": 62,
+      "files": [
+        {
+          "file": "src/actions/admin/settings.ts",
+          "messages": [
+            {
+              "line": 45,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'updateDisabledMessage' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/actions/comments/add-comment.ts",
+          "messages": [
+            {
+              "line": 4,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'ticketCategories' is defined but never used."
+            },
+            {
+              "line": 4,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'ticketSubcategories' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/actions/surveys/index.ts",
+          "messages": [
+            {
+              "line": 96,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'getSurveyByTicketAction' is defined but never used."
+            },
+            {
+              "line": 97,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'session' is assigned a value but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/actions/surveys/provider-surveys.ts",
+          "messages": [
+            {
+              "line": 4,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'providerTickets' is defined but never used."
+            },
+            {
+              "line": 6,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'count' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/actions/tickets/create-ticket.ts",
+          "messages": [
+            {
+              "line": 132,
+              "severity": 2,
+              "rule": "@typescript-eslint/no-require-imports",
+              "message": "A `require()` style import is forbidden."
+            }
+          ]
+        },
+        {
+          "file": "src/actions/tickets/delete-attachment.ts",
+          "messages": [
+            {
+              "line": 7,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'and' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/app/dashboard/(admin)/sistema/page.tsx",
+          "messages": [
+            {
+              "line": 2,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'priorityConfig' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/app/dashboard/(agent)/proveedores/export/route.ts",
+          "messages": [
+            {
+              "line": 3,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'providerSatisfactionSurveys' is defined but never used."
+            },
+            {
+              "line": 16,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'req' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/app/dashboard/(shared)/tickets/[code]/page.tsx",
+          "messages": [
+            {
+              "line": 24,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'DerivationMetadata' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/app/dashboard/(shared)/tickets/nuevo/page.tsx",
+          "messages": [
+            {
+              "line": 2,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'priorityConfig' is defined but never used."
+            },
+            {
+              "line": 18,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'session' is assigned a value but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/app/dashboard/analytics/page.tsx",
+          "messages": [
+            {
+              "line": 3,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'getSession' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/components/admin/business-hours-management.tsx",
+          "messages": [
+            {
+              "line": 118,
+              "severity": 2,
+              "rule": "react-hooks/set-state-in-effect",
+              "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+            }
+          ]
+        },
+        {
+          "file": "src/components/admin/user-active-toggle.tsx",
+          "messages": [
+            {
+              "line": 38,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'error' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/components/agent/config-form.tsx",
+          "messages": [
+            {
+              "line": 36,
+              "severity": 2,
+              "rule": "react-hooks/set-state-in-effect",
+              "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+            }
+          ]
+        },
+        {
+          "file": "src/components/analytics/admin-dashboard.tsx",
+          "messages": [
+            {
+              "line": 49,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'voidedCount' is assigned a value but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/components/analytics/agent-dashboard.tsx",
+          "messages": [
+            {
+              "line": 34,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'slaData' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/components/dashboard/admin-dashboard.tsx",
+          "messages": [
+            {
+              "line": 3,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'desc' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/components/shared/file-upload.tsx",
+          "messages": [
+            {
+              "line": 22,
+              "severity": 2,
+              "rule": "react-hooks/refs",
+              "message": "Error: Cannot access refs during render"
+            }
+          ]
+        },
+        {
+          "file": "src/components/shared/rich-text-editor.tsx",
+          "messages": [
+            {
+              "line": 9,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'LinkIcon' is defined but never used."
+            },
+            {
+              "line": 9,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'Heading2' is defined but never used."
+            },
+            {
+              "line": 9,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'Code' is defined but never used."
+            },
+            {
+              "line": 43,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'placeholder' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/components/surveys/survey-results-view.tsx",
+          "messages": [
+            {
+              "line": 96,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'distributions' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/components/tickets/cancel-ticket-button.tsx",
+          "messages": [
+            {
+              "line": 32,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'error' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/components/tickets/fed-fields.tsx",
+          "messages": [
+            {
+              "line": 6,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'FedFieldConfig' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/components/tickets/ticket-activity.tsx",
+          "messages": [
+            {
+              "line": 173,
+              "severity": 1,
+              "rule": null,
+              "message": "Unused eslint-disable directive (no problems were reported from 'react/no-danger')."
+            }
+          ]
+        },
+        {
+          "file": "src/components/tickets/ticket-form.tsx",
+          "messages": [
+            {
+              "line": 6,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'z' is defined but never used."
+            },
+            {
+              "line": 10,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'Input' is defined but never used."
+            },
+            {
+              "line": 27,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'PRIORITY_LABELS' is defined but never used."
+            },
+            {
+              "line": 34,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'TicketPriority' is defined but never used."
+            },
+            {
+              "line": 299,
+              "severity": 1,
+              "rule": "react-hooks/incompatible-library",
+              "message": "Compilation Skipped: Use of incompatible library"
+            },
+            {
+              "line": 306,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'priorityInfo' is assigned a value but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/components/tickets/watchers-manager.tsx",
+          "messages": [
+            {
+              "line": 23,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'Eye' is defined but never used."
+            },
+            {
+              "line": 75,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'error' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/db/queries.ts",
+          "messages": [
+            {
+              "line": 2,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'satisfactionSurveys' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/db/queries/analytics.ts",
+          "messages": [
+            {
+              "line": 2,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'ticketSubcategories' is defined but never used."
+            },
+            {
+              "line": 4,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'TicketStatus' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/lib/constants/tickets.ts",
+          "messages": [
+            {
+              "line": 19,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'TICKET_PRIORITY' is assigned a value but never used."
+            },
+            {
+              "line": 79,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'CLOSURE_TYPE_LABELS' is assigned a value but never used."
+            },
+            {
+              "line": 101,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'PROVIDER_TICKET_STATUS' is assigned a value but never used."
+            },
+            {
+              "line": 111,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'PROVIDER_TICKET_PRIORITY' is assigned a value but never used."
+            },
+            {
+              "line": 136,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'COMMENT_TYPE' is assigned a value but never used."
+            },
+            {
+              "line": 142,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'COMMENT_TYPE_LABELS' is assigned a value but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/lib/utils/date.ts",
+          "messages": [
+            {
+              "line": 24,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'formatTime' is defined but never used."
+            },
+            {
+              "line": 29,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'formatDateTime' is defined but never used."
+            },
+            {
+              "line": 34,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'formatForInput' is defined but never used."
+            },
+            {
+              "line": 39,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'formatForDisplay' is defined but never used."
+            },
+            {
+              "line": 44,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'formatRange' is defined but never used."
+            },
+            {
+              "line": 55,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'nowInPeru' is defined but never used."
+            },
+            {
+              "line": 59,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'toPeruTime' is defined but never used."
+            },
+            {
+              "line": 63,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'formatDateWithTimezone' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/lib/utils/ticket-code.ts",
+          "messages": [
+            {
+              "line": 2,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'ticketSequence' is defined but never used."
+            },
+            {
+              "line": 3,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'and' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/lib/validation/schemas.ts",
+          "messages": [
+            {
+              "line": 45,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'CreateTicketSchema' is defined but never used."
+            },
+            {
+              "line": 46,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'CreateFedTicketSchema' is defined but never used."
+            },
+            {
+              "line": 47,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'CreateDiffusionTicketSchema' is defined but never used."
+            },
+            {
+              "line": 78,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'UpdatePriorityConfigSchema' is defined but never used."
+            },
+            {
+              "line": 111,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'CreateProviderSchema' is defined but never used."
+            },
+            {
+              "line": 112,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'UpdateProviderSchema' is defined but never used."
+            }
+          ]
+        },
+        {
+          "file": "src/types/auth.d.ts",
+          "messages": [
+            {
+              "line": 1,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'Session' is defined but never used."
+            },
+            {
+              "line": 1,
+              "severity": 1,
+              "rule": "@typescript-eslint/no-unused-vars",
+              "message": "'User' is defined but never used."
+            }
+          ]
+        }
+      ]
+    },
+    "dates": {
+      "calendarInput": "2026-10-06",
+      "UTC": "05/10/2026",
+      "Lima": "06/10/2026",
+      "businessInterval": [
+        "2026-10-05T13:30:00Z",
+        "2026-10-05T23:30:00Z"
+      ],
+      "UTCbusinessHours": 5,
+      "LimabusinessHours": 10
+    }
+  },
+  "dependencies": {
+    "all": {
+      "metadata": {
+        "vulnerabilities": {
+          "info": 0,
+          "low": 2,
+          "moderate": 25,
+          "high": 41,
+          "critical": 3
+        },
+        "dependencies": 568,
+        "devDependencies": 295,
+        "optionalDependencies": 159,
+        "totalDependencies": 976
+      },
+      "entries": 71,
+      "distinctGhsa": 55
+    },
+    "prod": {
+      "metadata": {
+        "vulnerabilities": {
+          "info": 0,
+          "low": 2,
+          "moderate": 19,
+          "high": 29,
+          "critical": 3
+        },
+        "dependencies": 515,
+        "devDependencies": 0,
+        "optionalDependencies": 166,
+        "totalDependencies": 681
+      },
+      "entries": 53,
+      "distinctGhsa": 46
+    },
+    "advisories": [
+      {
+        "entryId": "1102341",
+        "ghsa": "GHSA-67mh-4wv8-2f99",
+        "package": "esbuild",
+        "severity": "moderate",
+        "title": "esbuild enables any website to send any requests to the development server and read the response",
+        "url": "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+        "vulnerableVersions": "<=0.24.2",
+        "patchedVersions": ">=0.24.3",
+        "inProdAudit": true,
+        "applicabilityReview": "Avisos de servidor de desarrollo y Windows; sin servidor esbuild expuesto identificado. No asumir riesgo de runtime por estar bajo --prod.",
+        "findings": [
+          {
+            "version": "0.18.20",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>drizzle-kit>@esbuild-kit/esm-loader>@esbuild-kit/core-utils>esbuild",
+              ".>drizzle-kit>@esbuild-kit/esm-loader>@esbuild-kit/core-utils>esbuild"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1115540",
+        "ghsa": "GHSA-f886-m6hf-6m8v",
+        "package": "brace-expansion",
+        "severity": "moderate",
+        "title": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion",
+        "url": "https://github.com/advisories/GHSA-f886-m6hf-6m8v",
+        "vulnerableVersions": "<1.1.13",
+        "patchedVersions": ">=1.1.13",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "1.1.12",
+            "dev": false,
+            "optional": false,
+            "pathCount": 85,
+            "samplePaths": [
+              ".>exceljs>archiver>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>archiver>zip-stream>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>unzipper>fstream>rimraf>glob>minimatch>brace-expansion",
+              ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+              ".>eslint>@eslint/eslintrc>minimatch>brace-expansion",
+              ".>eslint>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1115541",
+        "ghsa": "GHSA-f886-m6hf-6m8v",
+        "package": "brace-expansion",
+        "severity": "moderate",
+        "title": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion",
+        "url": "https://github.com/advisories/GHSA-f886-m6hf-6m8v",
+        "vulnerableVersions": ">=2.0.0 <2.0.3",
+        "patchedVersions": ">=2.0.3",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "2.0.2",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>exceljs>archiver>readdir-glob>minimatch>brace-expansion",
+              ".>googleapis>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion",
+              ".>googleapis>googleapis-common>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1115543",
+        "ghsa": "GHSA-f886-m6hf-6m8v",
+        "package": "brace-expansion",
+        "severity": "moderate",
+        "title": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion",
+        "url": "https://github.com/advisories/GHSA-f886-m6hf-6m8v",
+        "vulnerableVersions": ">=4.0.0 <5.0.5",
+        "patchedVersions": ">=5.0.5",
+        "inProdAudit": false,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "5.0.4",
+            "dev": true,
+            "optional": false,
+            "pathCount": 11,
+            "samplePaths": [
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1115549",
+        "ghsa": "GHSA-3v7f-55p6-f55p",
+        "package": "picomatch",
+        "severity": "moderate",
+        "title": "Picomatch: Method Injection in POSIX Character Classes causes incorrect Glob Matching",
+        "url": "https://github.com/advisories/GHSA-3v7f-55p6-f55p",
+        "vulnerableVersions": "<2.3.2",
+        "patchedVersions": ">=2.3.2",
+        "inProdAudit": false,
+        "applicabilityReview": "Matching de patrones en herramientas; no hay patrones de usuario enviados a este paquete identificados.",
+        "findings": [
+          {
+            "version": "2.3.1",
+            "dev": true,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>eslint-config-next>@next/eslint-plugin-next>fast-glob>micromatch>picomatch"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1115551",
+        "ghsa": "GHSA-3v7f-55p6-f55p",
+        "package": "picomatch",
+        "severity": "moderate",
+        "title": "Picomatch: Method Injection in POSIX Character Classes causes incorrect Glob Matching",
+        "url": "https://github.com/advisories/GHSA-3v7f-55p6-f55p",
+        "vulnerableVersions": ">=4.0.0 <4.0.4",
+        "patchedVersions": ">=4.0.4",
+        "inProdAudit": false,
+        "applicabilityReview": "Matching de patrones en herramientas; no hay patrones de usuario enviados a este paquete identificados.",
+        "findings": [
+          {
+            "version": "4.0.3",
+            "dev": true,
+            "optional": false,
+            "pathCount": 26,
+            "samplePaths": [
+              ".>eslint-config-next>eslint-import-resolver-typescript>tinyglobby>fdir>picomatch",
+              ".>eslint-config-next>eslint-import-resolver-typescript>tinyglobby>picomatch",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>tinyglobby>fdir>picomatch",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>tinyglobby>picomatch",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>tinyglobby>fdir>picomatch",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>tinyglobby>picomatch"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1115552",
+        "ghsa": "GHSA-c2c7-rcm5-vvqj",
+        "package": "picomatch",
+        "severity": "high",
+        "title": "Picomatch has a ReDoS vulnerability via extglob quantifiers",
+        "url": "https://github.com/advisories/GHSA-c2c7-rcm5-vvqj",
+        "vulnerableVersions": "<2.3.2",
+        "patchedVersions": ">=2.3.2",
+        "inProdAudit": false,
+        "applicabilityReview": "Matching de patrones en herramientas; no hay patrones de usuario enviados a este paquete identificados.",
+        "findings": [
+          {
+            "version": "2.3.1",
+            "dev": true,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>eslint-config-next>@next/eslint-plugin-next>fast-glob>micromatch>picomatch"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1115554",
+        "ghsa": "GHSA-c2c7-rcm5-vvqj",
+        "package": "picomatch",
+        "severity": "high",
+        "title": "Picomatch has a ReDoS vulnerability via extglob quantifiers",
+        "url": "https://github.com/advisories/GHSA-c2c7-rcm5-vvqj",
+        "vulnerableVersions": ">=4.0.0 <4.0.4",
+        "patchedVersions": ">=4.0.4",
+        "inProdAudit": false,
+        "applicabilityReview": "Matching de patrones en herramientas; no hay patrones de usuario enviados a este paquete identificados.",
+        "findings": [
+          {
+            "version": "4.0.3",
+            "dev": true,
+            "optional": false,
+            "pathCount": 26,
+            "samplePaths": [
+              ".>eslint-config-next>eslint-import-resolver-typescript>tinyglobby>fdir>picomatch",
+              ".>eslint-config-next>eslint-import-resolver-typescript>tinyglobby>picomatch",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>tinyglobby>fdir>picomatch",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>tinyglobby>picomatch",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>tinyglobby>fdir>picomatch",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>tinyglobby>picomatch"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1116102",
+        "ghsa": "GHSA-737v-mqg7-c878",
+        "package": "defu",
+        "severity": "high",
+        "title": "defu: Prototype pollution via `__proto__` key in defaults argument",
+        "url": "https://github.com/advisories/GHSA-737v-mqg7-c878",
+        "vulnerableVersions": "<=6.1.4",
+        "patchedVersions": ">=6.1.5",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de Better Auth; revisar si el llamador acepta objetos controlados por usuarios antes de afirmar explotabilidad.",
+        "findings": [
+          {
+            "version": "6.1.4",
+            "dev": false,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>better-auth>defu"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1117015",
+        "ghsa": "GHSA-qx2v-qp2m-jg93",
+        "package": "postcss",
+        "severity": "moderate",
+        "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+        "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+        "vulnerableVersions": "<8.5.10",
+        "patchedVersions": ">=8.5.10",
+        "inProdAudit": true,
+        "applicabilityReview": "Procesamiento de CSS/sourcemaps en build; no hay pipeline de CSS aportado por usuarios identificado. Revisar fixes por aviso y herramientas.",
+        "findings": [
+          {
+            "version": "8.4.31",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next>postcss",
+              ".>next>postcss"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1119441",
+        "ghsa": "GHSA-w5hq-g745-h8pq",
+        "package": "uuid",
+        "severity": "moderate",
+        "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+        "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+        "vulnerableVersions": "<11.1.1",
+        "patchedVersions": ">=11.1.1",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de ExcelJS; revisar uso de v3/v5/v6 con buffer explicitamente suministrado. No hay tal consumidor directo identificado.",
+        "findings": [
+          {
+            "version": "8.3.2",
+            "dev": false,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>exceljs>uuid"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1119502",
+        "ghsa": "GHSA-q8mj-m7cp-5q26",
+        "package": "qs",
+        "severity": "moderate",
+        "title": "qs has a remotely triggerable DoS: qs.stringify crashes with TypeError on null/undefined entries in comma-format arrays when encodeValuesOnly is set",
+        "url": "https://github.com/advisories/GHSA-q8mj-m7cp-5q26",
+        "vulnerableVersions": ">=6.11.1 <=6.15.1",
+        "patchedVersions": ">=6.15.2",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de Google; revisar opciones y datos que llegan al parser/serializador. No se demostro que las opciones afectadas se usen.",
+        "findings": [
+          {
+            "version": "6.15.0",
+            "dev": false,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>googleapis>googleapis-common>qs"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1120311",
+        "ghsa": "GHSA-jxxr-4gwj-5jf2",
+        "package": "brace-expansion",
+        "severity": "moderate",
+        "title": "brace-expansion: Large numeric range defeats documented `max` DoS protection",
+        "url": "https://github.com/advisories/GHSA-jxxr-4gwj-5jf2",
+        "vulnerableVersions": ">=5.0.0 <5.0.6",
+        "patchedVersions": ">=5.0.6",
+        "inProdAudit": false,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "5.0.4",
+            "dev": true,
+            "optional": false,
+            "pathCount": 11,
+            "samplePaths": [
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1120680",
+        "ghsa": "GHSA-g7r4-m6w7-qqqr",
+        "package": "esbuild",
+        "severity": "low",
+        "title": "esbuild allows arbitrary file read when running the development server on Windows",
+        "url": "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr",
+        "vulnerableVersions": ">=0.27.3 <0.28.1",
+        "patchedVersions": ">=0.28.1",
+        "inProdAudit": true,
+        "applicabilityReview": "Avisos de servidor de desarrollo y Windows; sin servidor esbuild expuesto identificado. No asumir riesgo de runtime por estar bajo --prod.",
+        "findings": [
+          {
+            "version": "0.27.3",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>better-auth>drizzle-kit>tsx>esbuild",
+              ".>drizzle-kit>tsx>esbuild",
+              ".>tsx>esbuild"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1123528",
+        "ghsa": "GHSA-4x5r-pxfx-6jf8",
+        "package": "@babel/core",
+        "severity": "low",
+        "title": "@babel/core: Arbitrary File Read via sourceMappingURL Comment",
+        "url": "https://github.com/advisories/GHSA-4x5r-pxfx-6jf8",
+        "vulnerableVersions": "<=7.29.0",
+        "patchedVersions": ">=7.29.1",
+        "inProdAudit": true,
+        "applicabilityReview": "Procesamiento de sourcemaps en build; evaluar fuente CSS/JS de terceros, no afirmar ejecucion de entrada de tickets.",
+        "findings": [
+          {
+            "version": "7.29.0",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>better-auth>next>styled-jsx>@babel/core",
+              ".>next>styled-jsx>@babel/core",
+              ".>eslint-config-next>eslint-plugin-react-hooks>@babel/core"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1123896",
+        "ghsa": "GHSA-3jxr-9vmj-r5cp",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+        "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+        "vulnerableVersions": ">=2.0.0 <2.1.2",
+        "patchedVersions": ">=2.1.2",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "2.0.2",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>exceljs>archiver>readdir-glob>minimatch>brace-expansion",
+              ".>googleapis>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion",
+              ".>googleapis>googleapis-common>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1123897",
+        "ghsa": "GHSA-3jxr-9vmj-r5cp",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+        "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+        "vulnerableVersions": "<1.1.16",
+        "patchedVersions": ">=1.1.16",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "1.1.12",
+            "dev": false,
+            "optional": false,
+            "pathCount": 85,
+            "samplePaths": [
+              ".>exceljs>archiver>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>archiver>zip-stream>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>unzipper>fstream>rimraf>glob>minimatch>brace-expansion",
+              ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+              ".>eslint>@eslint/eslintrc>minimatch>brace-expansion",
+              ".>eslint>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1123898",
+        "ghsa": "GHSA-3jxr-9vmj-r5cp",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+        "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+        "vulnerableVersions": ">=3.0.0 <5.0.7",
+        "patchedVersions": ">=5.0.7",
+        "inProdAudit": false,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "5.0.4",
+            "dev": true,
+            "optional": false,
+            "pathCount": 11,
+            "samplePaths": [
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1123911",
+        "ghsa": "GHSA-52cp-r559-cp3m",
+        "package": "js-yaml",
+        "severity": "high",
+        "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+        "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
+        "vulnerableVersions": ">=4.0.0 <4.3.0",
+        "patchedVersions": ">=4.3.0",
+        "inProdAudit": false,
+        "applicabilityReview": "Parsing YAML de herramientas; no hay importacion YAML de tickets identificada.",
+        "findings": [
+          {
+            "version": "4.2.0",
+            "dev": true,
+            "optional": false,
+            "pathCount": 26,
+            "samplePaths": [
+              ".>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>eslint>@eslint/eslintrc>js-yaml"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124066",
+        "ghsa": "GHSA-f88m-g3jw-g9cj",
+        "package": "sharp",
+        "severity": "high",
+        "title": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591",
+        "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+        "vulnerableVersions": "<0.35.0",
+        "patchedVersions": ">=0.35.0",
+        "inProdAudit": true,
+        "applicabilityReview": "Optimizador de imagenes presente con origen remoto restringido a Google; formatos/imagenes controlables y runtime real pendientes.",
+        "findings": [
+          {
+            "version": "0.34.5",
+            "dev": false,
+            "optional": true,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next>sharp",
+              ".>next>sharp"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124170",
+        "ghsa": "GHSA-6gpp-xcg3-4w24",
+        "package": "next",
+        "severity": "high",
+        "title": "Next.js: Middleware / Proxy bypass in App Router applications using Turbopack and single locale",
+        "url": "https://github.com/advisories/GHSA-6gpp-xcg3-4w24",
+        "vulnerableVersions": ">=16.0.0 <16.2.11",
+        "patchedVersions": ">=16.2.11",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124171",
+        "ghsa": "GHSA-m99w-x7hq-7vfj",
+        "package": "next",
+        "severity": "high",
+        "title": "Next.js: Denial of Service in App Router using Server Actions",
+        "url": "https://github.com/advisories/GHSA-m99w-x7hq-7vfj",
+        "vulnerableVersions": ">=16.0.0 <16.2.11",
+        "patchedVersions": ">=16.2.11",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124184",
+        "ghsa": "GHSA-89xv-2m56-2m9x",
+        "package": "next",
+        "severity": "high",
+        "title": "Next.js: Server-Side Request Forgery in Server Actions on custom servers",
+        "url": "https://github.com/advisories/GHSA-89xv-2m56-2m9x",
+        "vulnerableVersions": ">=16.0.0 <16.2.11",
+        "patchedVersions": ">=16.2.11",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124186",
+        "ghsa": "GHSA-68g3-v927-f742",
+        "package": "next",
+        "severity": "moderate",
+        "title": "Next.js: Cache confusion of response bodies for requests with bodies",
+        "url": "https://github.com/advisories/GHSA-68g3-v927-f742",
+        "vulnerableVersions": ">=16.0.0 <16.2.11",
+        "patchedVersions": ">=16.2.11",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124188",
+        "ghsa": "GHSA-4633-3j49-mh5q",
+        "package": "next",
+        "severity": "moderate",
+        "title": "Next.js: Cache confusion of response bodies for requests with bodies containing invalid UTF-8 byte sequences",
+        "url": "https://github.com/advisories/GHSA-4633-3j49-mh5q",
+        "vulnerableVersions": ">=16.0.0 <16.2.11",
+        "patchedVersions": ">=16.2.11",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124190",
+        "ghsa": "GHSA-4c39-4ccg-62r3",
+        "package": "next",
+        "severity": "moderate",
+        "title": "Next.js: Unbounded Server Action payload in Edge runtime",
+        "url": "https://github.com/advisories/GHSA-4c39-4ccg-62r3",
+        "vulnerableVersions": ">=16.0.0 <16.2.11",
+        "patchedVersions": ">=16.2.11",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124192",
+        "ghsa": "GHSA-p9j2-gv94-2wf4",
+        "package": "next",
+        "severity": "high",
+        "title": "Next.js: Server-Side Request Forgery in rewrites via attacker-controlled destination hostname",
+        "url": "https://github.com/advisories/GHSA-p9j2-gv94-2wf4",
+        "vulnerableVersions": ">=16.0.0 <16.2.11",
+        "patchedVersions": ">=16.2.11",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124194",
+        "ghsa": "GHSA-q8wf-6r8g-63ch",
+        "package": "next",
+        "severity": "moderate",
+        "title": "Next.js: Denial of Service in the Image Optimization API using SVGs",
+        "url": "https://github.com/advisories/GHSA-q8wf-6r8g-63ch",
+        "vulnerableVersions": ">=16.0.0 <16.2.11",
+        "patchedVersions": ">=16.2.11",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124196",
+        "ghsa": "GHSA-955p-x3mx-jcvp",
+        "package": "next",
+        "severity": "moderate",
+        "title": "Next.js: Unauthenticated disclosure of internal Server Function endpoints",
+        "url": "https://github.com/advisories/GHSA-955p-x3mx-jcvp",
+        "vulnerableVersions": ">=16.0.0 <16.2.11",
+        "patchedVersions": ">=16.2.11",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124252",
+        "ghsa": "GHSA-6g55-p6wh-862q",
+        "package": "postcss",
+        "severity": "high",
+        "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+        "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+        "vulnerableVersions": "<=8.5.11",
+        "patchedVersions": ">=8.5.12",
+        "inProdAudit": true,
+        "applicabilityReview": "Procesamiento de CSS/sourcemaps en build; no hay pipeline de CSS aportado por usuarios identificado. Revisar fixes por aviso y herramientas.",
+        "findings": [
+          {
+            "version": "8.4.31",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next>postcss",
+              ".>next>postcss"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1124303",
+        "ghsa": "GHSA-qq9h-g4jm-xgf3",
+        "package": "better-auth",
+        "severity": "high",
+        "title": "Better Auth: Account takeover via pre-account hijacking on magic-link and email-OTP sign-in",
+        "url": "https://github.com/advisories/GHSA-qq9h-g4jm-xgf3",
+        "vulnerableVersions": ">=1.1.3 <1.6.22",
+        "patchedVersions": ">=1.6.22",
+        "inProdAudit": true,
+        "applicabilityReview": "Aviso magic-link/email-OTP no aplicable a configuracion actual de Google solamente; actualizar y revisar transitivas por separado.",
+        "findings": [
+          {
+            "version": "1.6.15",
+            "dev": false,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>better-auth"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1130588",
+        "ghsa": "GHSA-mh99-v99m-4gvg",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+        "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+        "vulnerableVersions": "<1.1.17",
+        "patchedVersions": ">=1.1.17",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "1.1.12",
+            "dev": false,
+            "optional": false,
+            "pathCount": 85,
+            "samplePaths": [
+              ".>exceljs>archiver>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>archiver>zip-stream>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>unzipper>fstream>rimraf>glob>minimatch>brace-expansion",
+              ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+              ".>eslint>@eslint/eslintrc>minimatch>brace-expansion",
+              ".>eslint>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1130589",
+        "ghsa": "GHSA-mh99-v99m-4gvg",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+        "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+        "vulnerableVersions": ">=2.0.0 <2.1.3",
+        "patchedVersions": ">=2.1.3",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "2.0.2",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>exceljs>archiver>readdir-glob>minimatch>brace-expansion",
+              ".>googleapis>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion",
+              ".>googleapis>googleapis-common>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1130591",
+        "ghsa": "GHSA-mh99-v99m-4gvg",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+        "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+        "vulnerableVersions": ">=4.0.0 <5.0.8",
+        "patchedVersions": ">=5.0.8",
+        "inProdAudit": false,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "5.0.4",
+            "dev": true,
+            "optional": false,
+            "pathCount": 11,
+            "samplePaths": [
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1130709",
+        "ghsa": "GHSA-fxqj-rqcc-2cmp",
+        "package": "postcss",
+        "severity": "moderate",
+        "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q — attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+        "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+        "vulnerableVersions": "<=8.5.22",
+        "patchedVersions": ">=8.5.23",
+        "inProdAudit": true,
+        "applicabilityReview": "Procesamiento de CSS/sourcemaps en build; no hay pipeline de CSS aportado por usuarios identificado. Revisar fixes por aviso y herramientas.",
+        "findings": [
+          {
+            "version": "8.4.31",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next>postcss",
+              ".>next>postcss"
+            ]
+          },
+          {
+            "version": "8.5.15",
+            "dev": true,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>@tailwindcss/postcss>postcss"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1130734",
+        "ghsa": "GHSA-rgw5-rvv9-x895",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+        "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+        "vulnerableVersions": ">=4.0.0 <5.0.9",
+        "patchedVersions": ">=5.0.9",
+        "inProdAudit": false,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "5.0.4",
+            "dev": true,
+            "optional": false,
+            "pathCount": 11,
+            "samplePaths": [
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1130736",
+        "ghsa": "GHSA-rgw5-rvv9-x895",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+        "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+        "vulnerableVersions": ">=2.0.0 <2.1.4",
+        "patchedVersions": ">=2.1.4",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "2.0.2",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>exceljs>archiver>readdir-glob>minimatch>brace-expansion",
+              ".>googleapis>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion",
+              ".>googleapis>googleapis-common>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1130737",
+        "ghsa": "GHSA-rgw5-rvv9-x895",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+        "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+        "vulnerableVersions": "<1.1.18",
+        "patchedVersions": ">=1.1.18",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "1.1.12",
+            "dev": false,
+            "optional": false,
+            "pathCount": 85,
+            "samplePaths": [
+              ".>exceljs>archiver>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>archiver>zip-stream>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>unzipper>fstream>rimraf>glob>minimatch>brace-expansion",
+              ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+              ".>eslint>@eslint/eslintrc>minimatch>brace-expansion",
+              ".>eslint>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1138115",
+        "ghsa": "GHSA-5p4m-2wfm-xmqj",
+        "package": "js-yaml",
+        "severity": "high",
+        "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported",
+        "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj",
+        "vulnerableVersions": ">=4.0.0 <4.3.1",
+        "patchedVersions": ">=4.3.1",
+        "inProdAudit": false,
+        "applicabilityReview": "Parsing YAML de herramientas; no hay importacion YAML de tickets identificada.",
+        "findings": [
+          {
+            "version": "4.2.0",
+            "dev": true,
+            "optional": false,
+            "pathCount": 26,
+            "samplePaths": [
+              ".>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>eslint>@eslint/eslintrc>js-yaml"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1138811",
+        "ghsa": "GHSA-28wg-ghj8-5hjv",
+        "package": "nanoid",
+        "severity": "high",
+        "title": "nanoid: non-secure generators can loop indefinitely with negative size",
+        "url": "https://github.com/advisories/GHSA-28wg-ghj8-5hjv",
+        "vulnerableVersions": "<3.3.16",
+        "patchedVersions": ">=3.3.16",
+        "inProdAudit": true,
+        "applicabilityReview": "Generadores y parametros afectados; no hay llamadas directas al generador con tamano controlable por usuarios identificadas.",
+        "findings": [
+          {
+            "version": "3.3.11",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next>postcss>nanoid",
+              ".>next>postcss>nanoid"
+            ]
+          },
+          {
+            "version": "3.3.12",
+            "dev": true,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>@tailwindcss/postcss>postcss>nanoid"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1139427",
+        "ghsa": "GHSA-2v37-7h3g-55p8",
+        "package": "nanoid",
+        "severity": "high",
+        "title": "nanoid: custom generators can loop indefinitely when size is zero",
+        "url": "https://github.com/advisories/GHSA-2v37-7h3g-55p8",
+        "vulnerableVersions": "<3.3.18",
+        "patchedVersions": ">=3.3.18",
+        "inProdAudit": true,
+        "applicabilityReview": "Generadores y parametros afectados; no hay llamadas directas al generador con tamano controlable por usuarios identificadas.",
+        "findings": [
+          {
+            "version": "3.3.11",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next>postcss>nanoid",
+              ".>next>postcss>nanoid"
+            ]
+          },
+          {
+            "version": "3.3.12",
+            "dev": true,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>@tailwindcss/postcss>postcss>nanoid"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1139510",
+        "ghsa": "GHSA-r28c-9q8g-f849",
+        "package": "postcss",
+        "severity": "high",
+        "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+        "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+        "vulnerableVersions": "<=8.5.17",
+        "patchedVersions": ">=8.5.18",
+        "inProdAudit": true,
+        "applicabilityReview": "Procesamiento de CSS/sourcemaps en build; no hay pipeline de CSS aportado por usuarios identificado. Revisar fixes por aviso y herramientas.",
+        "findings": [
+          {
+            "version": "8.4.31",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next>postcss",
+              ".>next>postcss"
+            ]
+          },
+          {
+            "version": "8.5.15",
+            "dev": true,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>@tailwindcss/postcss>postcss"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1153171",
+        "ghsa": "GHSA-c83g-rgw3-j3cx",
+        "package": "browserslist",
+        "severity": "high",
+        "title": "Browserslist: Unbounded memory growth (no cache eviction) via distinct query results, leading to eventual OOM",
+        "url": "https://github.com/advisories/GHSA-c83g-rgw3-j3cx",
+        "vulnerableVersions": "<=4.28.6",
+        "patchedVersions": ">=4.28.7",
+        "inProdAudit": true,
+        "applicabilityReview": "Queries y custom stats del tooling; no hay configuracion aportada por usuarios de la app identificada.",
+        "findings": [
+          {
+            "version": "4.28.1",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>better-auth>next>styled-jsx>@babel/core>@babel/helper-compilation-targets>browserslist",
+              ".>next>styled-jsx>@babel/core>@babel/helper-compilation-targets>browserslist",
+              ".>eslint-config-next>eslint-plugin-react-hooks>@babel/core>@babel/helper-compilation-targets>browserslist"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1153172",
+        "ghsa": "GHSA-73wf-gq98-2v4g",
+        "package": "browserslist",
+        "severity": "high",
+        "title": "Browserslist: Uncaught crash / prototype write via untrusted browserslist-stats.json custom stats (normalizeStats)",
+        "url": "https://github.com/advisories/GHSA-73wf-gq98-2v4g",
+        "vulnerableVersions": "<=4.28.6",
+        "patchedVersions": ">=4.28.7",
+        "inProdAudit": true,
+        "applicabilityReview": "Queries y custom stats del tooling; no hay configuracion aportada por usuarios de la app identificada.",
+        "findings": [
+          {
+            "version": "4.28.1",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>better-auth>next>styled-jsx>@babel/core>@babel/helper-compilation-targets>browserslist",
+              ".>next>styled-jsx>@babel/core>@babel/helper-compilation-targets>browserslist",
+              ".>eslint-config-next>eslint-plugin-react-hooks>@babel/core>@babel/helper-compilation-targets>browserslist"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1153189",
+        "ghsa": "GHSA-xwg4-73v4-xw9w",
+        "package": "nanoid",
+        "severity": "high",
+        "title": "nanoid: Integer Overflow or Wraparound",
+        "url": "https://github.com/advisories/GHSA-xwg4-73v4-xw9w",
+        "vulnerableVersions": "<3.3.12",
+        "patchedVersions": ">=3.3.12",
+        "inProdAudit": true,
+        "applicabilityReview": "Generadores y parametros afectados; no hay llamadas directas al generador con tamano controlable por usuarios identificadas.",
+        "findings": [
+          {
+            "version": "3.3.11",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next>postcss>nanoid",
+              ".>next>postcss>nanoid"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1158499",
+        "ghsa": "GHSA-p498-v437-472g",
+        "package": "@humanfs/node",
+        "severity": "moderate",
+        "title": "humanfs: Recursive copy follows symlinked files and copies data from outside the source tree",
+        "url": "https://github.com/advisories/GHSA-p498-v437-472g",
+        "vulnerableVersions": "<0.16.8",
+        "patchedVersions": ">=0.16.8",
+        "inProdAudit": false,
+        "applicabilityReview": "Copia de archivos del tooling; valorar symlinks no confiables. No hay copia via esta libreria en flujo de tickets identificada.",
+        "findings": [
+          {
+            "version": "0.16.7",
+            "dev": true,
+            "optional": false,
+            "pathCount": 26,
+            "samplePaths": [
+              ".>eslint>@humanfs/node",
+              ".>eslint-config-next>eslint>@humanfs/node",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint>@humanfs/node",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint>@humanfs/node",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>eslint>@humanfs/node",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>eslint>@humanfs/node"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1158506",
+        "ghsa": "GHSA-x5fp-wj9c-mxmx",
+        "package": "qs",
+        "severity": "moderate",
+        "title": "qs array-limit bypass via bracket-key comma parsing",
+        "url": "https://github.com/advisories/GHSA-x5fp-wj9c-mxmx",
+        "vulnerableVersions": ">=6.14.2 <=6.15.3",
+        "patchedVersions": ">=6.15.4",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de Google; revisar opciones y datos que llegan al parser/serializador. No se demostro que las opciones afectadas se usen.",
+        "findings": [
+          {
+            "version": "6.15.0",
+            "dev": false,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>googleapis>googleapis-common>qs"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1158507",
+        "ghsa": "GHSA-4mjr-xmp4-gh2g",
+        "package": "qs",
+        "severity": "moderate",
+        "title": "qs: Denial of Service via Attacker Controlled isBuffer",
+        "url": "https://github.com/advisories/GHSA-4mjr-xmp4-gh2g",
+        "vulnerableVersions": ">=2.2.5 <6.16.0",
+        "patchedVersions": ">=6.16.0",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de Google; revisar opciones y datos que llegan al parser/serializador. No se demostro que las opciones afectadas se usen.",
+        "findings": [
+          {
+            "version": "6.15.0",
+            "dev": false,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>googleapis>googleapis-common>qs"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1158508",
+        "ghsa": "GHSA-cp6q-959q-f8rh",
+        "package": "@tiptap/core",
+        "severity": "moderate",
+        "title": "Tiptap: mergeAttributes() turns an own __proto__ key into inherited executable DOM attributes",
+        "url": "https://github.com/advisories/GHSA-cp6q-959q-f8rh",
+        "vulnerableVersions": ">=2.0.0-alpha.0 <3.30.4",
+        "patchedVersions": ">=3.30.4",
+        "inProdAudit": true,
+        "applicabilityReview": "Paquete usado por editor. Revisar mergeAttributes y parser Markdown segun aviso; no se encontro configuracion de Markdown, sin exploit demostrado.",
+        "findings": [
+          {
+            "version": "3.26.0",
+            "dev": false,
+            "optional": false,
+            "pathCount": 29,
+            "samplePaths": [
+              ".>@tiptap/extension-color>@tiptap/extension-text-style>@tiptap/core",
+              ".>@tiptap/extension-link>@tiptap/core",
+              ".>@tiptap/extension-text-style>@tiptap/core",
+              ".>@tiptap/react>@tiptap/core",
+              ".>@tiptap/react>@tiptap/extension-bubble-menu>@tiptap/core",
+              ".>@tiptap/react>@tiptap/extension-floating-menu>@tiptap/core"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1193676",
+        "ghsa": "GHSA-p293-qw3h-jr36",
+        "package": "next",
+        "severity": "critical",
+        "title": "Next.js: Unauthenticated Remote Code Execution on windows-hosted servers",
+        "url": "https://github.com/advisories/GHSA-p293-qw3h-jr36",
+        "vulnerableVersions": ">=16.0.0 <16.3.3",
+        "patchedVersions": ">=16.3.3",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1193686",
+        "ghsa": "GHSA-w5vr-8v7q-w6rv",
+        "package": "baseline-browser-mapping",
+        "severity": "moderate",
+        "title": "baseline-browser-mapping process termination on invalid input causes denial of service",
+        "url": "https://github.com/advisories/GHSA-w5vr-8v7q-w6rv",
+        "vulnerableVersions": ">=2.0.0 <2.11.0",
+        "patchedVersions": ">=2.11.0",
+        "inProdAudit": true,
+        "applicabilityReview": "Entrada invalida en herramienta de build; no hay ruta desde tickets identificada.",
+        "findings": [
+          {
+            "version": "2.10.0",
+            "dev": false,
+            "optional": false,
+            "pathCount": 5,
+            "samplePaths": [
+              ".>better-auth>next>baseline-browser-mapping",
+              ".>better-auth>next>styled-jsx>@babel/core>@babel/helper-compilation-targets>browserslist>baseline-browser-mapping",
+              ".>next>baseline-browser-mapping",
+              ".>next>styled-jsx>@babel/core>@babel/helper-compilation-targets>browserslist>baseline-browser-mapping",
+              ".>eslint-config-next>eslint-plugin-react-hooks>@babel/core>@babel/helper-compilation-targets>browserslist>baseline-browser-mapping"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1193725",
+        "ghsa": "GHSA-rgj7-g3m4-5g8c",
+        "package": "sharp",
+        "severity": "high",
+        "title": "sharp: Vulnerabilities in libheif: GHSA-g89c-p67h-r497 and GHSA-2jg2-4ch7-h545",
+        "url": "https://github.com/advisories/GHSA-rgj7-g3m4-5g8c",
+        "vulnerableVersions": "<0.35.4",
+        "patchedVersions": ">=0.35.4",
+        "inProdAudit": true,
+        "applicabilityReview": "Optimizador de imagenes presente con origen remoto restringido a Google; formatos/imagenes controlables y runtime real pendientes.",
+        "findings": [
+          {
+            "version": "0.34.5",
+            "dev": false,
+            "optional": true,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next>sharp",
+              ".>next>sharp"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1193727",
+        "ghsa": "GHSA-2883-xcg3-v3hh",
+        "package": "js-yaml",
+        "severity": "high",
+        "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+        "url": "https://github.com/advisories/GHSA-2883-xcg3-v3hh",
+        "vulnerableVersions": ">=4.0.0 <4.3.2",
+        "patchedVersions": ">=4.3.2",
+        "inProdAudit": false,
+        "applicabilityReview": "Parsing YAML de herramientas; no hay importacion YAML de tickets identificada.",
+        "findings": [
+          {
+            "version": "4.2.0",
+            "dev": true,
+            "optional": false,
+            "pathCount": 26,
+            "samplePaths": [
+              ".>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>eslint>@eslint/eslintrc>js-yaml"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1193728",
+        "ghsa": "GHSA-j95f-988m-3j2f",
+        "package": "@tiptap/core",
+        "severity": "high",
+        "title": "Tiptap: Quadratic ReDoS in block and inline Markdown attribute parsing",
+        "url": "https://github.com/advisories/GHSA-j95f-988m-3j2f",
+        "vulnerableVersions": ">=3.7.0 <3.30.5",
+        "patchedVersions": ">=3.30.5",
+        "inProdAudit": true,
+        "applicabilityReview": "Paquete usado por editor. Revisar mergeAttributes y parser Markdown segun aviso; no se encontro configuracion de Markdown, sin exploit demostrado.",
+        "findings": [
+          {
+            "version": "3.26.0",
+            "dev": false,
+            "optional": false,
+            "pathCount": 29,
+            "samplePaths": [
+              ".>@tiptap/extension-color>@tiptap/extension-text-style>@tiptap/core",
+              ".>@tiptap/extension-link>@tiptap/core",
+              ".>@tiptap/extension-text-style>@tiptap/core",
+              ".>@tiptap/react>@tiptap/core",
+              ".>@tiptap/react>@tiptap/extension-bubble-menu>@tiptap/core",
+              ".>@tiptap/react>@tiptap/extension-floating-menu>@tiptap/core"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1193732",
+        "ghsa": "GHSA-2xp9-vwfh-vxw4",
+        "package": "next",
+        "severity": "critical",
+        "title": "Next.js: Unauthenticated Remote Code Execution in Image Optimization API when AVIF files are used",
+        "url": "https://github.com/advisories/GHSA-2xp9-vwfh-vxw4",
+        "vulnerableVersions": ">=16.0.0 <16.3.3",
+        "patchedVersions": ">=16.3.3",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240100",
+        "ghsa": "GHSA-q2hr-2g5m-vwhr",
+        "package": "brace-expansion",
+        "severity": "moderate",
+        "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+        "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+        "vulnerableVersions": "<1.1.21",
+        "patchedVersions": ">=1.1.21",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "1.1.12",
+            "dev": false,
+            "optional": false,
+            "pathCount": 85,
+            "samplePaths": [
+              ".>exceljs>archiver>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>archiver>zip-stream>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>unzipper>fstream>rimraf>glob>minimatch>brace-expansion",
+              ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+              ".>eslint>@eslint/eslintrc>minimatch>brace-expansion",
+              ".>eslint>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240101",
+        "ghsa": "GHSA-q2hr-2g5m-vwhr",
+        "package": "brace-expansion",
+        "severity": "moderate",
+        "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+        "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+        "vulnerableVersions": ">=2.0.0 <2.1.7",
+        "patchedVersions": ">=2.1.7",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "2.0.2",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>exceljs>archiver>readdir-glob>minimatch>brace-expansion",
+              ".>googleapis>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion",
+              ".>googleapis>googleapis-common>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240103",
+        "ghsa": "GHSA-q2hr-2g5m-vwhr",
+        "package": "brace-expansion",
+        "severity": "moderate",
+        "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+        "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+        "vulnerableVersions": ">=4.0.0 <5.0.12",
+        "patchedVersions": ">=5.0.12",
+        "inProdAudit": false,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "5.0.4",
+            "dev": true,
+            "optional": false,
+            "pathCount": 11,
+            "samplePaths": [
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240104",
+        "ghsa": "GHSA-qhr7-859c-m2p7",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+        "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+        "vulnerableVersions": "<1.1.20",
+        "patchedVersions": ">=1.1.20",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "1.1.12",
+            "dev": false,
+            "optional": false,
+            "pathCount": 85,
+            "samplePaths": [
+              ".>exceljs>archiver>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>archiver>zip-stream>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>unzipper>fstream>rimraf>glob>minimatch>brace-expansion",
+              ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+              ".>eslint>@eslint/eslintrc>minimatch>brace-expansion",
+              ".>eslint>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240105",
+        "ghsa": "GHSA-qhr7-859c-m2p7",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+        "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+        "vulnerableVersions": ">=2.0.0 <2.1.6",
+        "patchedVersions": ">=2.1.6",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "2.0.2",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>exceljs>archiver>readdir-glob>minimatch>brace-expansion",
+              ".>googleapis>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion",
+              ".>googleapis>googleapis-common>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240107",
+        "ghsa": "GHSA-qhr7-859c-m2p7",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+        "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+        "vulnerableVersions": ">=4.0.0 <5.0.11",
+        "patchedVersions": ">=5.0.11",
+        "inProdAudit": false,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "5.0.4",
+            "dev": true,
+            "optional": false,
+            "pathCount": 11,
+            "samplePaths": [
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240108",
+        "ghsa": "GHSA-6j4f-fj2g-mc7p",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+        "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+        "vulnerableVersions": "<1.1.19",
+        "patchedVersions": ">=1.1.19",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "1.1.12",
+            "dev": false,
+            "optional": false,
+            "pathCount": 85,
+            "samplePaths": [
+              ".>exceljs>archiver>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>archiver>zip-stream>archiver-utils>glob>minimatch>brace-expansion",
+              ".>exceljs>unzipper>fstream>rimraf>glob>minimatch>brace-expansion",
+              ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+              ".>eslint>@eslint/eslintrc>minimatch>brace-expansion",
+              ".>eslint>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240109",
+        "ghsa": "GHSA-6j4f-fj2g-mc7p",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+        "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+        "vulnerableVersions": ">=2.0.0 <2.1.5",
+        "patchedVersions": ">=2.1.5",
+        "inProdAudit": true,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "2.0.2",
+            "dev": false,
+            "optional": false,
+            "pathCount": 3,
+            "samplePaths": [
+              ".>exceljs>archiver>readdir-glob>minimatch>brace-expansion",
+              ".>googleapis>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion",
+              ".>googleapis>googleapis-common>google-auth-library>gaxios>rimraf>glob>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240111",
+        "ghsa": "GHSA-6j4f-fj2g-mc7p",
+        "package": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+        "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+        "vulnerableVersions": ">=4.0.0 <5.0.10",
+        "patchedVersions": ">=5.0.10",
+        "inProdAudit": false,
+        "applicabilityReview": "Transitiva de glob/ExcelJS/Google y herramientas; validar si patrones controlables llegan a expansion. No hay ruta de patrones de usuario identificada.",
+        "findings": [
+          {
+            "version": "5.0.4",
+            "dev": true,
+            "optional": false,
+            "pathCount": 11,
+            "samplePaths": [
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+              ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240609",
+        "ghsa": "GHSA-vcvr-r3jv-pc5j",
+        "package": "next",
+        "severity": "critical",
+        "title": "Next.js: Remote Code Execution in next/og ImageResponse",
+        "url": "https://github.com/advisories/GHSA-vcvr-r3jv-pc5j",
+        "vulnerableVersions": ">=16.2.0 <16.3.6",
+        "patchedVersions": ">=16.3.6",
+        "inProdAudit": true,
+        "applicabilityReview": "Version afectada. Aplicabilidad por aviso: Windows requiere host Windows; next/og no tiene consumidores encontrados; AVIF requiere procesamiento del formato; Server Actions si se usan. Ver informe para condiciones no verificadas.",
+        "findings": [
+          {
+            "version": "16.2.7",
+            "dev": false,
+            "optional": false,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next",
+              ".>next"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1240992",
+        "ghsa": "GHSA-vfj7-8cjw-p6xm",
+        "package": "braces",
+        "severity": "high",
+        "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+        "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+        "vulnerableVersions": "<=3.0.3",
+        "patchedVersions": ">=3.0.4",
+        "inProdAudit": false,
+        "applicabilityReview": "Expansion de patrones del tooling; no hay patrones controlables de la app identificados.",
+        "findings": [
+          {
+            "version": "3.0.3",
+            "dev": true,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>eslint-config-next>@next/eslint-plugin-next>fast-glob>micromatch>braces"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1241196",
+        "ghsa": "GHSA-rf6f-7fwh-wjgh",
+        "package": "flatted",
+        "severity": "high",
+        "title": "Prototype Pollution via parse() in NodeJS flatted",
+        "url": "https://github.com/advisories/GHSA-rf6f-7fwh-wjgh",
+        "vulnerableVersions": "<=3.4.1",
+        "patchedVersions": ">=3.4.2",
+        "inProdAudit": false,
+        "applicabilityReview": "Parsing de datos en tooling; no hay importacion directa de flatted por la app identificada.",
+        "findings": [
+          {
+            "version": "3.4.1",
+            "dev": true,
+            "optional": false,
+            "pathCount": 26,
+            "samplePaths": [
+              ".>eslint>file-entry-cache>flat-cache>flatted",
+              ".>eslint-config-next>eslint>file-entry-cache>flat-cache>flatted",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint>file-entry-cache>flat-cache>flatted",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint>file-entry-cache>flat-cache>flatted",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>eslint>file-entry-cache>flat-cache>flatted",
+              ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>eslint>file-entry-cache>flat-cache>flatted"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1241209",
+        "ghsa": "GHSA-68fv-2mgg-jv7q",
+        "package": "source-map-js",
+        "severity": "high",
+        "title": "source-map-js allows event-loop denial of service through indexed source-map section offsets",
+        "url": "https://github.com/advisories/GHSA-68fv-2mgg-jv7q",
+        "vulnerableVersions": ">=1.0.0 <1.2.2",
+        "patchedVersions": ">=1.2.2",
+        "inProdAudit": true,
+        "applicabilityReview": "Sourcemaps del tooling; no hay mapas aportados por usuarios de tickets identificados.",
+        "findings": [
+          {
+            "version": "1.2.1",
+            "dev": false,
+            "optional": false,
+            "pathCount": 4,
+            "samplePaths": [
+              ".>better-auth>next>postcss>source-map-js",
+              ".>next>postcss>source-map-js",
+              ".>@tailwindcss/postcss>@tailwindcss/node>source-map-js",
+              ".>@tailwindcss/postcss>postcss>source-map-js"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1241232",
+        "ghsa": "GHSA-rj75-hqrm-r3gf",
+        "package": "postcss-selector-parser",
+        "severity": "moderate",
+        "title": "PostCSS: Quadratic complexity in flat selector parsing allows CPU exhaustion",
+        "url": "https://github.com/advisories/GHSA-rj75-hqrm-r3gf",
+        "vulnerableVersions": "<7.1.6",
+        "patchedVersions": ">=7.1.6",
+        "inProdAudit": true,
+        "applicabilityReview": "Selectores CSS de build; no hay importacion de CSS de usuarios identificada.",
+        "findings": [
+          {
+            "version": "6.0.10",
+            "dev": false,
+            "optional": false,
+            "pathCount": 1,
+            "samplePaths": [
+              ".>@tailwindcss/typography>postcss-selector-parser"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1241270",
+        "ghsa": "GHSA-c8x8-7fp4-3x9w",
+        "package": "prosemirror-view",
+        "severity": "high",
+        "title": "ProseMirror has a XSS vulnerability in prosemirror-view's paste handling",
+        "url": "https://github.com/advisories/GHSA-c8x8-7fp4-3x9w",
+        "vulnerableVersions": "<1.42.3",
+        "patchedVersions": ">=1.42.3",
+        "inProdAudit": true,
+        "applicabilityReview": "Editor editable presente; HTML pegado es una ruta de entrada alcanzable. Actualizacion prioritaria; sin prueba de exploit ejecutada.",
+        "findings": [
+          {
+            "version": "1.41.6",
+            "dev": false,
+            "optional": false,
+            "pathCount": 100,
+            "samplePaths": [
+              ".>@tiptap/extension-color>@tiptap/extension-text-style>@tiptap/core>@tiptap/pm>prosemirror-commands>prosemirror-state>prosemirror-view",
+              ".>@tiptap/extension-color>@tiptap/extension-text-style>@tiptap/core>@tiptap/pm>prosemirror-dropcursor>prosemirror-state>prosemirror-view",
+              ".>@tiptap/extension-color>@tiptap/extension-text-style>@tiptap/core>@tiptap/pm>prosemirror-dropcursor>prosemirror-view",
+              ".>@tiptap/extension-color>@tiptap/extension-text-style>@tiptap/core>@tiptap/pm>prosemirror-gapcursor>prosemirror-keymap>prosemirror-state>prosemirror-view",
+              ".>@tiptap/extension-color>@tiptap/extension-text-style>@tiptap/core>@tiptap/pm>prosemirror-gapcursor>prosemirror-state>prosemirror-view",
+              ".>@tiptap/extension-color>@tiptap/extension-text-style>@tiptap/core>@tiptap/pm>prosemirror-gapcursor>prosemirror-view"
+            ]
+          },
+          {
+            "version": "1.41.8",
+            "dev": false,
+            "optional": false,
+            "pathCount": 45,
+            "samplePaths": [
+              ".>@tiptap/extension-color>@tiptap/extension-text-style>@tiptap/core>@tiptap/pm>prosemirror-view",
+              ".>@tiptap/extension-link>@tiptap/core>@tiptap/pm>prosemirror-view",
+              ".>@tiptap/extension-link>@tiptap/pm>prosemirror-view",
+              ".>@tiptap/extension-text-style>@tiptap/core>@tiptap/pm>prosemirror-view",
+              ".>@tiptap/react>@tiptap/core>@tiptap/pm>prosemirror-view",
+              ".>@tiptap/react>@tiptap/pm>prosemirror-view"
+            ]
+          }
+        ]
+      },
+      {
+        "entryId": "1241331",
+        "ghsa": "GHSA-wq5f-xc86-pv6w",
+        "package": "sharp",
+        "severity": "high",
+        "title": "sharp : Vulnerability in librsvg dependency CVE-2026-96889",
+        "url": "https://github.com/advisories/GHSA-wq5f-xc86-pv6w",
+        "vulnerableVersions": "<0.35.5",
+        "patchedVersions": ">=0.35.5",
+        "inProdAudit": true,
+        "applicabilityReview": "Optimizador de imagenes presente con origen remoto restringido a Google; formatos/imagenes controlables y runtime real pendientes.",
+        "findings": [
+          {
+            "version": "0.34.5",
+            "dev": false,
+            "optional": true,
+            "pathCount": 2,
+            "samplePaths": [
+              ".>better-auth>next>sharp",
+              ".>next>sharp"
+            ]
+          }
+        ]
+      }
+    ],
+    "outdated": {
+      "@radix-ui/react-alert-dialog": {
+        "current": "1.1.16",
+        "latest": "1.1.23",
+        "wanted": "1.1.16",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-dialog": {
+        "current": "1.1.16",
+        "latest": "1.1.23",
+        "wanted": "1.1.16",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-dropdown-menu": {
+        "current": "2.1.17",
+        "latest": "2.1.24",
+        "wanted": "2.1.17",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-label": {
+        "current": "2.1.9",
+        "latest": "2.1.15",
+        "wanted": "2.1.9",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-popover": {
+        "current": "1.1.16",
+        "latest": "1.1.23",
+        "wanted": "1.1.16",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-select": {
+        "current": "2.3.0",
+        "latest": "2.3.7",
+        "wanted": "2.3.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-separator": {
+        "current": "1.1.9",
+        "latest": "1.1.15",
+        "wanted": "1.1.9",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-switch": {
+        "current": "1.3.0",
+        "latest": "1.3.7",
+        "wanted": "1.3.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-tabs": {
+        "current": "1.1.14",
+        "latest": "1.1.21",
+        "wanted": "1.1.14",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-toggle": {
+        "current": "1.1.11",
+        "latest": "1.1.18",
+        "wanted": "1.1.11",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@tailwindcss/postcss": {
+        "current": "4.3.0",
+        "latest": "4.3.3",
+        "wanted": "4.3.0",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "dayjs": {
+        "current": "1.11.19",
+        "latest": "1.11.23",
+        "wanted": "1.11.19",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "filepond": {
+        "current": "4.32.11",
+        "latest": "4.32.12",
+        "wanted": "4.32.11",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "react-day-picker": {
+        "current": "10.0.1",
+        "latest": "10.0.2",
+        "wanted": "10.0.1",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "sonner": {
+        "current": "2.0.7",
+        "latest": "2.0.8",
+        "wanted": "2.0.7",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "tailwindcss": {
+        "current": "4.3.0",
+        "latest": "4.3.3",
+        "wanted": "4.3.0",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "@hookform/resolvers": {
+        "current": "5.4.0",
+        "latest": "5.9.1",
+        "wanted": "5.4.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-avatar": {
+        "current": "1.1.12",
+        "latest": "1.2.6",
+        "wanted": "1.1.12",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@radix-ui/react-slot": {
+        "current": "1.2.5",
+        "latest": "1.3.3",
+        "wanted": "1.2.5",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@tiptap/extension-color": {
+        "current": "3.26.0",
+        "latest": "3.31.4",
+        "wanted": "3.26.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@tiptap/extension-link": {
+        "current": "3.26.0",
+        "latest": "3.31.4",
+        "wanted": "3.26.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@tiptap/extension-text-style": {
+        "current": "3.26.0",
+        "latest": "3.31.4",
+        "wanted": "3.26.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@tiptap/react": {
+        "current": "3.26.0",
+        "latest": "3.31.4",
+        "wanted": "3.26.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@tiptap/starter-kit": {
+        "current": "3.26.0",
+        "latest": "3.31.4",
+        "wanted": "3.26.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@types/pg": {
+        "current": "8.20.0",
+        "latest": "8.23.1",
+        "wanted": "8.20.0",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "@types/react": {
+        "current": "19.2.17",
+        "latest": "19.3.0",
+        "wanted": "19.2.17",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "@types/react-dom": {
+        "current": "19.2.3",
+        "latest": "19.3.0",
+        "wanted": "19.2.3",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "better-auth": {
+        "current": "1.6.15",
+        "latest": "1.7.7",
+        "wanted": "1.6.15",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "eslint-config-next": {
+        "current": "16.2.7",
+        "latest": "16.3.8",
+        "wanted": "16.2.7",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "next": {
+        "current": "16.2.7",
+        "latest": "16.3.8",
+        "wanted": "16.2.7",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "pg": {
+        "current": "8.21.0",
+        "latest": "8.23.1",
+        "wanted": "8.21.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "radix-ui": {
+        "current": "1.5.0",
+        "latest": "1.6.7",
+        "wanted": "1.5.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "react": {
+        "current": "19.2.7",
+        "latest": "19.3.0",
+        "wanted": "19.2.7",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "react-dom": {
+        "current": "19.2.7",
+        "latest": "19.3.0",
+        "wanted": "19.2.7",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "react-hook-form": {
+        "current": "7.78.0",
+        "latest": "7.89.0",
+        "wanted": "7.78.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "recharts": {
+        "current": "3.8.1",
+        "latest": "3.10.1",
+        "wanted": "3.8.1",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "tailwind-merge": {
+        "current": "3.4.0",
+        "latest": "3.7.0",
+        "wanted": "3.4.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "tsx": {
+        "current": "4.21.0",
+        "latest": "4.23.15",
+        "wanted": "4.21.0",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "zod": {
+        "current": "4.4.3",
+        "latest": "4.6.5",
+        "wanted": "4.4.3",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "@types/node": {
+        "current": "25.9.2",
+        "latest": "26.6.4",
+        "wanted": "25.9.2",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "dotenv": {
+        "current": "17.2.3",
+        "latest": "18.0.5",
+        "wanted": "17.2.3",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "eslint": {
+        "current": "9.39.4",
+        "latest": "10.12.0",
+        "wanted": "9.39.4",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "googleapis": {
+        "current": "173.0.0",
+        "latest": "183.0.0",
+        "wanted": "173.0.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "typescript": {
+        "current": "5.9.3",
+        "latest": "7.0.2",
+        "wanted": "5.9.3",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "@tailwindcss/typography": {
+        "current": "0.5.19",
+        "latest": "0.5.20",
+        "wanted": "0.5.19",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "drizzle-kit": {
+        "current": "0.31.10",
+        "latest": "0.31.11",
+        "wanted": "0.31.10",
+        "isDeprecated": false,
+        "dependencyType": "devDependencies"
+      },
+      "drizzle-orm": {
+        "current": "0.45.2",
+        "latest": "0.45.3",
+        "wanted": "0.45.2",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      },
+      "lucide-react": {
+        "current": "0.561.0",
+        "latest": "1.52.0",
+        "wanted": "0.561.0",
+        "isDeprecated": false,
+        "dependencyType": "dependencies"
+      }
+    }
+  },
+  "actions": [
+    {
+      "file": "src/actions/admin/attention-areas.ts",
+      "line": 32,
+      "name": "createAttentionArea",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": true,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/attention-areas.ts",
+      "line": 61,
+      "name": "updateAttentionArea",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": true,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/categories.ts",
+      "line": 9,
+      "name": "createCategory",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/categories.ts",
+      "line": 42,
+      "name": "updateCategory",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/categories.ts",
+      "line": 72,
+      "name": "deleteCategory",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/categories.ts",
+      "line": 87,
+      "name": "toggleCategoryActive",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/categories.ts",
+      "line": 113,
+      "name": "moveCategoryUp",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/categories.ts",
+      "line": 146,
+      "name": "moveCategoryDown",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/priority-config.ts",
+      "line": 13,
+      "name": "updatePriorityConfigAction",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": true,
+      "rateLimit": true,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/providers.ts",
+      "line": 10,
+      "name": "createProviderAction",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": true,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/providers.ts",
+      "line": 34,
+      "name": "updateProviderAction",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": true,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/settings.ts",
+      "line": 9,
+      "name": "updateAppSetting",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/settings.ts",
+      "line": 36,
+      "name": "getAppSettingAction",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/subcategories.ts",
+      "line": 9,
+      "name": "createSubcategory",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/subcategories.ts",
+      "line": 43,
+      "name": "updateSubcategory",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/subcategories.ts",
+      "line": 73,
+      "name": "deleteSubcategory",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/subcategories.ts",
+      "line": 88,
+      "name": "toggleSubcategoryActive",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/subcategories.ts",
+      "line": 114,
+      "name": "moveSubcategoryUp",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/subcategories.ts",
+      "line": 149,
+      "name": "moveSubcategoryDown",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/ticket-management.ts",
+      "line": 15,
+      "name": "assignTicketToSelf",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/ticket-management.ts",
+      "line": 96,
+      "name": "unassignTicket",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/ticket-management.ts",
+      "line": 124,
+      "name": "updateTicketStatus",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/ticket-management.ts",
+      "line": 167,
+      "name": "deepDeleteTicketAction",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": true
+    },
+    {
+      "file": "src/actions/admin/user-management.ts",
+      "line": 9,
+      "name": "updateUserRole",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/admin/user-management.ts",
+      "line": 42,
+      "name": "toggleUserActive",
+      "guard": [
+        "requireAdmin"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/categories.ts",
+      "line": 10,
+      "name": "createAgentCategory",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/categories.ts",
+      "line": 50,
+      "name": "updateAgentCategory",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/categories.ts",
+      "line": 97,
+      "name": "deleteAgentCategory",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/categories.ts",
+      "line": 128,
+      "name": "toggleAgentCategoryActive",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/get-area-name.ts",
+      "line": 8,
+      "name": "getAgentAreaName",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/priority-config.ts",
+      "line": 13,
+      "name": "updateAgentPriorityConfigAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": true,
+      "rateLimit": true,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/provider-tickets.ts",
+      "line": 14,
+      "name": "createProviderTicketAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": true,
+      "rateLimit": true,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/provider-tickets.ts",
+      "line": 75,
+      "name": "updateProviderTicketAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": true,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/provider-tickets.ts",
+      "line": 172,
+      "name": "closeProviderTicketAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": true,
+      "rateLimit": false,
+      "transaction": true
+    },
+    {
+      "file": "src/actions/agent/provider-tickets.ts",
+      "line": 266,
+      "name": "reopenProviderTicketAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/provider-tickets.ts",
+      "line": 307,
+      "name": "deleteProviderTicketAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/providers.ts",
+      "line": 16,
+      "name": "createAgentProviderAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/providers.ts",
+      "line": 41,
+      "name": "updateAgentProviderAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": true,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/subcategories.ts",
+      "line": 36,
+      "name": "createAgentSubcategory",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/subcategories.ts",
+      "line": 83,
+      "name": "updateAgentSubcategory",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/subcategories.ts",
+      "line": 134,
+      "name": "deleteAgentSubcategory",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/subcategories.ts",
+      "line": 158,
+      "name": "toggleAgentSubcategoryActive",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/update-business-hours.ts",
+      "line": 29,
+      "name": "updateBusinessHoursAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": true,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/agent/update-config.ts",
+      "line": 9,
+      "name": "updateAreaConfigAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/comments/add-comment.ts",
+      "line": 16,
+      "name": "addCommentAction",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": true,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/comments/add-derivation.ts",
+      "line": 18,
+      "name": "addDerivationAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": true,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/config/get-config.ts",
+      "line": 8,
+      "name": "getActiveCategories",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/config/get-config.ts",
+      "line": 44,
+      "name": "getActiveAttentionAreas",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/config/get-config.ts",
+      "line": 67,
+      "name": "getAllPriorityConfigs",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/config/get-config.ts",
+      "line": 85,
+      "name": "getPriorityConfigByArea",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/config/get-config.ts",
+      "line": 99,
+      "name": "getAllProviders",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/config/get-config.ts",
+      "line": 117,
+      "name": "getProvidersByArea",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/config/get-config.ts",
+      "line": 131,
+      "name": "getActiveProvidersByArea",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/surveys/index.ts",
+      "line": 17,
+      "name": "submitSurveyAction",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": true,
+      "rateLimit": true,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/surveys/index.ts",
+      "line": 124,
+      "name": "getSurveyResultsAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/surveys/index.ts",
+      "line": 269,
+      "name": "getAgentsWithSurveysAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/surveys/provider-surveys.ts",
+      "line": 19,
+      "name": "getProviderSurveyResultsAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/surveys/provider-surveys.ts",
+      "line": 111,
+      "name": "getAgentsWithProviderSurveysAction",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/tickets/add-attachments.ts",
+      "line": 13,
+      "name": "addTicketAttachmentsAction",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/tickets/cancel-ticket.ts",
+      "line": 11,
+      "name": "userCancelTicketAction",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/tickets/create-ticket.ts",
+      "line": 18,
+      "name": "createTicketAction",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": true,
+      "rateLimit": true,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/tickets/delete-attachment.ts",
+      "line": 14,
+      "name": "deleteTicketAttachmentAction",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/tickets/validation.ts",
+      "line": 16,
+      "name": "approveTicketValidation",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/tickets/validation.ts",
+      "line": 111,
+      "name": "rejectTicketValidation",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": true
+    },
+    {
+      "file": "src/actions/tickets/validation.ts",
+      "line": 217,
+      "name": "requestValidation",
+      "guard": [
+        "requireAgent"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    },
+    {
+      "file": "src/actions/tickets/watchers.ts",
+      "line": 9,
+      "name": "updateWatchersAction",
+      "guard": [
+        "requireAuth"
+      ],
+      "zod": false,
+      "rateLimit": false,
+      "transaction": false
+    }
+  ]
+}
