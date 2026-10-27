@@ -38,6 +38,8 @@ Estas comprobaciones usaron Bubblewrap con red aislada, entorno vacío con varia
 
 Build: no aprobado. En la copia temporal, Turbopack intentó descargar Inter de Google Fonts (red bloqueada) y abortó por una asignación de memoria bajo el límite de memoria virtual del proceso. No se deshabilitaron tipos ni se cambió la configuración del proyecto para ocultar el fallo. El build completo sigue pendiente en un entorno de compilación con recursos adecuados y acceso controlado a fuentes, usando únicamente variables ficticias.
 
+El hook de commit emitió un aviso genérico de React Doctor y permitió el commit. La ejecución aislada posterior de la versión disponible localmente (0.0.30) terminó con resultados incompletos: oxlint abortó por memoria bajo los límites del proceso. El hook elimina su salida detallada, por lo que su mensaje no demuestra una regresión de fuente. React Doctor permanece pendiente; su salida 0 tampoco constituye aprobación porque omitió los checks fallidos.
+
 ## Trabajo pendiente
 
 1. S01–S06: autorización por ticket/área, observadores, agentes sin área, adjuntos y escape de reportes HTML.
