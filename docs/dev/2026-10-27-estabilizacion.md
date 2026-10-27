@@ -1,5 +1,13 @@
 # Estabilización de la auditoría — 27 de octubre de 2026
 
+## Cierre del primer despliegue
+
+El commit `1fe7997` fue integrado en `main` con autorización del usuario. Vercel completó Preview y Production correctamente (deployment de producción `BpsYoAoBtuirvSc1rXtFcSXqUDHv`, registro GitHub `7371288474`). El build del proveedor queda aprobado; las limitaciones de build local descritas más abajo se conservan como evidencia histórica.
+
+En `https://requerimientos-hub.vercel.app` se verificó GET `/login` → 200 con título de la aplicación, GET `/api/auth/get-session` sin cookies → 200 con `null`, y GET `/dashboard` → 307 a `/login`. La URL individual del deployment tiene protección SSO de Vercel. No se probó el flujo autenticado de Google ni se realizaron operaciones sobre tickets, correos, archivos o datos de producción.
+
+No se ejecutaron migraciones, reset, drop ni seed. Las ramas `fix/auditoria-estabilizacion` y `feat/sandbox-seguro` se eliminaron después de integrarse; el resto de la auditoría continúa pendiente según el plan. Las secciones siguientes describen el trabajo y sus resultados antes de este cierre.
+
 ## Estado y ramas
 
 El usuario autorizó ejecutar las correcciones de auditoría. Se cerraron los cambios locales anteriores en `03d10dd`, sobre `feat/sandbox-seguro`, y se abrió `fix/auditoria-estabilizacion` desde ese estado. No se hizo merge, push ni despliegue. La propuesta de sandbox de demos está cancelada.

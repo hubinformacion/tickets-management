@@ -1,5 +1,7 @@
 # Plan de ejecución de la estabilización
 
+> Actualización de cierre: el primer bloque de dependencias está desplegado en producción desde `1fe7997`, con build de Vercel aprobado. Continúan pendientes el recorrido autenticado, los avisos transitivos y las correcciones funcionales enumeradas abajo. Ver el [registro del despliegue](2026-10-27-estabilizacion.md).
+
 ## Punto de partida
 
 Rama: `fix/auditoria-estabilizacion`. Dependencias actualizadas en `bde1a8f`; límites de validación registrados en `46199fd`. Tipos y lint aprobados; quedan 64 advertencias, cuatro entradas de auditoría de dependencias y comprobaciones incompletas de build/React Doctor. El informe del 6 de octubre queda como evidencia histórica; este documento sustituye su secuencia de ejecución.
