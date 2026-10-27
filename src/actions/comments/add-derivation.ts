@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { comments, tickets, users } from "@/db/schema";
+import { comments, tickets, users, providerTickets } from "@/db/schema";
 import { requireAgent } from "@/lib/auth/helpers";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
@@ -11,6 +11,8 @@ import { sendDerivationEmail } from "@/lib/email/send-emails";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 import { formatDateShort } from "@/lib/utils/format";
 import type { DerivationMetadata } from "@/types";
+import { canManageTicket } from "@/lib/auth/ticket-permissions";
+import { ticketDerivationSchema } from "@/lib/validation/schemas";
 
 // Rate limiter para derivaciones: 10 por minuto
 const derivationRateLimiter = createRateLimiter('MODERATE');
@@ -24,17 +26,17 @@ export async function addDerivationAction(formData: FormData) {
     return { error: "Estás registrando derivaciones muy rápido. Por favor, espera un momento." };
   }
 
-  const ticketId = Number(formData.get("ticketId"));
-  const providerName = (formData.get("providerName") as string)?.trim();
-  const estimatedDate = (formData.get("estimatedDate") as string)?.trim() || undefined;
-  const note = (formData.get("note") as string)?.trim() || undefined;
-  const providerTicketId = formData.get("providerTicketId")
-    ? Number(formData.get("providerTicketId"))
-    : undefined;
-
-  if (!ticketId || !providerName) {
+  const parsed = ticketDerivationSchema.safeParse({
+    ticketId: formData.get("ticketId"),
+    providerName: formData.get("providerName"),
+    estimatedDate: formData.get("estimatedDate") || undefined,
+    note: formData.get("note") || undefined,
+    providerTicketId: formData.get("providerTicketId") ? Number(formData.get("providerTicketId")) : undefined,
+  });
+  if (!parsed.success) {
     return { error: "Datos de derivación inválidos" };
   }
+  const { ticketId, providerName, estimatedDate, note, providerTicketId } = parsed.data;
 
   try {
     const ticket = await db.query.tickets.findFirst({
@@ -45,7 +47,20 @@ export async function addDerivationAction(formData: FormData) {
       },
     });
 
-    if (!ticket) return { error: "Ticket no encontrado" };
+    if (!ticket || !canManageTicket(session.user, ticket)) {
+      return { error: "Ticket no encontrado o sin acceso" };
+    }
+
+    if (providerTicketId) {
+      if (!ticket.attentionAreaId) return { error: "El ticket no tiene un área asignada" };
+      const providerTicket = await db.query.providerTickets.findFirst({
+        where: and(eq(providerTickets.id, providerTicketId), eq(providerTickets.attentionAreaId, ticket.attentionAreaId)),
+        columns: { id: true, ticketId: true },
+      });
+      if (!providerTicket || (providerTicket.ticketId !== null && providerTicket.ticketId !== ticket.id)) {
+        return { error: "El ticket del proveedor no pertenece a este ticket o área" };
+      }
+    }
 
     if (ticket.status === TICKET_STATUS.RESOLVED || ticket.status === TICKET_STATUS.VOIDED) {
       return { error: "No se puede registrar una derivación en un ticket cerrado" };
@@ -59,7 +74,7 @@ export async function addDerivationAction(formData: FormData) {
     };
 
     // Construir mensaje descriptivo para la actividad
-    const content = `Derivado a <strong>${providerName}</strong>`;
+    const content = `Derivado a ${providerName}`;
 
     await db.insert(comments).values({
       ticketId,

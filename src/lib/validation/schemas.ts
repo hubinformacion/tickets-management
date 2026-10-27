@@ -1,12 +1,62 @@
 import { z } from "zod";
 
+export const ticketIdSchema = z.number().int().positive();
+
+export const ticketStatusSchema = z.enum(["open", "in_progress", "pending_validation", "resolved", "voided"]);
+
+export const ticketMessageSchema = z.string().trim().min(1).max(20000);
+
+export const surveyFiltersSchema = z.object({
+  agentId: z.string().trim().min(1).max(256).optional(),
+  areaId: z.string().regex(/^[1-9]\d*$/).refine(value => Number.isSafeInteger(Number(value))).optional(),
+  dateFrom: z.iso.date().optional(),
+  dateTo: z.iso.date().optional(),
+}).refine(filters => !filters.dateFrom || !filters.dateTo || filters.dateFrom <= filters.dateTo, {
+  message: "El inicio del rango debe ser anterior al fin", path: ["dateTo"],
+});
+
+export const watcherIdsSchema = z.array(z.string().trim().min(1).max(256))
+  .max(10, "Se permiten como máximo 10 observadores")
+  .transform(ids => [...new Set(ids)]);
+
+export const updateTicketWatchersSchema = z.object({
+  ticketId: ticketIdSchema,
+  watchers: watcherIdsSchema,
+});
+
+export const ticketCommentSchema = z.object({
+  ticketId: z.coerce.number().int().positive(),
+  content: z.string().trim().min(1).max(20000),
+});
+
+export const uploadTokenSchema = z.string().uuid();
+export const attachmentIdSchema = z.string().uuid();
+
+export const ticketAttachmentSchema = z.object({
+  ticketId: ticketIdSchema,
+  uploadToken: uploadTokenSchema,
+});
+
+export const deleteTicketAttachmentSchema = z.object({
+  ticketId: ticketIdSchema,
+  attachmentId: attachmentIdSchema,
+});
+
+export const ticketDerivationSchema = z.object({
+  ticketId: z.coerce.number().int().positive(),
+  providerName: z.string().trim().min(1).max(200),
+  estimatedDate: z.iso.date().optional(),
+  note: z.string().trim().max(10000).optional(),
+  providerTicketId: ticketIdSchema.optional(),
+});
+
 // Campos base compartidos por todos los formularios
 const baseTicketFields = {
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
-  categoryId: z.coerce.number().min(1, "Selecciona una categoría"),
-  subcategoryId: z.coerce.number().min(1, "Selecciona una subcategoría"),
-  attentionAreaId: z.coerce.number().min(1, "Selecciona un área de atención"),
+  categoryId: z.coerce.number().int().min(1, "Selecciona una categoría"),
+  subcategoryId: z.coerce.number().int().min(1, "Selecciona una subcategoría"),
+  attentionAreaId: z.coerce.number().int().min(1, "Selecciona un área de atención"),
 };
 
 // ─── Server-side schemas (validación estricta en server actions) ───

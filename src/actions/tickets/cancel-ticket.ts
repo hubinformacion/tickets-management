@@ -7,9 +7,11 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { TICKET_STATUS } from "@/lib/constants/tickets";
 import { recordStatusChange } from "@/lib/utils/status-history";
+import { ticketIdSchema } from "@/lib/validation/schemas";
 
 export async function userCancelTicketAction(ticketId: number) {
   const session = await requireAuth();
+  if (!ticketIdSchema.safeParse(ticketId).success) return { error: "Ticket inválido" };
 
   try {
     // Enforce user is creator

@@ -2,9 +2,12 @@ import { db } from "@/db";
 import { ticketStatusHistory } from "@/db/schema";
 import type { TicketStatus } from "@/types";
 
+type HistoryExecutor = Pick<typeof db, "insert">;
+
 /**
  * Registra un cambio de estado en el historial del ticket.
- * Usar después de cada UPDATE que cambie el campo status.
+ * Pasar el executor de la transacción que actualiza el estado para confirmar
+ * o revertir ambos cambios juntos.
  */
 export async function recordStatusChange(
   ticketId: number,
@@ -12,8 +15,9 @@ export async function recordStatusChange(
   toStatus: TicketStatus,
   changedById: string,
   changedAt?: Date,
+  executor: HistoryExecutor = db,
 ) {
-  await db.insert(ticketStatusHistory).values({
+  await executor.insert(ticketStatusHistory).values({
     ticketId,
     fromStatus,
     toStatus,

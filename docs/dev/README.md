@@ -1,5 +1,7 @@
 # Documentación de auditoría
 
+El bloque actual se prepara en `fix/autorizacion-tickets`, sobre la limpieza todavía sin integrar. Incluye permisos compartidos, observadores, acceso a metadata/actividad, controles de agentes sin área y reportes HTML. Su alcance y límites están en [Autorización y validación](2026-10-27-autorizacion.md). No está desplegado.
+
 La limpieza de mantenimiento se prepara en `chore/organizacion-mantenimiento`: atribuciones retiradas de los diagramas y manuales, documentación de entrada actualizada y declaraciones sin uso eliminadas. Conserva `AGENTS.md`, configuración, licencias y contratos públicos. Tipos y lint aprobados: las advertencias bajaron de 64 a 3. Quedan por revisar los avisos de navegación en páginas de error y compatibilidad de React Hook Form con el compilador. Este bloque aún no está integrado ni desplegado.
 
 Se retiró `doctor.config.ts`, que desactivaba 26 reglas globalmente sin justificación por caso. React Doctor queda con su configuración predeterminada; cualquier excepción futura deberá documentar el diagnóstico concreto y su alcance. Esta retirada no equivale a aprobar un nuevo análisis de React Doctor.

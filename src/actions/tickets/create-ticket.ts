@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { tickets, users, attentionAreas, ticketCategories, ticketSubcategories, ticketAttachments } from "@/db/schema";
-import { createTicketSchema, createFedTicketSchema, createDiffusionTicketSchema } from "@/lib/validation/schemas";
+import { tickets, users, attentionAreas, ticketCategories, ticketSubcategories, ticketAttachments, appSettings } from "@/db/schema";
+import { createTicketSchema, createFedTicketSchema, createDiffusionTicketSchema, watcherIdsSchema } from "@/lib/validation/schemas";
 import { requireAuth } from "@/lib/auth/helpers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
@@ -36,7 +36,7 @@ export async function createTicketAction(formData: FormData) {
   const attentionAreaIdRaw = formData.get("attentionAreaId");
   const attentionAreaIdNum = Number(attentionAreaIdRaw);
 
-  if (!attentionAreaIdNum || isNaN(attentionAreaIdNum)) {
+  if (!Number.isInteger(attentionAreaIdNum) || attentionAreaIdNum <= 0) {
     return { error: "Selecciona un área de atención" };
   }
 
@@ -45,7 +45,7 @@ export async function createTicketAction(formData: FormData) {
     where: eq(attentionAreas.id, attentionAreaIdNum),
   });
 
-  if (!targetArea) {
+  if (!targetArea?.isActive || !["TSI", "DIF", "FED"].includes(targetArea.slug)) {
     return { error: "Área de atención inválida" };
   }
 
@@ -69,7 +69,7 @@ export async function createTicketAction(formData: FormData) {
   let desiredDiffusionDate: string | null = null;
   let targetAudience: string | null = null;
   let metadata: Record<string, unknown> | null = null;
-  let allowAttachments = true;
+  let allowAttachments = !isDiffusion && !isFondoEditorial;
 
   if (isDiffusion) {
     const rawData = {
@@ -173,21 +173,45 @@ export async function createTicketAction(formData: FormData) {
     ({ title, description, priority, categoryId, subcategoryId, attentionAreaId } = result.data);
   }
 
-  // Parse watchers (user IDs)
-  let watcherList: string[] = [];
+  let parsedWatchers: unknown = [];
   const watchersData = formData.get("watchers");
-  if (watchersData && typeof watchersData === "string") {
+  if (watchersData) {
+    if (typeof watchersData !== "string" || watchersData.length > 10000) {
+      return { error: "Lista de observadores inválida" };
+    }
     try {
-      watcherList = JSON.parse(watchersData as string);
-    } catch (e) {
-      console.error("Error parsing watchers:", e);
+      parsedWatchers = JSON.parse(watchersData);
+    } catch {
+      return { error: "Lista de observadores inválida" };
     }
   }
+  const watchersResult = watcherIdsSchema.safeParse(parsedWatchers);
+  if (!watchersResult.success) return { error: "Lista de observadores inválida" };
+  const watcherList = watchersResult.data;
 
   let ticketId: number;
   let ticketCode: string;
 
   try {
+    const [category, subcategory, availability] = await Promise.all([
+      db.query.ticketCategories.findFirst({
+        where: and(eq(ticketCategories.id, categoryId), eq(ticketCategories.attentionAreaId, attentionAreaId), eq(ticketCategories.isActive, true)),
+        columns: { id: true },
+      }),
+      db.query.ticketSubcategories.findFirst({
+        where: and(eq(ticketSubcategories.id, subcategoryId), eq(ticketSubcategories.categoryId, categoryId), eq(ticketSubcategories.isActive, true)),
+        columns: { id: true },
+      }),
+      db.query.appSettings.findFirst({ where: eq(appSettings.key, "allow_new_tickets"), columns: { value: true } }),
+    ]);
+    if (!category || !subcategory) return { error: "La clasificación seleccionada no está disponible para esta área" };
+    if (availability?.value === "false") return { error: "La creación de tickets está desactivada temporalmente" };
+    if (watcherList.length > 0) {
+      const activeUsers = await db.select({ id: users.id }).from(users)
+        .where(and(inArray(users.id, watcherList), eq(users.isActive, true)));
+      if (activeUsers.length !== watcherList.length) return { error: "Los observadores deben ser usuarios activos existentes" };
+    }
+
     // Inserción atómica: genera el código y crea el ticket en una sola transacción
     const { insertTicketWithCode } = await import("@/lib/utils/ticket-code");
     const newTicket = await insertTicketWithCode({

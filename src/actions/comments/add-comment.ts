@@ -9,6 +9,8 @@ import { eq, and, inArray } from "drizzle-orm";
 import { TICKET_STATUS } from "@/lib/constants/tickets";
 import { sendUserCommentEmail } from "@/lib/email/send-emails";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
+import { canReadTicket } from "@/lib/auth/ticket-permissions";
+import { ticketCommentSchema } from "@/lib/validation/schemas";
 
 // Rate limiter para comentarios: 10 por minuto
 const commentRateLimiter = createRateLimiter('MODERATE');
@@ -22,12 +24,13 @@ export async function addCommentAction(formData: FormData) {
     return { error: "Estás enviando comentarios muy rápido. Por favor, espera un momento." };
   }
 
-  const ticketId = Number(formData.get("ticketId"));
-  const content = formData.get("content") as string;
-
-  if (!ticketId || !content || content.trim().length === 0) {
+  const parsed = ticketCommentSchema.safeParse({
+    ticketId: formData.get("ticketId"), content: formData.get("content"),
+  });
+  if (!parsed.success) {
     return { error: "Comentario inválido" };
   }
+  const { ticketId, content } = parsed.data;
 
   try {
     // Get full ticket details including creator
@@ -41,7 +44,9 @@ export async function addCommentAction(formData: FormData) {
       },
     });
 
-    if (!ticket) return { error: "Ticket no encontrado" };
+    if (!ticket || !canReadTicket(session.user, ticket)) {
+      return { error: "Ticket no encontrado o sin acceso" };
+    }
 
     if (ticket.status === TICKET_STATUS.RESOLVED || ticket.status === TICKET_STATUS.VOIDED) {
       return { error: "No se puede comentar en un ticket cerrado" };

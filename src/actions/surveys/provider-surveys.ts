@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { providerSatisfactionSurveys } from "@/db/schema";
 import { requireAgent } from "@/lib/auth/helpers";
 import { eq, and, desc, sql } from "drizzle-orm";
+import { surveyFiltersSchema } from "@/lib/validation/schemas";
 
 export interface ProviderSurveyFilterParams {
   agentId?: string;
@@ -18,6 +19,12 @@ export interface ProviderSurveyFilterParams {
  */
 export async function getProviderSurveyResultsAction(filters?: ProviderSurveyFilterParams) {
   const session = await requireAgent();
+  if (session.user.role !== "admin" && !session.user.attentionAreaId) {
+    return { error: "Debes tener un área asignada para consultar encuestas" };
+  }
+  const parsedFilters = surveyFiltersSchema.safeParse(filters ?? {});
+  if (!parsedFilters.success) return { error: "Filtros de encuesta inválidos" };
+  filters = parsedFilters.data;
 
   try {
     const isAdmin = session.user.role === "admin";
@@ -110,6 +117,7 @@ export async function getProviderSurveyResultsAction(filters?: ProviderSurveyFil
  */
 export async function getAgentsWithProviderSurveysAction() {
   const session = await requireAgent();
+  if (session.user.role !== "admin" && !session.user.attentionAreaId) return [];
 
   try {
     const isAdmin = session.user.role === "admin";

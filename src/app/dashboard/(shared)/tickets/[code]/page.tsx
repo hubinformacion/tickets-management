@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import { tickets, comments, users, priorityConfig, providers, satisfactionSurveys, ticketStatusHistory } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/helpers";
-import { notFound, redirect } from "next/navigation";
-import { eq, desc, and } from "drizzle-orm";
+import { notFound } from "next/navigation";
+import { eq, desc, and, or, inArray, isNull } from "drizzle-orm";
 import { formatDate } from "@/lib/utils/format";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { PriorityBadge } from "@/components/shared/priority-badge";
@@ -22,65 +22,69 @@ import { TicketSidebar } from "@/components/tickets/ticket-sidebar";
 import type { Metadata } from "next";
 
 import { TicketDescription } from "@/components/tickets/ticket-description";
+import { getReadableTicket } from "@/lib/auth/ticket-access";
+import { canReadTicket, canManageTicket, canManageTicketWatchers, areTicketAttachmentsAllowed } from "@/lib/auth/ticket-permissions";
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
   const { code } = await params;
 
-  const ticket = await db.query.tickets.findFirst({
-    where: eq(tickets.ticketCode, code),
-    columns: { ticketCode: true, title: true },
-  });
+  const ticket = await getReadableTicket(code);
 
-  if (!ticket) return { title: "Ticket no encontrado" };
+  if (!ticket) return { title: "Ticket" };
 
   return { title: `${ticket.ticketCode} - ${ticket.title}` };
 }
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ code: string }> }) {
-  const [session, { code }, allUsers] = await Promise.all([
+  const [session, { code }] = await Promise.all([
     requireAuth(),
     params,
-    db.select({
-      id: users.id, name: users.name, email: users.email, image: users.image,
-    }).from(users)
   ]);
+  const accessibleTicket = await getReadableTicket(code);
+  if (!accessibleTicket) notFound();
 
   const ticket = await db.query.tickets.findFirst({
-    where: eq(tickets.ticketCode, code),
+    where: eq(tickets.id, accessibleTicket.id),
     with: {
-      createdBy: true,
+      createdBy: { columns: { name: true, image: true } },
       category: true,
       subcategory: true,
       attentionArea: true,
-      assignedTo: true,
+      assignedTo: { columns: { name: true, image: true } },
       attachments: {
-        with: { uploadedBy: true },
+        with: { uploadedBy: { columns: { name: true } } },
         orderBy: (a, { asc }) => [asc(a.createdAt)],
       },
       comments: {
-        with: { author: true },
+        where: canManageTicket(session.user, accessibleTicket)
+          ? undefined : or(eq(comments.isInternal, false), isNull(comments.isInternal)),
+        with: { author: { columns: { name: true, image: true } } },
         orderBy: [desc(comments.createdAt)]
       }
     }
   });
 
-  // Fetch status history for the Bitácora
-  const statusHistory = await db.query.ticketStatusHistory.findMany({
-    where: eq(ticketStatusHistory.ticketId, ticket?.id ?? 0),
-    with: { changedBy: true },
-    orderBy: [desc(ticketStatusHistory.changedAt)],
-  });
-
-  if (!ticket) notFound();
+  if (!ticket || !canReadTicket(session.user, ticket)) notFound();
 
   const isCreator = ticket.createdById === session.user.id;
-  const isWatcher = ticket.watchers?.includes(session.user.id) || false;
   const isAdmin = session.user.role === "admin";
-  const isAgentForArea = session.user.role === "agent" && session.user.attentionAreaId === ticket.attentionAreaId;
-
-  if (!isCreator && !isWatcher && !isAdmin && !isAgentForArea) {
-    redirect("/dashboard");
-  }
+  const isAgentForArea = session.user.role === "agent" && canManageTicket(session.user, ticket);
+  const canManageWatchers = canManageTicketWatchers(session.user, ticket);
+  const canAddAttachments = areTicketAttachmentsAllowed(ticket.attentionArea?.slug, ticket.subcategory?.name);
+  const visibleComments = canManageTicket(session.user, ticket)
+    ? ticket.comments : ticket.comments.filter(comment => !comment.isInternal);
+  const [statusHistory, allUsers] = await Promise.all([
+    db.query.ticketStatusHistory.findMany({
+      where: eq(ticketStatusHistory.ticketId, ticket.id),
+      with: { changedBy: { columns: { name: true, image: true } } },
+      orderBy: [desc(ticketStatusHistory.changedAt)],
+    }),
+    db.select({
+      id: users.id, name: users.name, email: users.email, image: users.image, isActive: users.isActive,
+    }).from(users).where(canManageWatchers
+      ? or(eq(users.isActive, true), inArray(users.id, ticket.watchers ?? []))
+      : inArray(users.id, ticket.watchers ?? [])),
+  ]);
 
   let slaInfo: { slaHours: number; description: string } | null = null as { slaHours: number; description: string } | null;
   let hasSurvey = false;
@@ -188,7 +192,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
                   </h3>
                   <TicketDescription content={ticket.description || ""} />
                 </div>
-                {ticket.attachments && ticket.attentionArea?.slug !== "DIF" ? (
+                {ticket.attachments && canAddAttachments ? (
                   <TicketAttachments
                     attachments={ticket.attachments}
                     ticketId={ticket.id}
@@ -202,14 +206,26 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
 
             <TicketActivity
               ticketId={ticket.id}
-              comments={ticket.comments}
+              comments={visibleComments}
               statusHistory={statusHistory}
               canComment={canComment}
             />
           </div>
 
           <TicketSidebar
-            ticket={ticket}
+            ticket={{
+              id: ticket.id,
+              assignedTo: ticket.assignedTo,
+              assignedToId: ticket.assignedToId,
+              category: ticket.category ? { name: ticket.category.name } : null,
+              subcategory: ticket.subcategory ? { name: ticket.subcategory.name } : null,
+              attentionArea: ticket.attentionArea ? { name: ticket.attentionArea.name, slug: ticket.attentionArea.slug } : null,
+              priority: ticket.priority, watchers: ticket.watchers, status: ticket.status,
+              activityStartDate: ticket.activityStartDate, desiredDiffusionDate: ticket.desiredDiffusionDate,
+              targetAudience: ticket.targetAudience, metadata: ticket.metadata,
+              createdAt: ticket.createdAt, updatedAt: ticket.updatedAt, assignedAt: ticket.assignedAt,
+              validationRequestedAt: ticket.validationRequestedAt, closedAt: ticket.closedAt, closedBy: ticket.closedBy,
+            }}
             slaInfo={slaInfo}
             allUsers={allUsers}
             watchersList={watchersList}
@@ -217,6 +233,8 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
             isAdmin={isAdmin}
             isCreator={isCreator}
             isTicketClosed={isTicketClosed}
+            canManageWatchers={canManageWatchers}
+            canAddAttachments={canAddAttachments}
           />
         </div>
       </div>

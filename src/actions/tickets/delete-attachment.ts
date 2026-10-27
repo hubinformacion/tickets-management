@@ -6,13 +6,18 @@ import { requireAuth } from "@/lib/auth/helpers";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { deleteFileFromDrive } from "@/lib/drive/client";
+import { canManageTicket, canReadTicket } from "@/lib/auth/ticket-permissions";
+import { deleteTicketAttachmentSchema } from "@/lib/validation/schemas";
 
 /**
- * Deletes a ticket attachment from Google Drive and the database.
- * Only the uploader or an admin can delete an attachment.
+ * Elimina un adjunto del ticket real al que pertenece.
+ * Requiere acceso al ticket y ser el uploader, admin o agente de su área.
  */
 export async function deleteTicketAttachmentAction(attachmentId: string, ticketId: number) {
   const session = await requireAuth();
+  if (!deleteTicketAttachmentSchema.safeParse({ attachmentId, ticketId }).success) {
+    return { error: "Parámetros inválidos" };
+  }
 
   // Fetch the attachment
   const [attachment] = await db
@@ -21,32 +26,32 @@ export async function deleteTicketAttachmentAction(attachmentId: string, ticketI
     .where(eq(ticketAttachments.id, attachmentId))
     .limit(1);
 
-  if (!attachment) {
+  if (!attachment || attachment.ticketId !== ticketId) {
     return { error: "Archivo no encontrado" };
   }
 
-  // Only the uploader or an admin can delete
-  const isUploader = attachment.uploadedById === session.user.id;
-  const isAdmin = session.user.role === "admin" || session.user.role === "agent";
+  const ticket = await db.query.tickets.findFirst({ where: eq(tickets.id, ticketId) });
+  if (!ticket || !canReadTicket(session.user, ticket)) {
+    return { error: "Ticket no encontrado o sin acceso" };
+  }
 
-  if (!isUploader && !isAdmin) {
+  // El rol de agente por sí solo no concede permisos sobre otras áreas.
+  const isUploader = attachment.uploadedById === session.user.id;
+  const isManager = canManageTicket(session.user, ticket);
+
+  if (!isUploader && !isManager) {
     return { error: "No tienes permiso para eliminar este archivo" };
   }
 
-  // Delete from Google Drive and DB in parallel
-  await Promise.all([
-    deleteFileFromDrive(attachment.driveFileId).catch((err) =>
-      console.error("Error eliminando de Drive (continuando con BD):", err)
-    ),
-    db.delete(ticketAttachments).where(eq(ticketAttachments.id, attachmentId)),
-  ]);
+  try {
+    // Conservar la referencia si Drive no confirma el borrado.
+    await deleteFileFromDrive(attachment.driveFileId);
+    await db.delete(ticketAttachments).where(eq(ticketAttachments.id, attachmentId));
+  } catch (error) {
+    console.error("Error al eliminar el adjunto:", error);
+    return { error: "No se pudo completar la eliminación del archivo" };
+  }
 
-  // Obtener ticketCode para revalidar la ruta correcta
-  const ticket = await db.query.tickets.findFirst({
-    where: eq(tickets.id, ticketId),
-    columns: { ticketCode: true },
-  });
-
-  revalidatePath(`/dashboard/tickets/${ticket?.ticketCode ?? ticketId}`);
+  revalidatePath(`/dashboard/tickets/${ticket.ticketCode}`);
   return { success: true };
 }

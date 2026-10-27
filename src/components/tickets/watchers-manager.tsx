@@ -29,6 +29,7 @@ interface User {
   name: string;
   image: string | null;
   email: string;
+  isActive?: boolean;
 }
 
 interface WatchersManagerProps {
@@ -44,7 +45,7 @@ export function WatchersManager({ ticketId, currentWatchers, allUsers, currentUs
   const [loading, setLoading] = useState(false);
 
   // Filter out current user from available watchers
-  const availableUsers = allUsers.filter(user => user.id !== currentUserId);
+  const availableUsers = allUsers.filter(user => user.id !== currentUserId && user.isActive !== false);
 
   // Reset state when dialog opens to reflect current prop values
   const handleOpenChange = (nextOpen: boolean) => {
@@ -55,6 +56,10 @@ export function WatchersManager({ ticketId, currentWatchers, allUsers, currentUs
   };
 
   const handleToggleWatcher = (userId: string) => {
+    if (!selectedWatchers.includes(userId) && selectedWatchers.length >= 10) {
+      toast.error("Se permiten como máximo 10 observadores");
+      return;
+    }
     setSelectedWatchers(prev =>
       prev.includes(userId)
         ? prev.filter(id => id !== userId)
@@ -82,7 +87,7 @@ export function WatchersManager({ ticketId, currentWatchers, allUsers, currentUs
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground">
+        <Button variant="ghost" size="icon" aria-label="Gestionar observadores" className="h-6 w-6 text-muted-foreground hover:text-foreground">
           <Plus className="h-3.5 w-3.5" />
         </Button>
       </DialogTrigger>

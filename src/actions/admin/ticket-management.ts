@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { tickets, users, comments, ticketAttachments, satisfactionSurveys, providerTickets, providerSatisfactionSurveys, ticketStatusHistory } from "@/db/schema";
 import { requireAgent, requireAdmin } from "@/lib/auth/helpers";
-import { eq, inArray, and } from "drizzle-orm";
+import { eq, inArray, and, isNull } from "drizzle-orm";
 import { deleteFileFromDrive } from "@/lib/drive/client";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
@@ -11,23 +11,14 @@ import { TICKET_STATUS, VALID_STATUS_TRANSITIONS, STATUS_LABELS } from "@/lib/co
 import { sendTicketAssignedEmail } from "@/lib/email/send-emails";
 import { recordStatusChange } from "@/lib/utils/status-history";
 import type { TicketStatus } from "@/types";
+import { canManageTicket } from "@/lib/auth/ticket-permissions";
+import { ticketIdSchema, ticketStatusSchema } from "@/lib/validation/schemas";
 
 export async function assignTicketToSelf(ticketId: number) {
   const session = await requireAgent();
+  if (!ticketIdSchema.safeParse(ticketId).success) return { error: "Ticket inválido" };
 
   try {
-    await db.update(tickets)
-      .set({
-        assignedToId: session.user.id,
-        status: TICKET_STATUS.IN_PROGRESS,
-        assignedAt: new Date(),
-        updatedAt: new Date()
-      })
-      .where(eq(tickets.id, ticketId));
-
-    // Registrar cambio de estado en historial
-    await recordStatusChange(ticketId, TICKET_STATUS.OPEN, TICKET_STATUS.IN_PROGRESS, session.user.id);
-
     // Get full ticket details for email
     const ticket = await db.query.tickets.findFirst({
       where: eq(tickets.id, ticketId),
@@ -38,6 +29,26 @@ export async function assignTicketToSelf(ticketId: number) {
         createdBy: true,
       },
     });
+
+    if (!ticket || !canManageTicket(session.user, ticket)) {
+      return { error: "Ticket no encontrado o sin acceso" };
+    }
+    if (ticket.status !== TICKET_STATUS.OPEN || ticket.assignedToId) {
+      return { error: "Solo se pueden asignar tickets abiertos sin responsable" };
+    }
+    const assigned = await db.transaction(async tx => {
+      const rows = await tx.update(tickets).set({
+        assignedToId: session.user.id, status: TICKET_STATUS.IN_PROGRESS,
+        assignedAt: new Date(), updatedAt: new Date(),
+      }).where(and(
+        eq(tickets.id, ticketId), eq(tickets.status, TICKET_STATUS.OPEN), isNull(tickets.assignedToId),
+        ticket.attentionAreaId === null ? isNull(tickets.attentionAreaId) : eq(tickets.attentionAreaId, ticket.attentionAreaId),
+      )).returning({ id: tickets.id });
+      if (rows.length === 0) return false;
+      await recordStatusChange(ticketId, TICKET_STATUS.OPEN, TICKET_STATUS.IN_PROGRESS, session.user.id, undefined, tx);
+      return true;
+    });
+    if (!assigned) return { error: "El ticket cambió. Actualiza la página e intenta de nuevo" };
 
     if (ticket && ticket.attentionAreaId) {
       // Defer email notification after response is sent to user
@@ -94,22 +105,32 @@ export async function assignTicketToSelf(ticketId: number) {
 }
 
 export async function unassignTicket(ticketId: number) {
-  await requireAgent();
+  const session = await requireAgent();
+  if (!ticketIdSchema.safeParse(ticketId).success) return { error: "Ticket inválido" };
 
   try {
     // Obtener ticketCode antes de actualizar
     const ticket = await db.query.tickets.findFirst({
       where: eq(tickets.id, ticketId),
-      columns: { ticketCode: true },
+      columns: { ticketCode: true, attentionAreaId: true, assignedToId: true },
     });
 
-    await db.update(tickets)
+    if (!ticket || !canManageTicket(session.user, ticket)) {
+      return { error: "Ticket no encontrado o sin acceso" };
+    }
+    if (!ticket.assignedToId) return { error: "El ticket no tiene responsable asignado" };
+
+    const updated = await db.update(tickets)
       .set({
         assignedToId: null,
         assignedAt: null,
         updatedAt: new Date()
       })
-      .where(eq(tickets.id, ticketId));
+      .where(and(
+        eq(tickets.id, ticketId), eq(tickets.assignedToId, ticket.assignedToId),
+        ticket.attentionAreaId === null ? isNull(tickets.attentionAreaId) : eq(tickets.attentionAreaId, ticket.attentionAreaId),
+      )).returning({ id: tickets.id });
+    if (updated.length === 0) return { error: "El ticket cambió. Actualiza la página e intenta de nuevo" };
 
     revalidatePath(`/dashboard/tickets/${ticket?.ticketCode ?? ticketId}`);
     revalidatePath("/dashboard/explorador");
@@ -123,36 +144,41 @@ export async function unassignTicket(ticketId: number) {
 
 export async function updateTicketStatus(ticketId: number, newStatus: TicketStatus) {
   const session = await requireAgent();
+  if (!ticketIdSchema.safeParse(ticketId).success || !ticketStatusSchema.safeParse(newStatus).success) {
+    return { error: "Ticket o estado inválido" };
+  }
 
   try {
     // Obtener el estado actual del ticket para validar la transición
     const ticket = await db.query.tickets.findFirst({
       where: eq(tickets.id, ticketId),
-      columns: { status: true, ticketCode: true },
+      columns: { status: true, ticketCode: true, attentionAreaId: true },
     });
 
-    if (!ticket) {
-      return { error: "Ticket no encontrado" };
+    if (!ticket || !canManageTicket(session.user, ticket)) {
+      return { error: "Ticket no encontrado o sin acceso" };
     }
 
     const currentStatus = ticket.status as TicketStatus;
     const allowedTransitions = VALID_STATUS_TRANSITIONS[currentStatus];
 
-    if (!allowedTransitions.includes(newStatus)) {
+    if (!allowedTransitions?.includes(newStatus)) {
       return {
         error: `No se puede cambiar de "${STATUS_LABELS[currentStatus]}" a "${STATUS_LABELS[newStatus]}"`
       };
     }
 
-    await db.update(tickets)
-      .set({
-        status: newStatus,
-        updatedAt: new Date()
-      })
-      .where(eq(tickets.id, ticketId));
-
-    // Registrar cambio de estado en historial
-    await recordStatusChange(ticketId, currentStatus, newStatus, session.user.id);
+    const updated = await db.transaction(async tx => {
+      const rows = await tx.update(tickets).set({ status: newStatus, updatedAt: new Date() })
+        .where(and(
+          eq(tickets.id, ticketId), eq(tickets.status, currentStatus),
+          ticket.attentionAreaId === null ? isNull(tickets.attentionAreaId) : eq(tickets.attentionAreaId, ticket.attentionAreaId),
+        )).returning({ id: tickets.id });
+      if (rows.length === 0) return false;
+      await recordStatusChange(ticketId, currentStatus, newStatus, session.user.id, undefined, tx);
+      return true;
+    });
+    if (!updated) return { error: "El ticket cambió. Actualiza la página e intenta de nuevo" };
 
     revalidatePath(`/dashboard/tickets/${ticket.ticketCode}`);
     revalidatePath("/dashboard/explorador");
@@ -166,6 +192,7 @@ export async function updateTicketStatus(ticketId: number, newStatus: TicketStat
 
 export async function deepDeleteTicketAction(ticketId: number) {
   await requireAdmin();
+  if (!ticketIdSchema.safeParse(ticketId).success) return { error: "Ticket inválido" };
 
   try {
     const targetTicket = await db.query.tickets.findFirst({

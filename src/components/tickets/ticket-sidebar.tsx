@@ -37,12 +37,14 @@ interface TicketSidebarProps {
     metadata?: unknown;
   };
   slaInfo: SlaInfo | null;
-  allUsers: { id: string; name: string; email: string; image: string | null }[];
+  allUsers: { id: string; name: string; email: string; image: string | null; isActive?: boolean }[];
   watchersList: { id: string; name: string; email: string; image: string | null }[];
   currentUserId: string;
   isAdmin: boolean;
   isCreator: boolean;
   isTicketClosed: boolean;
+  canManageWatchers: boolean;
+  canAddAttachments: boolean;
 }
 
 export function TicketSidebar({
@@ -54,6 +56,8 @@ export function TicketSidebar({
   isAdmin,
   isCreator,
   isTicketClosed,
+  canManageWatchers,
+  canAddAttachments,
 }: TicketSidebarProps) {
   return (
     <div className="sticky top-6 lg:border-l lg:pl-10 border-border/60">
@@ -183,7 +187,7 @@ export function TicketSidebar({
               <Eye className="w-3 h-3" />
               Usuarios notificados
             </span>
-            {!isTicketClosed ? (
+            {!isTicketClosed && canManageWatchers ? (
               <WatchersManager
                 ticketId={ticket.id}
                 currentWatchers={ticket.watchers || []}
@@ -204,7 +208,7 @@ export function TicketSidebar({
           </div>
         </div>
 
-        {!isTicketClosed && ticket.attentionArea?.slug !== "DIF" ? (
+        {!isTicketClosed && canAddAttachments ? (
           <div className="mb-4">
             <TicketAttachmentUploader ticketId={ticket.id} />
           </div>

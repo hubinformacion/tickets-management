@@ -5,7 +5,7 @@ import { satisfactionSurveys, tickets } from "@/db/schema";
 import { requireAuth, requireAgent } from "@/lib/auth/helpers";
 import { eq, and, count, desc, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { submitSurveySchema } from "@/lib/validation/schemas";
+import { submitSurveySchema, surveyFiltersSchema } from "@/lib/validation/schemas";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 
 const surveyRateLimiter = createRateLimiter("MODERATE");
@@ -104,6 +104,12 @@ export interface SurveyFilterParams {
  */
 export async function getSurveyResultsAction(filters?: SurveyFilterParams) {
   const session = await requireAgent();
+  if (session.user.role !== "admin" && !session.user.attentionAreaId) {
+    return { error: "Debes tener un área asignada para consultar encuestas" };
+  }
+  const parsedFilters = surveyFiltersSchema.safeParse(filters ?? {});
+  if (!parsedFilters.success) return { error: "Filtros de encuesta inválidos" };
+  filters = parsedFilters.data;
 
   try {
     const isAdmin = session.user.role === "admin";
@@ -249,6 +255,7 @@ export async function getSurveyResultsAction(filters?: SurveyFilterParams) {
  */
 export async function getAgentsWithSurveysAction() {
   const session = await requireAgent();
+  if (session.user.role !== "admin" && !session.user.attentionAreaId) return [];
 
   try {
     const isAdmin = session.user.role === "admin";

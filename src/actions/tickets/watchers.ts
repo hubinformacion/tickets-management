@@ -1,15 +1,23 @@
 "use server";
 
 import { db } from "@/db";
-import { tickets } from "@/db/schema";
+import { tickets, users } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/helpers";
-import { eq } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { canManageTicketWatchers } from "@/lib/auth/ticket-permissions";
+import { updateTicketWatchersSchema } from "@/lib/validation/schemas";
+import { createRateLimiter } from "@/lib/utils/rate-limit";
+
+const watchersLimiter = createRateLimiter("MODERATE");
 
 export async function updateWatchersAction(ticketId: number, watchers: string[]) {
   const session = await requireAuth();
-  const userId = session.user.id;
-  const userRole = session.user.role;
+  const parsed = updateTicketWatchersSchema.safeParse({ ticketId, watchers });
+  if (!parsed.success) return { error: "Lista de observadores inválida", details: parsed.error.flatten() };
+  if (!watchersLimiter(`watchers:${session.user.id}`).success) {
+    return { error: "Demasiadas solicitudes. Intenta de nuevo en un momento" };
+  }
 
   try {
     // Obtener el ticket para verificar permisos
@@ -19,29 +27,30 @@ export async function updateWatchersAction(ticketId: number, watchers: string[])
         id: true,
         ticketCode: true,
         createdById: true,
-        assignedToId: true,
         attentionAreaId: true,
         watchers: true,
+        status: true,
       },
     });
 
-    if (!ticket) {
-      return { error: "Ticket no encontrado" };
+    if (!ticket || !canManageTicketWatchers(session.user, ticket)) {
+      return { error: "Ticket no encontrado o sin permiso para modificar observadores" };
+    }
+    if (ticket.status === "resolved" || ticket.status === "voided") {
+      return { error: "No se pueden modificar observadores de un ticket cerrado" };
     }
 
-    // Verificar permisos: admin, creador, agente asignado, agente del área, o watcher actual
-    const isAdmin = userRole === 'admin';
-    const isCreator = ticket.createdById === userId;
-    const isAssignedAgent = ticket.assignedToId === userId;
-    const isAreaAgent = userRole === 'agent' && session.user.attentionAreaId === ticket.attentionAreaId;
-    const isWatcher = ticket.watchers?.includes(userId) ?? false;
-
-    if (!isAdmin && !isCreator && !isAssignedAgent && !isAreaAgent && !isWatcher) {
-      return { error: "No tienes permisos para modificar los observadores de este ticket" };
+    const watcherIds = parsed.data.watchers;
+    if (watcherIds.length > 0) {
+      const activeUsers = await db.select({ id: users.id }).from(users)
+        .where(and(inArray(users.id, watcherIds), eq(users.isActive, true)));
+      if (activeUsers.length !== watcherIds.length) {
+        return { error: "Los observadores deben ser usuarios activos existentes" };
+      }
     }
 
     await db.update(tickets)
-      .set({ watchers: watchers })
+      .set({ watchers: watcherIds })
       .where(eq(tickets.id, ticketId));
 
     revalidatePath(`/dashboard/tickets/${ticket.ticketCode}`);

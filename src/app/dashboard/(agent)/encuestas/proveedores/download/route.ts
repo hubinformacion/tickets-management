@@ -1,20 +1,27 @@
 import { getProviderSurveyResultsAction } from "@/actions/surveys/provider-surveys";
 import type { NextRequest } from "next/server";
 import { requireAgent } from "@/lib/auth/helpers";
+import { escapeHtml } from "@/lib/email/escape-html";
+import { surveyFiltersSchema } from "@/lib/validation/schemas";
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAgent();
+    const session = await requireAgent();
+    if (session.user.role !== "admin" && !session.user.attentionAreaId) {
+      return new Response("Debes tener un área asignada para exportar", { status: 403 });
+    }
   } catch {
     return new Response("Unauthorized", { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
-  const filters = {
+  const parsedFilters = surveyFiltersSchema.safeParse({
     agentId: searchParams.get("agentId") ?? undefined,
     dateFrom: searchParams.get("dateFrom") ?? undefined,
     dateTo: searchParams.get("dateTo") ?? undefined,
-  };
+  });
+  if (!parsedFilters.success) return new Response("Filtros de encuesta inválidos", { status: 400 });
+  const filters = parsedFilters.data;
 
   const result = await getProviderSurveyResultsAction(filters);
   if ("error" in result) {
@@ -31,16 +38,16 @@ export async function GET(request: NextRequest) {
 
   const rows = surveys.map((s) => `
     <tr>
-      <td><span class="mono">${s.providerTicket.externalCode}</span><br/><small>${s.providerTicket.title}</small></td>
-      <td>${s.providerTicket.provider.name}</td>
-      <td>${s.attentionArea?.name ?? "—"}</td>
-      <td>${s.submittedBy?.name ?? "—"}</td>
+      <td><span class="mono">${escapeHtml(String(s.providerTicket.externalCode))}</span><br/><small>${escapeHtml(String(s.providerTicket.title))}</small></td>
+      <td>${escapeHtml(String(s.providerTicket.provider.name))}</td>
+      <td>${escapeHtml(String(s.attentionArea?.name ?? "—"))}</td>
+      <td>${escapeHtml(String(s.submittedBy?.name ?? "—"))}</td>
       <td>${new Date(s.createdAt).toLocaleDateString("es-PE")}</td>
-      <td class="center">${s.responseTimeRating}</td>
-      <td class="center">${s.deadlineRating}</td>
-      <td class="center">${s.qualityRating}</td>
-      <td class="center">${s.requirementUnderstandingRating}</td>
-      <td class="center">${s.attentionRating}</td>
+      <td class="center">${escapeHtml(String(s.responseTimeRating))}</td>
+      <td class="center">${escapeHtml(String(s.deadlineRating))}</td>
+      <td class="center">${escapeHtml(String(s.qualityRating))}</td>
+      <td class="center">${escapeHtml(String(s.requirementUnderstandingRating))}</td>
+      <td class="center">${escapeHtml(String(s.attentionRating))}</td>
     </tr>`).join("");
 
   const html = `<!DOCTYPE html>
@@ -75,32 +82,32 @@ export async function GET(request: NextRequest) {
 </head>
 <body>
   <h1>Reporte: Evaluaciones de proveedores</h1>
-  <p class="subtitle">Generado el ${new Date().toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" })}${filterLabel ? ` · ${filterLabel}` : ""}</p>
+  <p class="subtitle">Generado el ${new Date().toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" })}${filterLabel ? ` · ${escapeHtml(filterLabel)}` : ""}</p>
 
   <div class="kpi-grid">
     <div class="kpi">
       <div class="kpi-label">Total evaluaciones</div>
-      <div class="kpi-value">${kpis.totalSurveys}</div>
+      <div class="kpi-value">${escapeHtml(String(kpis.totalSurveys))}</div>
     </div>
     <div class="kpi">
       <div class="kpi-label">Promedio general</div>
-      <div class="kpi-value">${kpis.avgOverall}<span style="font-size:13px;font-weight:400;color:#888">/5</span></div>
+      <div class="kpi-value">${escapeHtml(String(kpis.avgOverall))}<span style="font-size:13px;font-weight:400;color:#888">/5</span></div>
     </div>
     <div class="kpi">
       <div class="kpi-label">Calidad del entregable (prom.)</div>
-      <div class="kpi-value">${kpis.avgQuality}<span style="font-size:13px;font-weight:400;color:#888">/5</span></div>
+      <div class="kpi-value">${escapeHtml(String(kpis.avgQuality))}<span style="font-size:13px;font-weight:400;color:#888">/5</span></div>
     </div>
     <div class="kpi">
       <div class="kpi-label">Tiempo de respuesta (prom.)</div>
-      <div class="kpi-value">${kpis.avgResponseTime}<span style="font-size:13px;font-weight:400;color:#888">/5</span></div>
+      <div class="kpi-value">${escapeHtml(String(kpis.avgResponseTime))}<span style="font-size:13px;font-weight:400;color:#888">/5</span></div>
     </div>
     <div class="kpi">
       <div class="kpi-label">Cumplimiento de plazos (prom.)</div>
-      <div class="kpi-value">${kpis.avgDeadline}<span style="font-size:13px;font-weight:400;color:#888">/5</span></div>
+      <div class="kpi-value">${escapeHtml(String(kpis.avgDeadline))}<span style="font-size:13px;font-weight:400;color:#888">/5</span></div>
     </div>
     <div class="kpi">
       <div class="kpi-label">Atención del proveedor (prom.)</div>
-      <div class="kpi-value">${kpis.avgAttention}<span style="font-size:13px;font-weight:400;color:#888">/5</span></div>
+      <div class="kpi-value">${escapeHtml(String(kpis.avgAttention))}<span style="font-size:13px;font-weight:400;color:#888">/5</span></div>
     </div>
   </div>
 

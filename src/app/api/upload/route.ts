@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { ticketAttachments } from "@/db/schema";
 import { uploadFileToDrive, deleteFileFromDrive } from "@/lib/drive/client";
 import { eq, and, isNull } from "drizzle-orm";
+import { uploadTokenSchema, attachmentIdSchema } from "@/lib/validation/schemas";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -18,6 +19,9 @@ export async function POST(request: NextRequest) {
   if (!session?.user) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
+  if (!session.user.isActive) {
+    return NextResponse.json({ error: "Usuario desactivado" }, { status: 403 });
+  }
 
   try {
     const formData = await request.formData();
@@ -31,8 +35,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No se recibió archivo" }, { status: 400 });
     }
 
-    if (!uploadToken) {
-      return NextResponse.json({ error: "uploadToken requerido" }, { status: 400 });
+    if (!uploadTokenSchema.safeParse(uploadToken).success) {
+      return NextResponse.json({ error: "Token de carga inválido" }, { status: 400 });
     }
 
     if (file.size > MAX_FILE_SIZE) {
@@ -82,11 +86,14 @@ export async function DELETE(request: NextRequest) {
   if (!session?.user) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
+  if (!session.user.isActive) {
+    return NextResponse.json({ error: "Usuario desactivado" }, { status: 403 });
+  }
 
   try {
     const attachmentId = await request.text();
 
-    if (!attachmentId) {
+    if (!attachmentIdSchema.safeParse(attachmentId).success) {
       return NextResponse.json({ error: "ID de archivo requerido" }, { status: 400 });
     }
 
@@ -114,7 +121,8 @@ export async function DELETE(request: NextRequest) {
     try {
       await deleteFileFromDrive(attachment.driveFileId);
     } catch (driveError) {
-      console.error("Error eliminando de Drive (continuando con BD):", driveError);
+      console.error("No se confirmó el borrado en Drive:", driveError);
+      return NextResponse.json({ error: "No se pudo completar la eliminación del archivo" }, { status: 502 });
     }
 
     // Eliminar de la BD

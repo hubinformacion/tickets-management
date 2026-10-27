@@ -9,12 +9,15 @@ import { after } from "next/server";
 import { TICKET_STATUS, CLOSURE_TYPE } from "@/lib/constants/tickets";
 import { sendValidationRequestEmail, sendTicketResolvedEmail, sendTicketRejectedEmail } from "@/lib/email/send-emails";
 import { recordStatusChange } from "@/lib/utils/status-history";
+import { canManageTicket } from "@/lib/auth/ticket-permissions";
+import { ticketIdSchema, ticketMessageSchema } from "@/lib/validation/schemas";
 
 /**
  * User approves ticket closure - moves from pending_validation to resolved
  */
 export async function approveTicketValidation(ticketId: number) {
   const session = await requireAuth();
+  if (!ticketIdSchema.safeParse(ticketId).success) return { error: "Ticket inválido" };
 
   try {
     // Verify ticket exists and user is the creator
@@ -110,6 +113,11 @@ export async function approveTicketValidation(ticketId: number) {
  */
 export async function rejectTicketValidation(ticketId: number, rejectionMessage: string) {
   const session = await requireAuth();
+  const parsedMessage = ticketMessageSchema.safeParse(rejectionMessage);
+  if (!ticketIdSchema.safeParse(ticketId).success || !parsedMessage.success) {
+    return { error: "Ticket o mensaje de rechazo inválido" };
+  }
+  rejectionMessage = parsedMessage.data;
 
   try {
     // Verify ticket exists and user is the creator
@@ -216,6 +224,11 @@ export async function rejectTicketValidation(ticketId: number, rejectionMessage:
  */
 export async function requestValidation(ticketId: number, message?: string) {
   const session = await requireAgent();
+  const parsedMessage = ticketMessageSchema.optional().safeParse(message === "" ? undefined : message);
+  if (!ticketIdSchema.safeParse(ticketId).success || !parsedMessage.success) {
+    return { error: "Ticket o mensaje de validación inválido" };
+  }
+  message = parsedMessage.data;
 
   // Only admins/agents can request validation (handled by requireAgent)
 
@@ -230,8 +243,8 @@ export async function requestValidation(ticketId: number, message?: string) {
       }
     });
 
-    if (!ticket || !ticket.createdBy) {
-      return { error: "Ticket no encontrado" };
+    if (!ticket || !ticket.createdBy || !canManageTicket(session.user, ticket)) {
+      return { error: "Ticket no encontrado o sin acceso" };
     }
 
     if (ticket.status !== TICKET_STATUS.IN_PROGRESS) {

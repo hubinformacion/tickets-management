@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { providerTickets } from "@/db/schema";
-import { requireAgent } from "@/lib/auth/helpers";
-import { eq, desc } from "drizzle-orm";
+import { providerTickets, providerSatisfactionSurveys } from "@/db/schema";
+import { getSession } from "@/lib/auth/helpers";
+import { eq, desc, inArray } from "drizzle-orm";
 import ExcelJS from "exceljs";
 
 function daysBetween(from: string | null, to: string | null): number | null {
@@ -15,9 +15,16 @@ function daysBetween(from: string | null, to: string | null): number | null {
 
 export async function GET() {
   try {
-    const session = await requireAgent();
+    const session = await getSession();
+    if (!session?.user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    if (!session.user.isActive || !["agent", "admin"].includes(session.user.role)) {
+      return NextResponse.json({ error: "No tienes permiso para exportar" }, { status: 403 });
+    }
     const isAdmin = session.user.role === "admin";
     const areaId = session.user.attentionAreaId;
+    if (!isAdmin && !areaId) {
+      return NextResponse.json({ error: "Debes tener un área asignada para exportar" }, { status: 403 });
+    }
 
     const ticketRows = await db.query.providerTickets.findMany({
       where: !isAdmin && areaId ? eq(providerTickets.attentionAreaId, areaId) : undefined,
@@ -29,11 +36,12 @@ export async function GET() {
       orderBy: [desc(providerTickets.createdAt)],
     });
 
-    const surveys = await db.query.providerSatisfactionSurveys.findMany({
+    const surveys = ticketRows.length > 0 ? await db.query.providerSatisfactionSurveys.findMany({
+      where: inArray(providerSatisfactionSurveys.providerTicketId, ticketRows.map(ticket => ticket.id)),
       with: {
         submittedBy: { columns: { name: true } },
       },
-    });
+    }) : [];
 
     const surveyByTicket = new Map(surveys.map((s) => [s.providerTicketId, s]));
 
