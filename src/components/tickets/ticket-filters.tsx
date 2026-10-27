@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -43,14 +43,16 @@ export function TicketFilters({ assignedUsers, categories = EMPTY_ARRAY, subcate
 
   // Estado local para la selección interactiva del rango
   // Permite al usuario hacer 2 clics sin que la URL se actualice en cada clic
-  const [localRange, setLocalRange] = useState<DateRange | undefined>(urlDateRange);
+  const rangeKey = `${desde}:${hasta}`;
+  const [selection, setSelection] = useState<{ key: string; range: DateRange | undefined }>(
+    () => ({ key: rangeKey, range: urlDateRange })
+  );
+  const localRange = selection.key === rangeKey ? selection.range : urlDateRange;
+  if (selection.key !== rangeKey) {
+    setSelection({ key: rangeKey, range: urlDateRange });
+  }
+  const setLocalRange = (range: DateRange | undefined) => setSelection({ key: rangeKey, range });
   const [calendarOpen, setCalendarOpen] = useState(false);
-
-  // Sincronizar estado local cuando la URL cambia externamente (ej: limpiar filtros)
-  useEffect(() => {
-    setLocalRange(urlDateRange);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [desde, hasta]);
 
   // Parsear estado como array de slugs
   const estadoValues = estado ? estado.split(",").filter(Boolean) : [];

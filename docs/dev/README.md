@@ -1,5 +1,7 @@
 # Documentación de auditoría
 
+El trabajo actual se registra en [Estabilización del 27 de octubre](2026-10-27-estabilizacion.md), rama `fix/auditoria-estabilizacion`.
+
 Los documentos fechados son registros de revisión y planes de trabajo, no instrucciones operativas vigentes. La propuesta de crear un sandbox fue cancelada y no debe usarse para configurar Neon, Vercel, Google ni el entorno local.
 
 - [Auditoría integral](2026-10-06-auditoria.md): hallazgos sobre el estado revisado.

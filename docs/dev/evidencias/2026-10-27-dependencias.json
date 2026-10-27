@@ -1,0 +1,78 @@
+{
+  "fecha": "2026-10-27",
+  "rama": "fix/auditoria-estabilizacion",
+  "antes": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 3,
+      "moderate": 29,
+      "high": 45,
+      "critical": 6
+    },
+    "dependencies": 568,
+    "devDependencies": 295,
+    "optionalDependencies": 159,
+    "totalDependencies": 976
+  },
+  "despues": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 1,
+      "moderate": 3,
+      "high": 0,
+      "critical": 0
+    },
+    "dependencies": 625,
+    "devDependencies": 254,
+    "optionalDependencies": 191,
+    "totalDependencies": 994
+  },
+  "avisos_pendientes": [
+    {
+      "paquete": "esbuild",
+      "severidad": "moderate",
+      "titulo": "esbuild enables any website to send any requests to the development server and read the response",
+      "rango_afectado": "<=0.24.2",
+      "rango_corregido": ">=0.24.3",
+      "url": "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+      "rutas": [
+        ".>better-auth>drizzle-kit>@esbuild-kit/esm-loader>@esbuild-kit/core-utils>esbuild",
+        ".>drizzle-kit>@esbuild-kit/esm-loader>@esbuild-kit/core-utils>esbuild"
+      ]
+    },
+    {
+      "paquete": "uuid",
+      "severidad": "moderate",
+      "titulo": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+      "rango_afectado": "<11.1.1",
+      "rango_corregido": ">=11.1.1",
+      "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+      "rutas": [
+        ".>exceljs>uuid"
+      ]
+    },
+    {
+      "paquete": "esbuild",
+      "severidad": "low",
+      "titulo": "esbuild allows arbitrary file read when running the development server on Windows",
+      "rango_afectado": ">=0.27.3 <0.28.1",
+      "rango_corregido": ">=0.28.1",
+      "url": "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr",
+      "rutas": [
+        ".>better-auth>drizzle-kit>tsx>esbuild",
+        ".>drizzle-kit>tsx>esbuild"
+      ]
+    },
+    {
+      "paquete": "postcss-selector-parser",
+      "severidad": "moderate",
+      "titulo": "PostCSS: Quadratic complexity in flat selector parsing allows CPU exhaustion",
+      "rango_afectado": "<6.1.5",
+      "rango_corregido": ">=6.1.5",
+      "url": "https://github.com/advisories/GHSA-rj75-hqrm-r3gf",
+      "rutas": [
+        ".>@tailwindcss/typography>postcss-selector-parser"
+      ]
+    }
+  ]
+}
