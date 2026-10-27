@@ -206,6 +206,10 @@ if (!result.success) {
 
 ## 🔐 Seguridad
 
+- **Producción contiene datos reales:** no ejecutar `db:reset`, `db:drop`, `db:seed` ni `setup` contra producción ni usarlos como verificación.
+- **Migraciones compatibles:** preparar por defecto cambios aditivos. Las columnas nuevas deben admitir `null` o tener un valor predeterminado compatible con los registros existentes cuando corresponda. Revisar compatibilidad antes de añadir constraints.
+- **Preservar historia:** no eliminar ni reescribir registros históricos en migraciones, backfills o limpiezas. No ejecutar cambios destructivos de esquema o datos como parte de un despliegue de código.
+- Cualquier operación excepcional sobre datos o esquema de producción requiere una propuesta concreta, respaldo y autorización específica del usuario; un permiso de merge o despliegue de código no la incluye.
 - NUNCA commitear `.env.local` o archivos con secretos
 - Usar variables de entorno para configuración sensible
 - Validar SIEMPRE inputs del usuario con Zod

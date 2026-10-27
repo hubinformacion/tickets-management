@@ -2,7 +2,7 @@
 
 ## Alcance
 
-Rama `fix/integridad-tickets`, sobre `709e333` ya integrado y desplegado. Este bloque nuevo no está integrado ni desplegado y no requiere cambios de esquema.
+Commit `d1f961d`, integrado en `main` y desplegado en producción el 27 de octubre de 2026, sobre el bloque previo `709e333`. No requiere cambios de esquema ni migraciones de datos.
 
 - Aprobación, rechazo, cancelación, solicitud de validación y cambio manual de estado comparten una transición condicional. Se comprueban estado, creador, área, asignación y solicitud de validación esperados al escribir.
 - Estado, historial y comentario de validación se confirman en una sola transacción. Un conflicto devuelve un error controlado antes de programar correo o revalidación; un fallo de historial/comentario revierte los cambios.
@@ -26,7 +26,13 @@ Los casos cubren aprobación/rechazo concurrentes, repetición, fallo de histori
 
 Resultado: 59 comprobaciones de integridad y 146 de regresión de permisos aprobadas en memoria. Tipos aprobados con `tsc --noEmit --incremental false`; ESLint aprobado con 0 errores y las 3 advertencias conocidas de navegación/React Hook Form. No se suprimieron reglas para aprobarlas.
 
-Estos dobles transaccionales comprueban las decisiones y el uso de la transacción en el código; no prueban el motor de PostgreSQL ni sus bloqueos reales. El build y el recorrido autenticado siguen pendientes antes de integrar este bloque. No se invocó el cron real ni se operó sobre datos, archivos o correo de producción.
+Estos dobles transaccionales comprueban las decisiones y el uso de la transacción en el código; no prueban el motor de PostgreSQL ni sus bloqueos reales. El recorrido autenticado y la concurrencia real siguen pendientes. No se invocó el cron real ni se operó manualmente sobre datos, archivos o correo de producción.
+
+## Despliegue
+
+Vercel aprobó los builds de Preview y Production para `d1f961d`. El [despliegue de producción](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/831Cc7cYCr7jsdENv9yc4gCf36cG) figura como `success` (registro de GitHub `7373155419`). En https://requerimientos-hub.vercel.app se comprobaron `/login` (200), `/api/auth/get-session` sin sesión (200, `null`) y `/dashboard` sin sesión (307 hacia `/login`).
+
+No se ejecutaron migraciones, reset, drop, seed ni operaciones manuales sobre la BD. El código conserva los registros de historial existentes y añade eventos al confirmar las transiciones normales. La guía `AGENTS.md` recoge explícitamente la protección de producción y la compatibilidad exigida para futuros cambios de esquema.
 
 ## Límites y siguientes pasos
 
