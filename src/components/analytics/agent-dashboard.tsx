@@ -31,7 +31,6 @@ export function AgentAnalyticsDashboard({
   satisfactionData,
   topCategories,
   agentWorkload,
-  slaData,
   currentRange,
 }: AgentDashboardProps) {
   const inProgressCount = kpis.statusCounts.find((s) => s.status === "in_progress")?.count ?? 0;

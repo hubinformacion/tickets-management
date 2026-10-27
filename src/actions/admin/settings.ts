@@ -41,20 +41,3 @@ export async function getAppSettingAction(key: string): Promise<string | null> {
     });
     return setting?.value ?? null;
 }
-
-async function updateDisabledMessage(title: string, message: string) {
-    await requireAdmin();
-
-    try {
-        // Both updates are independent — run in parallel
-        await Promise.all([
-            updateAppSetting("ticket_disabled_title", title),
-            updateAppSetting("ticket_disabled_message", message),
-        ]);
-
-        return { success: true };
-    } catch (error) {
-        console.error("Error updating disabled message:", error);
-        return { error: "Error al actualizar mensaje" };
-    }
-}

@@ -1,4 +1,3 @@
-import type { Session, User } from "better-auth/types";
 import type { UserRole } from "./index";
 
 declare module "better-auth/types" {

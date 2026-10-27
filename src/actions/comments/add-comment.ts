@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { comments, tickets, users, ticketCategories, ticketSubcategories } from "@/db/schema";
+import { comments, tickets, users } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/helpers";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";

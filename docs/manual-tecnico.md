@@ -25,7 +25,7 @@ Este manual describe la arquitectura, tecnologías y decisiones técnicas del si
 
 ## Arquitectura y diagramas del sistema
 
-El diseño estructural y los flujos de interacción del sistema se encuentran documentados visualmente bajo el estándar editorial de **Diagram Design** (`~/.agents/skills/diagram-design`):
+Los siguientes diagramas documentan la estructura y los flujos de interacción del sistema:
 
 - **Diagrama de Arquitectura (HTML Interactivo):** [/diagramas/arquitectura-sistema.html](/diagramas/arquitectura-sistema.html) (incluye selector claro/oscuro y desglose por capas).
 - **Diagrama de Arquitectura (SVG Vectorial):** [/diagramas/arquitectura-sistema.svg](/diagramas/arquitectura-sistema.svg).

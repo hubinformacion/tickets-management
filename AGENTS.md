@@ -1,6 +1,6 @@
 # AGENTS.md - Guía para Agentes de Código
 
-Este documento contiene información esencial para agentes de código (AI coding assistants) que trabajen en este repositorio.
+Este documento reúne las convenciones técnicas y reglas de trabajo del repositorio.
 
 ## 📋 Información del Proyecto
 
@@ -123,15 +123,15 @@ import { requireAuth } from "@/lib/auth/helpers";
 
 export async function myAction(formData: FormData) {
   const session = await requireAuth();
-  
+
   const result = mySchema.safeParse({
     field: formData.get("field"),
   });
-  
+
   if (!result.success) {
     return { error: "Datos inválidos" };
   }
-  
+
   // Lógica de la acción...
   return { success: true, data: result.data };
 }
@@ -195,7 +195,7 @@ export const TICKET_STATUS = {
 - Tipos/Interfaces: PascalCase (`UserRole`, `TicketStatus`)
 
 ### Manejo de Errores
-- Server Actions: retornar `{ error: string }` 
+- Server Actions: retornar `{ error: string }`
 - Cliente: usar `toast.error()` de sonner para mostrar errores
 - Validación: usar Zod y retornar errores específicos
 ```typescript
@@ -210,7 +210,7 @@ if (!result.success) {
 - Usar variables de entorno para configuración sensible
 - Validar SIEMPRE inputs del usuario con Zod
 - Usar helpers de autenticación en TODAS las server actions
-- Drizzle ORM previene inyección SQL automáticamente
+- Usar consultas parametrizadas con Drizzle; no interpolar entradas del usuario en SQL
 
 ## 📦 Dependencias Importantes
 
@@ -271,7 +271,7 @@ if (!result.success) {
 ### Formulario de Tickets
 - Flujo **classification-first** — el usuario primero elige área/categoría/subcategoría, luego aparece el resto del formulario con animación
 - **Prioridad:** Requerida para TODAS las áreas (incluyendo Difusión). Campo nullable en BD para compatibilidad
-- **Fechas:** Calendar date pickers (react-day-picker v9 con locale `es`), no inputs nativos
+- **Fechas:** Calendar date pickers (react-day-picker con locale `es`), no inputs nativos
 
 ### Prioridades
 - Tabla `priority_config` con 4 filas por área (descripción + SLA editables)
@@ -311,6 +311,5 @@ if (!result.success) {
 ```bash
 pnpm exec tsc --noEmit    # Verificar tipos de forma estricta
 pnpm exec eslint .        # Comprobar variables sin uso
-pnpm db:reset             # Verificar que schema + seed funcionan
 ```
 ```

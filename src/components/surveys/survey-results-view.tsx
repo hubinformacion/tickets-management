@@ -93,7 +93,7 @@ function CriterionCard({
   );
 }
 
-export function SurveyResultsView({ surveys, kpis, distributions }: SurveyResultsViewProps) {
+export function SurveyResultsView({ surveys, kpis }: SurveyResultsViewProps) {
   if (kpis.totalSurveys === 0) {
     return (
       <div className="text-center py-16 px-4 border border-dashed rounded-lg bg-muted/5">

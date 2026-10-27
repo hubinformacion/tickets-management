@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { tickets, comments, ticketCategories, ticketSubcategories, appSettings, users, attentionAreas, satisfactionSurveys } from "@/db/schema";
+import { tickets, comments, ticketCategories, ticketSubcategories, appSettings, users, attentionAreas } from "@/db/schema";
 import { eq, desc, sql, and, or, ilike, inArray, SQL, count as drizzleCount } from "drizzle-orm";
 import { STATUS_URL_TO_DB } from "@/lib/constants/tickets";
 import type { TicketStatus } from "@/types";
@@ -104,7 +104,7 @@ function buildTicketFilterConditions(filters: TicketFilterParams): SQL[] {
 /**
  * Query reutilizable para obtener tickets con conteo de comentarios.
  * Consolida el patrón en dashboards, mis-tickets, seguimiento, explorador y area.
- * 
+ *
  * NOTA: Esta función se mantiene para los dashboards que usan limit sin paginación.
  *
  * @param where - Condición WHERE de Drizzle (ej: eq(tickets.createdById, userId))

@@ -6,7 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
-import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Heading1, Heading2, Quote, Code, Palette } from "lucide-react";
+import { Bold, Italic, List, ListOrdered, Heading1, Quote, Palette } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import { Separator } from "@/components/ui/separator";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -40,7 +40,7 @@ const EDITOR_EXTENSIONS = [
 
 const COLOR_PALETTE = ['#000000', '#ef4444', '#f97316', '#f59e0b', '#10b981', '#3b82f6', '#6366f1', '#8b5cf6', '#d946ef', '#64748b'];
 
-export function RichTextEditor({ value, onChange, placeholder, disabled, className }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, disabled, className }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: EDITOR_EXTENSIONS,
     immediatelyRender: false,

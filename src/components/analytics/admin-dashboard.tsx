@@ -46,7 +46,7 @@ export function AdminAnalyticsDashboard({
   const inProgressCount = kpis.statusCounts.find((s) => s.status === "in_progress")?.count ?? 0;
   const resolvedCount = kpis.statusCounts.find((s) => s.status === "resolved")?.count ?? 0;
   const pendingValidationCount = kpis.statusCounts.find((s) => s.status === "pending_validation")?.count ?? 0;
-  const voidedCount = kpis.statusCounts.find((s) => s.status === "voided")?.count ?? 0;
+
 
   return (
     <div className="space-y-8">

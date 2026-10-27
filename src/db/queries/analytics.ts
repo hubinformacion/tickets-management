@@ -1,7 +1,6 @@
 import { db } from "@/db";
-import { tickets, ticketCategories, ticketSubcategories, attentionAreas, users, priorityConfig, satisfactionSurveys, ticketStatusHistory } from "@/db/schema";
+import { tickets, ticketCategories, attentionAreas, users, priorityConfig, satisfactionSurveys, ticketStatusHistory } from "@/db/schema";
 import { eq, and, sql, count as drizzleCount, gte, lte, desc } from "drizzle-orm";
-import type { TicketStatus } from "@/types";
 
 // ============================================
 // Types

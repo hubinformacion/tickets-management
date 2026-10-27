@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { tickets, ticketSequence, attentionAreas } from "@/db/schema";
-import { sql, eq, and } from "drizzle-orm";
+import { tickets, attentionAreas } from "@/db/schema";
+import { sql, eq } from "drizzle-orm";
 
 /**
  * Inserta un ticket con código atómico generado por la BD.

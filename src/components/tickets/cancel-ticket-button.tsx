@@ -29,7 +29,7 @@ export function CancelTicketButton({ ticketId }: { ticketId: number }) {
       } else {
         toast.error(result.error || "Error al anular el ticket");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error inesperado");
     } finally {
       setLoading(false);

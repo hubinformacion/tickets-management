@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
-import { getSession, requireAuth } from "@/lib/auth/helpers";
+import { requireAuth } from "@/lib/auth/helpers";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import {

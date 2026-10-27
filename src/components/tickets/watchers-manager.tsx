@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Check, Plus, X, Eye } from "lucide-react";
+import { Check, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { updateWatchersAction } from "@/actions/tickets";
 
@@ -72,7 +72,7 @@ export function WatchersManager({ ticketId, currentWatchers, allUsers, currentUs
       } else {
         toast.error(result.error || "Error al actualizar observadores");
       }
-    } catch (error) {
+    } catch {
       toast.error("Ocurrió un error inesperado");
     } finally {
       setLoading(false);

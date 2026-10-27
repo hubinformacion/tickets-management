@@ -1,6 +1,6 @@
 # 🎫 Sistema de Gestión de Tickets
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.2.7-black.svg)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.4.3-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.7-blue.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-0.45-green.svg)](https://orm.drizzle.team/)
@@ -8,14 +8,14 @@
 
 Plataforma integral de gestión, trazabilidad y resolución de requerimientos institucionales construida con **Next.js 16 (App Router)**, **React 19**, **PostgreSQL (Neon Serverless)**, **Drizzle ORM** y **Better Auth**.
 
-Diseñada con un estándar editorial moderno, flujos *classification-first*, soporte multi-área fija, derivaciones a proveedores externos, auditoría inmutable y encuestas de satisfacción.
+Diseñada con un estándar editorial moderno, flujos *classification-first*, soporte multi-área fija, derivaciones a proveedores externos, historial de estados y encuestas de satisfacción.
 
 ---
 
 ## ✨ Características Principales
 
 - 🔐 **Autenticación Federada**: Better Auth integrado con Google Cloud OAuth 2.0 y control de sesiones seguro.
-- 👥 **Roles y Permisos**: Roles `user`, `agent` y `admin` con navegación y acciones aisladas por permisos.
+- 👥 **Roles y Permisos**: Roles `user`, `agent` y `admin` con navegación y controles según el rol.
 - 🏢 **Áreas de Atención Especializadas**:
   - **TSI** (Tecnologías y Sistemas de Información): Soporte técnico, infraestructura, encuestas de satisfacción.
   - **DIF** (Difusión): Requerimientos de comunicación con fechas de inicio de actividad y público objetivo.
@@ -26,7 +26,7 @@ Diseñada con un estándar editorial moderno, flujos *classification-first*, sop
 - 🔀 **Módulo de Proveedores y Derivaciones**: Seguimiento a terceros vía `provider_tickets` con evaluación de desempeño (calidad, plazos, atención).
 - ⭐ **Encuestas de Satisfacción (CSAT)**: Calificación de 1 a 5 estrellas en tiempo de respuesta, comunicación, solución y calidad general.
 - 📧 **Notificaciones Asíncronas (Gmail API)**: Despacho no bloqueante mediante `Next.js after()` con threading RFC (`In-Reply-To`, `References`) y 7 plantillas transaccionales.
-- 📎 **Almacenamiento en Google Drive**: Carga en streaming de archivos adjuntos directamente a carpetas institucionales con enlaces seguros de visualización.
+- 📎 **Almacenamiento en Google Drive**: Carga en streaming de archivos adjuntos directamente a carpetas institucionales con enlaces sujetos a los permisos efectivos de la carpeta.
 - 🛡️ **Seguridad y Control de Borde**: Proxy moderno (`src/proxy.ts`) para protección de rutas y *Rate Limiting* en memoria contra abusos (10 a 30 req/min).
 - 🎨 **UI de Alto Rendimiento**: Tailwind CSS v4, componentes accesibles shadcn/ui + Radix UI, editor TipTap, modo claro/oscuro y *skeletons* nativos split-screen.
 
@@ -34,7 +34,7 @@ Diseñada con un estándar editorial moderno, flujos *classification-first*, sop
 
 ## 🏛️ Arquitectura y Diagramas del Sistema
 
-El sistema cuenta con diagramas interactivos y vectoriales diseñados bajo la especificación editorial de la skill **Diagram Design**:
+Los diagramas documentan la arquitectura y los flujos de interacción del sistema:
 
 - **[Diagrama de Arquitectura (HTML Interactivo)](./public/diagramas/arquitectura-sistema.html):** Desglose de las 4 capas estructurales (Cliente, Next.js 16 Application, Persistencia PostgreSQL y Servicios Cloud).
 - **[Diagrama de Arquitectura (SVG)](./public/diagramas/arquitectura-sistema.svg):** Vectorial autónomo.
@@ -48,14 +48,14 @@ El sistema cuenta con diagramas interactivos y vectoriales diseñados bajo la es
 
 | Capa | Tecnologías |
 |---|---|
-| **Framework Fullstack** | Next.js 16.2.7 (App Router + Turbopack) |
+| **Framework Fullstack** | Next.js 16.4.3 (App Router + Turbopack) |
 | **Librería UI & Core** | React 19.2.7 + TypeScript 5.9 (Strict Mode) |
 | **Base de Datos** | PostgreSQL (Neon Serverless) |
 | **ORM & Tipado** | Drizzle ORM 0.45 + Drizzle Kit |
-| **Autenticación** | Better Auth 1.6 + Google OAuth 2.0 |
+| **Autenticación** | Better Auth 1.7 + Google OAuth 2.0 |
 | **Estilos & Componentes** | Tailwind CSS v4 + shadcn/ui + Radix UI + Lucide Icons |
 | **Formularios & Validación** | React Hook Form 7 + Zod 4 |
-| **Editor Enriquecido** | TipTap 3.26 StarterKit |
+| **Editor Enriquecido** | TipTap 3.32 StarterKit |
 | **Servicios Externos** | Google APIs (Gmail API v1 & Google Drive API v3) |
 | **Gestor de Paquetes** | pnpm |
 
@@ -64,8 +64,8 @@ El sistema cuenta con diagramas interactivos y vectoriales diseñados bajo la es
 ## 🚀 Inicio Rápido
 
 ### Requisitos Previos
-- Node.js v20+
-- pnpm v9+
+- Node.js 24 (entorno de mantenimiento verificado)
+- pnpm 11 (entorno de mantenimiento verificado)
 - Base de datos PostgreSQL (local o Neon)
 - Credenciales en Google Cloud Console (OAuth 2.0 y Gmail API activada)
 
@@ -73,7 +73,7 @@ El sistema cuenta con diagramas interactivos y vectoriales diseñados bajo la es
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/r3-fresh/tickets-management.git
+git clone https://github.com/hubinformacion/tickets-management.git
 cd tickets-management
 
 # 2. Instalar dependencias
@@ -109,7 +109,9 @@ GOOGLE_DRIVE_FOLDER_ID="id-de-carpeta-institucional-en-drive"
 CRON_SECRET="secret-para-endpoints-cron"
 ```
 
-### Inicialización de Base de Datos
+### Inicialización de una base de datos nueva
+
+Este paso escribe esquema y datos iniciales. Usarlo únicamente al preparar una BD nueva y después de confirmar su destino; no forma parte de la verificación de producción.
 
 ```bash
 # Ejecutar sincronización de esquema y carga de seeds
@@ -159,6 +161,8 @@ pnpm db:drop          # Eliminar todas las tablas de la BD
 
 ## 📚 Documentación Técnica y Manuales
 
+El estado de la estabilización y sus pendientes se mantienen en [docs/dev/README.md](./docs/dev/README.md). Las funcionalidades nuevas se preparan después de cerrar los riesgos aplicables del plan de auditoría.
+
 | Documento | Enlace | Descripción |
 |---|---|---|
 | **Manual de Usuario** | [docs/manual-usuario.md](./docs/manual-usuario.md) | Guía para usuarios solicitantes |
@@ -166,7 +170,7 @@ pnpm db:drop          # Eliminar todas las tablas de la BD
 | **Manual de Administrador** | [docs/manual-admin.md](./docs/manual-admin.md) | Configuración de áreas, SLAs y gobernanza |
 | **Manual Técnico** | [docs/manual-tecnico.md](./docs/manual-tecnico.md) | Arquitectura, proxy, server actions y base de datos |
 | **Diagramas del Sistema** | [docs/manual-diagramas.md](./docs/manual-diagramas.md) | Arquitectura y flujos de interacción |
-| **Guía para Agentes AI** | [AGENTS.md](./AGENTS.md) | Reglas estrictas y arquitectura para agentes |
+| **Convenciones de desarrollo** | [AGENTS.md](./AGENTS.md) | Reglas de trabajo y decisiones de arquitectura |
 
 ---
 

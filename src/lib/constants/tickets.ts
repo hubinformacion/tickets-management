@@ -1,8 +1,4 @@
-import type { TicketStatus, TicketPriority, ClosedBy, ProviderTicketStatus, ProviderTicketPriority, CommentType, SurveyRating } from "@/types";
-
-// ============================================
-// Ticket Status Constants
-// ============================================
+import type { TicketStatus, TicketPriority, ClosedBy, ProviderTicketStatus, ProviderTicketPriority, SurveyRating } from "@/types";
 
 export const TICKET_STATUS: Record<string, TicketStatus> = {
   OPEN: 'open',
@@ -12,36 +8,13 @@ export const TICKET_STATUS: Record<string, TicketStatus> = {
   VOIDED: 'voided',
 } as const;
 
-// ============================================
-// Ticket Priority Constants
-// ============================================
-
-const TICKET_PRIORITY: Record<string, TicketPriority> = {
-  LOW: 'low',
-  MEDIUM: 'medium',
-  HIGH: 'high',
-  CRITICAL: 'critical',
-} as const;
-
-// ============================================
-// Closure Type Constants
-// ============================================
-
 export const CLOSURE_TYPE: Record<string, ClosedBy> = {
   USER: 'user',
   ADMIN: 'admin',
   SYSTEM: 'system',
 } as const;
 
-// ============================================
-// Validation Constants
-// ============================================
-
 export const VALIDATION_TIMEOUT_HOURS = 48;
-
-// ============================================
-// Status Translations
-// ============================================
 
 export const STATUS_LABELS: Record<TicketStatus, string> = {
   open: "Abierto",
@@ -76,16 +49,6 @@ export const PRIORITY_LABELS: Record<TicketPriority, string> = {
   critical: "Crítica",
 };
 
-const CLOSURE_TYPE_LABELS: Record<ClosedBy, string> = {
-  user: "Usuario",
-  admin: "Administrador",
-  system: "Sistema (48hrs)",
-};
-
-// ============================================
-// Valid Status Transitions
-// ============================================
-
 export const VALID_STATUS_TRANSITIONS: Record<TicketStatus, readonly TicketStatus[]> = {
   open: ['in_progress', 'voided'],
   in_progress: ['open', 'pending_validation', 'resolved', 'voided'],
@@ -94,26 +57,10 @@ export const VALID_STATUS_TRANSITIONS: Record<TicketStatus, readonly TicketStatu
   voided: ['open', 'in_progress'],
 };
 
-// ============================================
-// Provider Ticket Constants
-// ============================================
-
-const PROVIDER_TICKET_STATUS: Record<string, ProviderTicketStatus> = {
-  EN_PROCESO: 'en_proceso',
-  CERRADO: 'cerrado',
-} as const;
-
 export const PROVIDER_TICKET_STATUS_LABELS: Record<ProviderTicketStatus, string> = {
   en_proceso: "En proceso",
   cerrado: "Cerrado",
 };
-
-const PROVIDER_TICKET_PRIORITY: Record<string, ProviderTicketPriority> = {
-  LOW: 'baja',
-  MEDIUM: 'media',
-  HIGH: 'alta',
-  CRITICAL: 'critica',
-} as const;
 
 export const PROVIDER_TICKET_PRIORITY_LABELS: Record<ProviderTicketPriority, string> = {
   baja: "Baja",
@@ -128,26 +75,6 @@ export const PROVIDER_TICKET_PRIORITY_STYLES: Record<ProviderTicketPriority, str
   alta: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
   critica: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
 };
-
-// ============================================
-// Comment / Activity Type Constants
-// ============================================
-
-const COMMENT_TYPE: Record<string, CommentType> = {
-  COMMENT: 'comment',
-  DERIVATION: 'derivation',
-  SYSTEM: 'system',
-} as const;
-
-const COMMENT_TYPE_LABELS: Record<CommentType, string> = {
-  comment: "Comentario",
-  derivation: "Derivación",
-  system: "Sistema",
-};
-
-// ============================================
-// Satisfaction Survey Constants
-// ============================================
 
 export const SURVEY_QUESTIONS = [
   { key: "responseTimeRating", label: "Tiempo de respuesta", lowLabel: "Muy lento", highLabel: "Muy rápido" },
@@ -172,10 +99,6 @@ export const SURVEY_RATING_SELECTED_STYLES: Record<SurveyRating, string> = {
   5: "bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-500 dark:bg-emerald-600 dark:text-white dark:border-emerald-500 dark:hover:bg-emerald-600",
 };
 
-// ============================================
-// Provider Satisfaction Survey Constants
-// ============================================
-
 export const PROVIDER_SURVEY_QUESTIONS = [
   { key: "responseTimeRating", label: "Tiempo de respuesta", lowLabel: "Muy lento", highLabel: "Muy rápido" },
   { key: "deadlineRating", label: "Cumplimiento de plazos", lowLabel: "Nunca cumple", highLabel: "Siempre puntual" },
@@ -183,4 +106,3 @@ export const PROVIDER_SURVEY_QUESTIONS = [
   { key: "requirementUnderstandingRating", label: "Comprensión del requerimiento", lowLabel: "Nada clara", highLabel: "Totalmente" },
   { key: "attentionRating", label: "Atención y comunicación", lowLabel: "Muy mala", highLabel: "Muy buena" },
 ] as const;
-

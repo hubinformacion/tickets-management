@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { providerTickets, providerSatisfactionSurveys } from "@/db/schema";
+import { providerTickets } from "@/db/schema";
 import { requireAgent } from "@/lib/auth/helpers";
 import { eq, desc } from "drizzle-orm";
 import ExcelJS from "exceljs";
@@ -13,7 +13,7 @@ function daysBetween(from: string | null, to: string | null): number | null {
   return Math.round((d2 - d1) / 86400000);
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await requireAgent();
     const isAdmin = session.user.role === "admin";

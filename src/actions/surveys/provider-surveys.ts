@@ -1,9 +1,9 @@
 "use server";
 
 import { db } from "@/db";
-import { providerSatisfactionSurveys, providerTickets } from "@/db/schema";
+import { providerSatisfactionSurveys } from "@/db/schema";
 import { requireAgent } from "@/lib/auth/helpers";
-import { eq, and, count, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 export interface ProviderSurveyFilterParams {
   agentId?: string;

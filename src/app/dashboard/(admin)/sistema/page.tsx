@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { ticketCategories, ticketSubcategories, attentionAreas, priorityConfig, providers } from "@/db/schema";
+import { ticketCategories, ticketSubcategories, attentionAreas, providers } from "@/db/schema";
 import { asc } from "drizzle-orm";
 import { getAppSetting } from "@/db/queries";
 import { Breadcrumb } from "@/components/shared/breadcrumb";

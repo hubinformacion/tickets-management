@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { ticketAttachments, tickets } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/helpers";
 import { revalidatePath } from "next/cache";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { deleteFileFromDrive } from "@/lib/drive/client";
 
 /**

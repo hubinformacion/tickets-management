@@ -35,7 +35,7 @@ export function UserActiveToggle({ userId, isActive, disabled }: UserActiveToggl
       } else {
         toast.error(result.error || "Error al cambiar el estado");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error inesperado");
     } finally {
       setLoading(false);

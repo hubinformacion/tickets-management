@@ -170,7 +170,6 @@ export function TicketActivity({ ticketId, comments, statusHistory = [], canComm
                           <span className="text-xs text-muted-foreground">
                             <span className="font-medium">{entry.author.name}</span>
                             {' — '}
-                            {/* eslint-disable-next-line react/no-danger */}
                             <span dangerouslySetInnerHTML={{ __html: entry.content }} />
                           </span>
                           <span className="text-xs text-muted-foreground/60">{formatDate(entry.createdAt)}</span>

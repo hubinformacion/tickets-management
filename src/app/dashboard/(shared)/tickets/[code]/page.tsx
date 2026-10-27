@@ -1,4 +1,3 @@
-
 import { db } from "@/db";
 import { tickets, comments, users, priorityConfig, providers, satisfactionSurveys, ticketStatusHistory } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/helpers";
@@ -21,7 +20,7 @@ import { TicketAttachments } from "@/components/tickets/ticket-attachments";
 import { TicketActivity } from "@/components/tickets/ticket-activity";
 import { TicketSidebar } from "@/components/tickets/ticket-sidebar";
 import type { Metadata } from "next";
-import type { DerivationMetadata } from "@/types";
+
 import { TicketDescription } from "@/components/tickets/ticket-description";
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {

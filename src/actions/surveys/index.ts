@@ -89,25 +89,6 @@ export async function submitSurveyAction(data: {
   }
 }
 
-/**
- * Get survey for a specific ticket (used in ticket detail page).
- * Returns null if no survey exists.
- */
-async function getSurveyByTicketAction(ticketId: number) {
-  const session = await requireAuth();
-
-  try {
-    const survey = await db.query.satisfactionSurveys.findFirst({
-      where: eq(satisfactionSurveys.ticketId, ticketId),
-    });
-
-    return survey ?? null;
-  } catch (error) {
-    console.error("Error fetching survey:", error);
-    return null;
-  }
-}
-
 export interface SurveyFilterParams {
   agentId?: string;
   areaId?: string;

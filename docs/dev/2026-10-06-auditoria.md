@@ -156,7 +156,7 @@ Se conserva `00-auditoria.md` como antecedente, no como resultado vigente. El nu
 | No SQL crudo | Incorrecto literalmente: hay SQL parametrizado en queries y secuencia. No se encontró interpolación de entrada como texto SQL; SQL parametrizado no implica inyección |
 | pgEnum y cascadas como arreglo general | Propuesta excesiva: CHECK e índices permiten evolución gradual; cascadas dependen de política de retención/borrado |
 | Vitest obligatorio | Incompatible con AGENTS.md vigente: no crear tests ni framework en esta etapa |
-| Normalización anti-IA | No es un criterio técnico verificable de autoría. Priorizar consistencia, deuda concreta y comportamiento |
+| Normalización del código | Priorizar consistencia, deuda concreta y comportamiento verificable |
 | tsc aprobado; frontend listo | Tipos aprobados; lint fallido; build requiere más memoria local. Validación visual pendiente |
 
 ## Aspectos correctos y límites

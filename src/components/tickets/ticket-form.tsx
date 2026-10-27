@@ -3,11 +3,11 @@
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createTicketFormSchema, type CreateTicketFormSchema } from "@/lib/validation/schemas";
-import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+
 import { toast } from "sonner";
 import { createTicketAction } from "@/actions/tickets";
 import { useState, useTransition, useMemo, lazy, Suspense, useCallback } from "react";
@@ -24,20 +24,16 @@ import { UserSelector } from "@/components/ui/user-selector";
 import Link from "next/link";
 import { RichTextEditor } from "@/components/shared/rich-text-editor";
 import { cn } from "@/lib/utils/cn";
-import { PRIORITY_LABELS } from "@/lib/constants/tickets";
-import { PRIORITY_DEFINITIONS } from "@/lib/constants/priority-info";
+
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PrioritySelector } from "@/components/tickets/priority-selector";
 import { DiffusionFields } from "@/components/tickets/diffusion-fields";
 import { FedFields } from "@/components/tickets/fed-fields";
 import { FED_SIDEBAR_INSTRUCTIONS, getFedFieldConfig } from "@/lib/constants/fed-fields";
-import type { TicketPriority } from "@/types";
-
 
 const FileUpload = lazy(() =>
   import("@/components/shared/file-upload").then(mod => ({ default: mod.FileUpload }))
 );
-
 
 interface User {
   id: string;
@@ -82,7 +78,6 @@ interface NewTicketFormProps {
   priorityConfigs?: PriorityConfigItem[];
 }
 
-const EMPTY_PRIORITY_CONFIGS: Array<PriorityConfigItem> = [];
 
 interface SidebarContext {
   areaName: string;
@@ -175,7 +170,6 @@ export function NewTicketForm({
   categories,
   attentionAreas,
   disabledMessage,
-  priorityConfigs = EMPTY_PRIORITY_CONFIGS,
 }: NewTicketFormProps) {
   const [isPending, startTransition] = useTransition();
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -302,26 +296,7 @@ export function NewTicketForm({
   const sidebarContext = useSidebarContext(selectedAttentionArea, selectedCategory, selectedSubcategory, attentionAreas, categories);
   const progress = useFormProgress(watchedValues, hasDescription, isDiffusion, isFondoEditorial);
 
-  // Resolver priority info por área: DB config si existe, fallback a PRIORITY_DEFINITIONS
-  const priorityInfo = useMemo(() => {
-    const areaConfigs = selectedAttentionArea
-      ? priorityConfigs.filter(c => c.attentionAreaId === selectedAttentionArea)
-      : [];
 
-    const map: Record<string, { description: string; sla: string }> = {};
-    for (const key of ["low", "medium", "high", "critical"] as const) {
-      const dbConfig = areaConfigs.find(c => c.priority === key);
-      if (dbConfig) {
-        const slaText = dbConfig.slaHours < 24
-          ? `Atención hasta en ${dbConfig.slaHours} hora${dbConfig.slaHours !== 1 ? "s" : ""}`
-          : `Atención hasta en ${Math.floor(dbConfig.slaHours / 24)} día${Math.floor(dbConfig.slaHours / 24) !== 1 ? "s" : ""}`;
-        map[key] = { description: dbConfig.description, sla: slaText };
-      } else {
-        map[key] = PRIORITY_DEFINITIONS[key];
-      }
-    }
-    return map;
-  }, [selectedAttentionArea, priorityConfigs]);
 
   // Cuando cambia el área, resetear campos específicos y sincronizar el estado
   const handleAreaChange = useCallback((areaId: number) => {

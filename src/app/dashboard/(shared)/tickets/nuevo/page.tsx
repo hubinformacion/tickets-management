@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { users, priorityConfig } from "@/db/schema";
+import { users } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/helpers";
 import { getAppSetting } from "@/db/queries";
 import dynamic from "next/dynamic";
@@ -15,7 +15,7 @@ const NewTicketForm = dynamic(
 );
 
 export default async function NuevoTicketPage() {
-  const session = await requireAuth();
+  await requireAuth();
 
   // All queries are independent after session — run in parallel
   const [

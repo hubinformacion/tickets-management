@@ -3,7 +3,7 @@
 import { FormField, FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { getFedFieldConfig, type FedFieldConfig } from "@/lib/constants/fed-fields";
+import { getFedFieldConfig } from "@/lib/constants/fed-fields";
 import type { UseFormReturn } from "react-hook-form";
 import type { CreateTicketFormSchema } from "@/lib/validation/schemas";
 import { useMemo } from "react";

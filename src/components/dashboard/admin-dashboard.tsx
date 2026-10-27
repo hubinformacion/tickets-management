@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { tickets, users, comments, attentionAreas } from "@/db/schema";
-import { sql, count, eq, desc, and } from "drizzle-orm";
+import { sql, count, eq, and } from "drizzle-orm";
 import {
   Card,
   CardContent,

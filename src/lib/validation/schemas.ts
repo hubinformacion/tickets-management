@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 // Campos base compartidos por todos los formularios
@@ -42,10 +41,6 @@ export const createDiffusionTicketSchema = z.object({
   targetAudience: z.string().min(1, "El público objetivo es obligatorio"),
 });
 
-type CreateTicketSchema = z.infer<typeof createTicketSchema>;
-type CreateFedTicketSchema = z.infer<typeof createFedTicketSchema>;
-type CreateDiffusionTicketSchema = z.infer<typeof createDiffusionTicketSchema>;
-
 // ─── Client-side unified schema (para useForm único en el formulario) ───
 // Todos los campos opcionales específicos de área. La validación real ocurre
 // en el server action con el schema específico de cada área.
@@ -74,8 +69,6 @@ export const updatePriorityConfigSchema = z.object({
   description: z.string().min(5, "La descripción debe tener al menos 5 caracteres"),
   slaHours: z.coerce.number().min(1, "El SLA debe ser al menos 1 hora"),
 });
-
-type UpdatePriorityConfigSchema = z.infer<typeof updatePriorityConfigSchema>;
 
 // ─── Business Hours schemas (horario de atención por área) ───
 
@@ -107,9 +100,6 @@ export const updateProviderSchema = z.object({
   name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
   isActive: z.boolean(),
 });
-
-type CreateProviderSchema = z.infer<typeof createProviderSchema>;
-type UpdateProviderSchema = z.infer<typeof updateProviderSchema>;
 
 // ─── Provider Ticket schemas (tickets derivados) ───
 
