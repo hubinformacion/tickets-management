@@ -11,6 +11,7 @@ import { sendTicketCreatedEmail } from "@/lib/email/send-emails";
 import { eq, inArray, and, isNull } from "drizzle-orm";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 import { recordStatusChange } from "@/lib/utils/status-history";
+import { getFedFieldConfig } from "@/lib/constants/fed-fields";
 
 // Rate limiter: 5 tickets por minuto por usuario
 const ticketRateLimiter = createRateLimiter('MODERATE');
@@ -129,7 +130,6 @@ export async function createTicketAction(formData: FormData) {
     });
 
     if (subcat) {
-      const { getFedFieldConfig } = require("@/lib/constants/fed-fields");
       const config = getFedFieldConfig(subcat.name);
       if (config) {
         allowAttachments = config.allowAttachments ?? false;

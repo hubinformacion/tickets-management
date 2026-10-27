@@ -18,10 +18,7 @@ interface FileUploadProps {
 
 export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: FileUploadProps) {
   const [files, setFiles] = useState<File[]>([]);
-  const attachmentIdsRef = useRef<Set<string> | null>(null);
-  if (!attachmentIdsRef.current) {
-    attachmentIdsRef.current = new Set();
-  }
+  const attachmentIdsRef = useRef(new Set<string>());
 
   const updateParent = () => {
     onFilesChange?.(Array.from(attachmentIdsRef.current ?? []));

@@ -1,7 +1,7 @@
 
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db"; // Adjust path if needed
+import { db } from "@/db";
 import * as schema from "@/db/schema";
 
 export const auth = betterAuth({
@@ -20,12 +20,7 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      scope: [
-        "email",
-        "profile",
-        "https://www.googleapis.com/auth/gmail.send",
-        "https://www.googleapis.com/auth/gmail.readonly", // Needed to fetch Message-ID
-      ],
+      scope: ["email", "profile"],
     },
   },
   user: {

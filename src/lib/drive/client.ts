@@ -1,8 +1,8 @@
-import { google } from 'googleapis';
+import { auth, drive as createDriveClient } from "googleapis/build/src/apis/drive";
 import { Readable } from 'stream';
 
 // Reutiliza las mismas credenciales OAuth2 que el cliente de Gmail
-const oauth2Client = new google.auth.OAuth2(
+const oauth2Client = new auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   `${process.env.BETTER_AUTH_URL || 'http://localhost:3000'}/api/auth/callback/google`
@@ -14,7 +14,7 @@ if (process.env.GMAIL_REFRESH_TOKEN) {
   });
 }
 
-const drive = google.drive({ version: 'v3', auth: oauth2Client });
+const drive = createDriveClient({ version: 'v3', auth: oauth2Client });
 
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 
@@ -25,7 +25,7 @@ export interface DriveUploadResult {
 
 /**
  * Sube un archivo a Google Drive en la carpeta institucional.
- * El archivo queda como "anyone with link can view".
+ * El archivo conserva los permisos efectivos de la carpeta de destino.
  */
 export async function uploadFileToDrive(
   buffer: Buffer,

@@ -26,12 +26,12 @@ export async function requireAuth(): Promise<AppSession> {
   const session = await getSession();
 
   if (!session?.user) {
-    redirect("/auth/signin?error=unauthorized");
+    redirect("/login?error=unauthorized");
   }
 
   // Check if user is active
   if (!session.user.isActive) {
-    redirect("/auth/signin?error=user_deactivated");
+    redirect("/login?error=user_deactivated");
   }
 
   return session;

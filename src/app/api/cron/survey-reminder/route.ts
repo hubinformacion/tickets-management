@@ -84,7 +84,7 @@ export async function GET(request: Request) {
 
         const agentEmails = agents.map(a => a.email);
 
-        await sendSurveyReminderEmail({
+        const emailResult = await sendSurveyReminderEmail({
           ticketId: ticket.id,
           ticketCode: ticket.ticketCode,
           title: ticket.title,
@@ -98,7 +98,12 @@ export async function GET(request: Request) {
           initialMessageId: ticket.initialMessageId,
         });
 
-        // Mark reminder as sent to prevent future duplicates
+        if (!emailResult.success) {
+          console.error("No se envió el recordatorio; permanece pendiente", { ticketId: ticket.id });
+          continue;
+        }
+
+        // Marcar como enviado solo después de confirmar el resultado del correo
         await db.update(tickets)
           .set({ surveyReminderSentAt: now })
           .where(eq(tickets.id, ticket.id));

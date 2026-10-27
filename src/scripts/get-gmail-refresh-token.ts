@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-import { google } from 'googleapis';
+import { auth } from "googleapis/build/src/apis/gmail";
 import * as readline from 'readline';
 import * as path from 'path';
 
@@ -18,7 +18,7 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   process.exit(1);
 }
 
-const oauth2Client = new google.auth.OAuth2(
+const oauth2Client = new auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   `${process.env.BETTER_AUTH_URL || 'http://localhost:3000'}/api/auth/callback/google`

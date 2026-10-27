@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+import { auth, gmail as createGmailClient } from "googleapis/build/src/apis/gmail";
 
 export interface EmailRecipient {
   email: string;
@@ -20,7 +20,7 @@ export interface SendEmailParams {
 }
 
 // Initialize OAuth2 client
-const oauth2Client = new google.auth.OAuth2(
+const oauth2Client = new auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   `${process.env.BETTER_AUTH_URL || 'http://localhost:3000'}/api/auth/callback/google`
@@ -34,7 +34,7 @@ if (process.env.GMAIL_REFRESH_TOKEN) {
 }
 
 // Initialize Gmail API
-const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+const gmail = createGmailClient({ version: 'v1', auth: oauth2Client });
 
 // Encode string to RFC 2047 format if it contains non-ASCII characters
 function encodeHeader(name: string): string {

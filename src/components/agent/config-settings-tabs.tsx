@@ -76,7 +76,10 @@ export function SettingsTabs({ initialData, categories, subcategories, priorityC
       </TabsList>
 
       <TabsContent value="reception" className="mt-6">
-        <SettingsForm initialData={initialData} />
+        <SettingsForm
+          key={`${initialData.businessDays}-${initialData.businessStartTime}-${initialData.businessEndTime}`}
+          initialData={initialData}
+        />
       </TabsContent>
 
       <TabsContent value="categories" className="mt-6">
