@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado en `fix/proteccion-scripts-bd`, sobre `bb22104`. Pendiente de integración y despliegue. No incluye cambios en el esquema, migraciones ni el comportamiento de tickets de la aplicación.
+Implementado en `3463601`, sobre `bb22104`, e integrado con `e089be3` en `main`. Desplegado en producción el 27 de octubre de 2026 con build de Vercel aprobado. No incluye cambios en el esquema, migraciones ni el comportamiento de tickets de la aplicación.
 
 Se ejecuta el bloque de operación segura del plan aprobado. Se eligió retirar los borrados de esquema y área, en lugar de mantener una vía de confirmación que pudiera borrar historial. Para los scripts restantes se añade simulación sin conexión y confirmación local explícita, en lugar de depender únicamente de `NODE_ENV` o de una pregunta interactiva.
 

@@ -10,10 +10,14 @@ La condición coincide con el guard del servidor: también falla de forma cerrad
 
 ## Estado y validación
 
-Preparado en `fix/sesion-inactiva`, sobre el bloque de scripts `3463601`; pendiente de integrar y desplegar.
+Integrado en `main` y desplegado en producción como `e089be3`, sobre el bloque de scripts `3463601`.
 
 33 comprobaciones temporales externas con sesiones ficticias: cuenta activa, inactiva, actividad ausente, sesión caducada/ausente, paso del guard al login sin una segunda redirección, mensaje y acción adecuados, logout exitoso, fallo devuelto y excepción. Comprueban recuperación del botón y ausencia de actualización como éxito ante un fallo. Se ejecutan sin red, credenciales ni BD, con los mismos límites de aislamiento del bloque de scripts.
 
-TypeScript aprobado con `tsc --noEmit --incremental false`; ESLint aprobado con 0 errores y las 3 advertencias conocidas. El build de este bloque está pendiente; el build aprobado de producción corresponde a `d1f961d`.
+TypeScript aprobado con `tsc --noEmit --incremental false`; ESLint aprobado con 0 errores y las 3 advertencias conocidas. Vercel aprobó los builds de Preview y Production de `e089be3`.
 
 El mock de Better Auth verifica cómo se usa su contrato, no su servicio real. El login Google, la revocación efectiva de cookies y el recorrido en navegador siguen pendientes. No se han usado cuentas reales ni ejecutado operaciones contra producción.
+
+## Despliegue
+
+El [despliegue de producción](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/8AThuPNvnhA2mSqNtLU9YDjLJGYe) figura como `success` (registro de GitHub `7376579039`). Se verificaron `/login` (200), `/api/auth/get-session` anónimo (200, `null`) y `/dashboard` sin sesión (307 a `/login`) en https://requerimientos-hub.vercel.app. No se ejecutaron migraciones, comandos de mantenimiento ni operaciones manuales sobre datos, correo o archivos de producción.

@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El commit `d1f961d` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye las dependencias actualizadas, la limpieza de mantenimiento, la retirada de `doctor.config.ts`, la autorización por ticket/área y el bloque de integridad transaccional.
+El commit `e089be3` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye las dependencias actualizadas, la limpieza de mantenimiento, la retirada de `doctor.config.ts`, la autorización por ticket/área el bloque de integridad transaccional, la protección de scripts y la recuperación de sesiones inactivas.
 
 Vercel aprobó Preview y Production. Se verificaron login público, sesión anónima y redirección del dashboard. El recorrido autenticado de Google y los escenarios con datos reales no se presentan como aprobados. No se ejecutaron migraciones, reset, drop, seed ni operaciones manuales sobre datos de producción.
 
@@ -16,14 +16,16 @@ La guía operativa exige preservar los datos históricos y preparar cambios de e
 
 ## Trabajo actual
 
-La [protección de scripts de BD](2026-10-27-proteccion-scripts.md) está en `3463601` (`fix/proteccion-scripts-bd`): bloqueo por defecto, simulación sin conexión, ejecución local confirmada y retirada de drop/reset/limpieza masiva FED. La rama `fix/sesion-inactiva` parte de ese commit y añade la [recuperación de sesiones inactivas](2026-10-27-sesion-inactiva.md). Ambos bloques están pendientes de integrar y desplegar en producción. No se realizaron operaciones sobre la BD.
+La [protección de scripts de BD](2026-10-27-proteccion-scripts.md) (`3463601`) y la [recuperación de sesiones inactivas](2026-10-27-sesion-inactiva.md) (`e089be3`) están integradas y desplegadas. Preview y Production aprobados; login 200, sesión anónima 200/null y dashboard 307 a login.
+
+El siguiente bloque se trabaja en `fix/fechas-calendario`: separación de fechas de calendario e instantes, validación estricta y horas hábiles en Lima. No forma parte del código desplegado.
 
 ## Pendientes
 
-- [Validación de concurrencia real y recorrido autenticado](2026-10-27-validacion-funcional-pendiente.md) antes de cerrar los hallazgos de integridad; integrar y validar en navegador la corrección preparada para la redirección circular con sesión inactiva.
+- [Validación de concurrencia real y recorrido autenticado](2026-10-27-validacion-funcional-pendiente.md) antes de cerrar los hallazgos de integridad; validar en navegador la corrección desplegada para la redirección circular con sesión inactiva.
 - Recordatorios recuperables, compensaciones de archivos y limpieza de huérfanos.
 - Formatos/contenido, tamaño global/cantidad de uploads y rate limiting compartido.
-- Integrar la protección de scripts destructivos preparada; fechas, proveedores, ordenamiento e índices/constraints.
+- Fechas (bloque en curso), proveedores, ordenamiento e índices/constraints.
 - Métricas, paginación, CI y accesibilidad; tres advertencias de ESLint y cuatro avisos transitivos.
 
 La secuencia general está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md). Las siguientes funcionalidades se incorporarán después de estabilizar los riesgos aplicables.

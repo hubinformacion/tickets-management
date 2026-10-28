@@ -2,7 +2,7 @@
 
 ## Qué está comprobado
 
-El despliegue `d1f961d` tiene build aprobado y comprobaciones anónimas registradas en [Integridad](2026-10-27-integridad.md). Las matrices de permisos e integridad usan dobles de BD; no certifican OAuth ni concurrencia del motor PostgreSQL.
+El despliegue `e089be3` tiene build aprobado y comprobaciones anónimas registradas en [Integridad](2026-10-27-integridad.md). Las matrices de permisos e integridad usan dobles de BD; no certifican OAuth ni concurrencia del motor PostgreSQL.
 
 ## Recorrido autenticado
 
@@ -13,7 +13,7 @@ Pendiente de una sesión del responsable del proyecto: no hay una sesión de nav
 3. Ejercitar creación, asignación, validación, rechazo, reapertura, adjuntos y correo con datos ficticios fuera de producción, conservando un único historial ganador por transición.
 4. Revisar sesión caducada y sesión de cuenta inactiva, incluyendo ausencia de bucles entre login y dashboard.
 
-La inspección detectó una redirección circular entre login y dashboard para sesiones inactivas. La [corrección y sus 33 comprobaciones aisladas](2026-10-27-sesion-inactiva.md) están preparadas en `fix/sesion-inactiva`, aún sin integrar ni desplegar. El recorrido real continúa pendiente; no se ha probado con cuentas reales.
+La inspección detectó una redirección circular entre login y dashboard para sesiones inactivas. La [corrección y sus 33 comprobaciones aisladas](2026-10-27-sesion-inactiva.md) están integradas y desplegadas en `e089be3`. El recorrido real continúa pendiente; no se ha probado con cuentas reales.
 
 ## Concurrencia de PostgreSQL
 
