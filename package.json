@@ -7,12 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "setup": "pnpm install && pnpm db:push && pnpm db:seed",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
+    "setup": "tsx src/scripts/manage-db.ts setup",
+    "db:push": "tsx src/scripts/manage-db.ts push",
+    "db:studio": "tsx src/scripts/manage-db.ts studio",
     "db:drop": "tsx src/scripts/drop-db.ts",
     "db:seed": "tsx src/scripts/seed.ts",
-    "db:reset": "pnpm db:drop && pnpm db:push && pnpm db:seed"
+    "db:reset": "tsx src/scripts/manage-db.ts reset"
   },
   "dependencies": {
     "@hookform/resolvers": "5.4.0",

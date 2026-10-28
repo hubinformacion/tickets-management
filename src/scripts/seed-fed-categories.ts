@@ -1,10 +1,11 @@
 /**
  * Script de seed incremental para las categorías y subcategorías de Fondo Editorial.
  * ⚠️ NO destructivo — solo inserta si no existe (usa verificación por nombre + área).
- * Ejecutar: pnpm tsx src/scripts/seed-fed-categories.ts
+ * Primero simular: pnpm exec tsx src/scripts/seed-fed-categories.ts --dry-run
+ * La ejecución exige el destino local y su confirmación (ver docs/mantenimiento-bd.md).
  */
 
-import { db } from "@/db";
+import { runMaintenance } from "@/scripts/maintenance-safety";
 import { ticketCategories, ticketSubcategories, attentionAreas } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
@@ -58,6 +59,7 @@ const FED_CATEGORIES: CategoryDef[] = [
 ];
 
 async function seedFedCategories() {
+  const { db } = await import("@/db");
   console.log("🌱 Seeding Fondo Editorial categories...\n");
 
   // 1. Obtener el área de Fondo Editorial
@@ -138,12 +140,4 @@ async function seedFedCategories() {
   console.log(`   📂 Subcategorías creadas: ${subcategoriesCreated}`);
 }
 
-seedFedCategories()
-  .then(() => {
-    console.log("\n✨ ¡Listo!");
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("\n❌ Error fatal:", error);
-    process.exit(1);
-  });
+void runMaintenance("seed-fed", seedFedCategories);

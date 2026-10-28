@@ -1,13 +1,8 @@
 import { Pool } from "pg";
-import dotenv from "dotenv";
-
-dotenv.config({ path: ".env.local" });
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL!,
-});
+import { runMaintenance } from "@/scripts/maintenance-safety";
 
 async function backfill() {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -47,7 +42,7 @@ async function backfill() {
     console.log("Backfill completado exitosamente");
   } catch (error) {
     await client.query("ROLLBACK");
-    console.error("Error en backfill:", error);
+    console.error("Falló el backfill local; se revirtió la transacción.");
     throw error;
   } finally {
     client.release();
@@ -55,4 +50,4 @@ async function backfill() {
   }
 }
 
-backfill();
+void runMaintenance("backfill", backfill);

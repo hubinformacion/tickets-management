@@ -1,7 +1,8 @@
-import { db } from "@/db";
+import { runMaintenance } from "@/scripts/maintenance-safety";
 import { ticketCategories, ticketSubcategories, appSettings, attentionAreas, priorityConfig, providers } from "@/db/schema";
 
 async function seed() {
+  const { db } = await import("@/db");
   console.log("🌱 Seeding database...");
 
   try {
@@ -244,17 +245,9 @@ async function seed() {
     console.log("      UPDATE \"user\" SET role = 'admin' WHERE email = 'your-email';");
 
   } catch (error) {
-    console.error("❌ Error seeding database:", error);
+    console.error("❌ Falló la carga de catálogos locales.");
     throw error;
   }
 }
 
-seed()
-  .then(() => {
-    console.log("✨ Seed complete!");
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("Fatal error:", error);
-    process.exit(1);
-  });
+void runMaintenance("seed", seed);

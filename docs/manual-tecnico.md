@@ -249,17 +249,19 @@ pnpm dev              # Servidor de desarrollo (puerto 3000)
 pnpm build            # Compilar para producción
 pnpm start            # Servidor de producción
 pnpm lint             # ESLint
-pnpm db:push          # Sincronizar esquema con BD
-pnpm db:seed          # Cargar datos iniciales
-pnpm db:reset         # Borrar todo y recrear BD
-pnpm db:studio        # Interfaz visual Drizzle Studio
+pnpm db:push --dry-run # Simular sincronización local del esquema
+pnpm db:seed --dry-run # Simular carga local de catálogos
+pnpm db:reset         # Retirado; no borra datos
+pnpm db:studio --dry-run # Revisar apertura local de Studio
 ```
+
+Los scripts de mantenimiento requieren destino local y confirmación explícita. No usar reset, drop, seed o setup para verificar producción. Ver [Mantenimiento seguro de BD](mantenimiento-bd.md).
 
 ### Verificación
 
 ```bash
 pnpm exec tsc --noEmit    # Verificar tipos sin compilar
-pnpm db:reset             # Verificar que schema + seed funcionan
+pnpm exec eslint .       # Comprobar calidad estática
 ```
 
 ---

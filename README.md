@@ -111,11 +111,11 @@ CRON_SECRET="secret-para-endpoints-cron"
 
 ### Inicialización de una base de datos nueva
 
-Este paso escribe esquema y datos iniciales. Usarlo únicamente al preparar una BD nueva y después de confirmar su destino; no forma parte de la verificación de producción.
+La ejecución escribe esquema y datos iniciales y solo se admite en una BD local nueva, con destino explícito y confirmación. Primero revisar la simulación. Ver [Mantenimiento seguro de BD](docs/mantenimiento-bd.md) para ejecutar; no forma parte de la verificación de producción.
 
 ```bash
-# Ejecutar sincronización de esquema y carga de seeds
-pnpm setup
+# Revisar el alcance sin conectarse ni escribir
+pnpm setup --dry-run
 ```
 
 ### Servidor de Desarrollo
@@ -139,12 +139,12 @@ pnpm start            # Iniciar servidor compilado en producción
 pnpm lint             # Ejecutar análisis estático con ESLint
 
 # Gestión de Base de Datos (Drizzle)
-pnpm setup            # Setup completo: install + db:push + db:seed
-pnpm db:push          # Sincronizar esquema de TypeScript con la BD
-pnpm db:seed          # Cargar catálogo de áreas, prioridades y categorías
-pnpm db:studio        # Abrir Drizzle Studio (interfaz gráfica de BD)
-pnpm db:reset         # Reset completo (⚠️ destructivo: drop + push + seed)
-pnpm db:drop          # Eliminar todas las tablas de la BD
+pnpm setup --dry-run  # Simular preparación local; instalación separada
+pnpm db:push --dry-run # Simular sincronización local del esquema
+pnpm db:seed --dry-run # Simular carga local de catálogos
+pnpm db:studio --dry-run # Revisar apertura de Studio; solo BD local confirmada
+pnpm db:reset         # Retirado; termina con error sin borrar
+pnpm db:drop          # Retirado; termina con error sin borrar
 ```
 
 ---

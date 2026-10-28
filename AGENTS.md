@@ -26,13 +26,15 @@ pnpm lint             # Ejecutar ESLint
 
 ### Base de Datos
 ```bash
-pnpm setup            # Setup completo: install + db:push + db:seed
-pnpm db:push          # Sincronizar esquema con BD (desarrollo)
-pnpm db:seed          # Cargar datos iniciales
-pnpm db:studio        # Abrir Drizzle Studio (interfaz visual)
-pnpm db:reset         # ⚠️ DESTRUCTIVO: Borra todo y recrea la BD
-pnpm db:drop          # Eliminar todas las tablas
+pnpm setup --dry-run  # Simulación sin conexión; instalación separada
+pnpm db:push --dry-run # Simular sincronización local del esquema
+pnpm db:seed --dry-run # Simular carga de datos en BD local nueva
+pnpm db:studio --dry-run # Solo BD local con confirmación explícita
+pnpm db:reset         # Retirado; no borra ni recrea la BD
+pnpm db:drop          # Retirado; no elimina tablas
 ```
+
+Ver [Mantenimiento seguro de BD](docs/mantenimiento-bd.md). Los comandos con escritura exigen `MAINTENANCE_DATABASE_URL` local y confirmación por operación/destino; no usar túneles hacia producción.
 
 ### Tests
 **IMPORTANTE:** Este proyecto actualmente NO tiene tests configurados. No intentes ejecutar `pnpm test` o comandos similares.

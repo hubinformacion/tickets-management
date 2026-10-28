@@ -1,18 +1,15 @@
 import { Pool } from "pg";
-import { db } from "../db/index";
+import { runMaintenance } from "@/scripts/maintenance-safety";
 import { 
   attentionAreas, ticketCategories, ticketSubcategories, 
   users, tickets, comments, ticketAttachments, ticketSequence,
   priorityConfig, appSettings, sessions, accounts, verifications
-} from "../db/schema";
+} from "@/db/schema";
 import { sql } from "drizzle-orm";
-import * as dotenv from "dotenv";
-
-dotenv.config({ path: ".env.local" });
-
-const oldPool = new Pool({ connectionString: process.env.OLD_DATABASE_URL });
 
 async function migrate() {
+    const { db } = await import("@/db");
+    const oldPool = new Pool({ connectionString: process.env.OLD_DATABASE_URL });
     console.log("🚀 Iniciando migración de datos...");
     if (!process.env.OLD_DATABASE_URL) throw new Error("Falta OLD_DATABASE_URL");
 
@@ -265,10 +262,8 @@ async function migrate() {
         await db.execute(sql`SELECT setval('ticket_id_seq', COALESCE((SELECT MAX(id)+1 FROM ticket), 1), false);`);
 
         console.log("🎉 ¡Migración completada exitosamente!");
-    } catch (e) {
-        console.error("❌ Error durante la migración:", e);
     } finally {
         await oldPool.end();
     }
 }
-migrate().catch(console.error).finally(() => process.exit(0));
+void runMaintenance("migrate-data", migrate);
