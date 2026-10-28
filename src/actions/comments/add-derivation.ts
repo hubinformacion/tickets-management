@@ -9,7 +9,7 @@ import { eq, and, inArray } from "drizzle-orm";
 import { TICKET_STATUS } from "@/lib/constants/tickets";
 import { sendDerivationEmail } from "@/lib/email/send-emails";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
-import { formatDateShort } from "@/lib/utils/format";
+import { formatCalendarDate } from "@/lib/utils/format";
 import type { DerivationMetadata } from "@/types";
 import { canManageTicket } from "@/lib/auth/ticket-permissions";
 import { ticketDerivationSchema } from "@/lib/validation/schemas";
@@ -122,7 +122,7 @@ export async function addDerivationAction(formData: FormData) {
             initialMessageId: ticketData.initialMessageId,
             providerName: derivationProviderName,
             estimatedDate: derivationEstimatedDate
-              ? formatDateShort(derivationEstimatedDate)
+              ? formatCalendarDate(derivationEstimatedDate)
               : undefined,
             userName,
             note,

@@ -1,3 +1,5 @@
+import { dayjs, PERU_TIMEZONE } from "@/lib/utils/date";
+
 /**
  * Utilidades para cálculo de horas hábiles por área de atención.
  *
@@ -40,7 +42,7 @@ export const DEFAULT_BUSINESS_DAYS = "1,2,3,4,5";
  * Convierte un string CSV de días ("1,2,3,4,5") a un Set de números.
  */
 export function parseBusinessDays(businessDays: string): Set<number> {
-  return new Set(businessDays.split(",").map(Number).filter(n => n >= 0 && n <= 6));
+  return new Set(businessDays.split(",").map(day => day.trim()).filter(day => /^[0-6]$/.test(day)).map(Number));
 }
 
 /**
@@ -50,7 +52,7 @@ export function parseBusinessDays(businessDays: string): Set<number> {
  * Ejemplo: "1,3,5" → "Lun, Mié, Vie"
  */
 export function formatBusinessDays(businessDays: string): string {
-  const days = businessDays.split(",").map(Number).sort((a, b) => {
+  const days = [...parseBusinessDays(businessDays)].sort((a, b) => {
     // Ordenar con lunes primero (1,2,3,4,5,6,0)
     const orderA = a === 0 ? 7 : a;
     const orderB = b === 0 ? 7 : b;
@@ -74,6 +76,7 @@ export function formatBusinessDays(businessDays: string): string {
  * Convierte un string "HH:MM" a minutos desde medianoche.
  */
 function timeToMinutes(time: string): number {
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return NaN;
   const [hours, minutes] = time.split(":").map(Number);
   return hours * 60 + minutes;
 }
@@ -100,7 +103,7 @@ export function formatBusinessHoursRange(startTime: string, endTime: string): st
 
 /**
  * Calcula las horas hábiles transcurridas entre dos fechas,
- * considerando el horario de operación del área y los días hábiles configurados.
+ * considerando el horario de operación del área y los días hábiles en Lima.
  *
  * @param startDate - Fecha/hora de inicio (ej. creación del ticket)
  * @param endDate - Fecha/hora de fin (ej. resolución del ticket)
@@ -116,41 +119,40 @@ export function calculateBusinessHours(
   businessEnd: string,
   businessDays: string = DEFAULT_BUSINESS_DAYS,
 ): number {
-  if (endDate <= startDate) return 0;
+  if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime()) || endDate <= startDate) return 0;
 
   const startMinutes = timeToMinutes(businessStart);
   const endMinutes = timeToMinutes(businessEnd);
   const dailyBusinessMinutes = endMinutes - startMinutes;
   const workDays = parseBusinessDays(businessDays);
 
-  if (dailyBusinessMinutes <= 0 || workDays.size === 0) return 0;
+  if (!Number.isFinite(dailyBusinessMinutes) || dailyBusinessMinutes <= 0 || workDays.size === 0) return 0;
 
   let totalMinutes = 0;
-  const current = new Date(startDate);
+  // El cursor recorre días de calendario UTC; cada horario se construye explícitamente en Lima.
+  let current = dayjs.utc(dayjs(startDate).tz(PERU_TIMEZONE).format("YYYY-MM-DD"));
+  const lastDay = dayjs(endDate).tz(PERU_TIMEZONE).format("YYYY-MM-DD");
 
-  while (current < endDate) {
-    const dayOfWeek = current.getDay(); // 0 = domingo, 6 = sábado
+  while (current.format("YYYY-MM-DD") <= lastDay) {
+    const dayOfWeek = current.day(); // 0 = domingo, 6 = sábado en el calendario de Lima
 
     // Solo contar días hábiles configurados
     if (workDays.has(dayOfWeek)) {
-      const currentDayStart = new Date(current);
-      currentDayStart.setHours(Math.floor(startMinutes / 60), startMinutes % 60, 0, 0);
-
-      const currentDayEnd = new Date(current);
-      currentDayEnd.setHours(Math.floor(endMinutes / 60), endMinutes % 60, 0, 0);
+      const calendarDay = current.format("YYYY-MM-DD");
+      const currentDayStart = dayjs.tz(`${calendarDay}T${businessStart}`, PERU_TIMEZONE).valueOf();
+      const currentDayEnd = dayjs.tz(`${calendarDay}T${businessEnd}`, PERU_TIMEZONE).valueOf();
 
       // Determinar el rango efectivo para este día
-      const effectiveStart = current > currentDayStart ? current : currentDayStart;
-      const effectiveEnd = endDate < currentDayEnd ? endDate : currentDayEnd;
+      const effectiveStart = Math.max(startDate.getTime(), currentDayStart);
+      const effectiveEnd = Math.min(endDate.getTime(), currentDayEnd);
 
       if (effectiveStart < effectiveEnd) {
-        totalMinutes += (effectiveEnd.getTime() - effectiveStart.getTime()) / (1000 * 60);
+        totalMinutes += (effectiveEnd - effectiveStart) / (1000 * 60);
       }
     }
 
     // Avanzar al inicio del siguiente día
-    current.setDate(current.getDate() + 1);
-    current.setHours(0, 0, 0, 0);
+    current = current.add(1, "day");
   }
 
   return Math.round((totalMinutes / 60) * 100) / 100;

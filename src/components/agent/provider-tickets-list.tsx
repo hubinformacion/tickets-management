@@ -63,7 +63,8 @@ import { UserAvatar } from "@/components/shared/user-avatar";
 import { PROVIDER_TICKET_STATUS_LABELS, PROVIDER_TICKET_PRIORITY_LABELS, PROVIDER_TICKET_PRIORITY_STYLES, PROVIDER_SURVEY_QUESTIONS, SURVEY_RATING_STYLES, SURVEY_RATING_SELECTED_STYLES } from "@/lib/constants/tickets";
 import type { SurveyRating } from "@/types";
 import { cn } from "@/lib/utils/cn";
-import { dayjs, formatDateShort } from "@/lib/utils/date";
+import { dayjs, formatCalendarDate } from "@/lib/utils/date";
+import { calendarDateSchema } from "@/lib/validation/schemas";
 import type { Provider, ProviderTicketStatus, ProviderTicketPriority } from "@/types";
 import {
   CalendarIcon,
@@ -84,7 +85,7 @@ const providerTicketSchema = z.object({
   externalCode: z.string().min(3, "El código debe tener al menos 3 caracteres"),
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
   providerId: z.coerce.number().min(1, "Selecciona un proveedor"),
-  requestDate: z.string().min(1, "La fecha de requerimiento es obligatoria"),
+  requestDate: calendarDateSchema,
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
   priority: z.enum(["none", "baja", "media", "alta", "critica"]).optional().or(z.literal("")),
   ticketId: z.number().nullable().optional(),
@@ -296,7 +297,7 @@ export function ProviderTicketsList({ providerTickets, providers, areaTickets }:
                   <TableCell>
                     <PriorityBadge priority={ticket.priority} />
                   </TableCell>
-                  <TableCell>{formatDateShort(ticket.requestDate)}</TableCell>
+                  <TableCell>{formatCalendarDate(ticket.requestDate)}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <UserAvatar

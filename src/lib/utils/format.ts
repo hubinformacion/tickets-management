@@ -1,7 +1,7 @@
 import { PRIORITY_LABELS } from "@/lib/constants/tickets";
 import type { TicketPriority } from "@/types";
 
-export { formatDate, formatDateShort } from "./date";
+export { formatDate, formatDateShort, formatCalendarDate } from "./date";
 
 export function translatePriority(priority: string): string {
   return PRIORITY_LABELS[priority as TicketPriority] || priority;

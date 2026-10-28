@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { providerTickets, providers, providerSatisfactionSurveys } from "@/db/schema";
 import { requireAgent, getSession } from "@/lib/auth/helpers";
-import { createProviderTicketSchema, updateProviderTicketSchema } from "@/lib/validation/schemas";
+import { createProviderTicketSchema, updateProviderTicketSchema, calendarDateSchema } from "@/lib/validation/schemas";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
@@ -114,7 +114,7 @@ export async function updateProviderTicketAction(formData: FormData) {
     return { error: "Ticket derivado no encontrado en tu área" };
   }
 
-  if (result.data.completionDate && result.data.completionDate < existing.requestDate) {
+  if (result.data.completionDate && result.data.completionDate < result.data.requestDate) {
     return { error: "La fecha de cierre no puede ser anterior a la fecha de requerimiento" };
   }
 
@@ -160,7 +160,7 @@ const surveyRatingField = z.coerce.number().int().min(1).max(5).optional();
 
 const closeProviderTicketSchema = z.object({
   id: z.coerce.number().min(1),
-  completionDate: z.string().min(1, "La fecha de atención es obligatoria"),
+  completionDate: calendarDateSchema,
   // Survey fields (all optional; only saved when all 5 are present)
   responseTimeRating: surveyRatingField,
   deadlineRating: surveyRatingField,

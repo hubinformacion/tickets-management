@@ -5,7 +5,7 @@ import { WatchersManager } from "@/components/tickets/watchers-manager";
 import { TicketAttachmentUploader } from "@/components/tickets/ticket-attachment-uploader";
 import { CancelTicketButton } from "@/components/tickets/cancel-ticket-button";
 import { AdminDeleteTicketControl } from "@/components/admin/admin-delete-ticket-control";
-import { formatDateShort } from "@/lib/utils/format";
+import { formatCalendarDate } from "@/lib/utils/format";
 import { User, Clock, Tag, Eye, ExternalLink } from "lucide-react";
 import type { FedMetadata } from "@/types";
 
@@ -117,13 +117,13 @@ export function TicketSidebar({
             {ticket.activityStartDate ? (
               <div>
                 <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Fecha de inicio de actividad</span>
-                <div className="text-sm text-foreground">{formatDateShort(ticket.activityStartDate)}</div>
+                <div className="text-sm text-foreground">{formatCalendarDate(ticket.activityStartDate)}</div>
               </div>
             ) : null}
             {ticket.desiredDiffusionDate ? (
               <div>
                 <span className="text-[11px] font-medium text-muted-foreground uppercase block mb-1">Fecha deseada de difusión</span>
-                <div className="text-sm text-foreground">{formatDateShort(ticket.desiredDiffusionDate)}</div>
+                <div className="text-sm text-foreground">{formatCalendarDate(ticket.desiredDiffusionDate)}</div>
               </div>
             ) : null}
             {ticket.targetAudience ? (

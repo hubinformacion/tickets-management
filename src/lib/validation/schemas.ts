@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { isCalendarDate } from "@/lib/utils/calendar-date";
+
+export const calendarDateSchema = z.iso.date("Ingresa una fecha válida (AAAA-MM-DD)")
+  .refine(isCalendarDate, "Ingresa una fecha válida (AAAA-MM-DD)");
 
 export const ticketIdSchema = z.number().int().positive();
 
@@ -45,7 +49,7 @@ export const deleteTicketAttachmentSchema = z.object({
 export const ticketDerivationSchema = z.object({
   ticketId: z.coerce.number().int().positive(),
   providerName: z.string().trim().min(1).max(200),
-  estimatedDate: z.iso.date().optional(),
+  estimatedDate: calendarDateSchema.optional(),
   note: z.string().trim().max(10000).optional(),
   providerTicketId: ticketIdSchema.optional(),
 });
@@ -86,8 +90,8 @@ export const createFedTicketSchema = z.object({
 export const createDiffusionTicketSchema = z.object({
   ...baseTicketFields,
   priority: z.enum(["low", "medium", "high", "critical"]),
-  activityStartDate: z.string().min(1, "La fecha de inicio de la actividad es obligatoria"),
-  desiredDiffusionDate: z.string().min(1, "La fecha deseada de difusión es obligatoria"),
+  activityStartDate: calendarDateSchema,
+  desiredDiffusionDate: calendarDateSchema,
   targetAudience: z.string().min(1, "El público objetivo es obligatorio"),
 });
 
@@ -100,8 +104,8 @@ export const createTicketFormSchema = z.object({
   // TSI/FED
   priority: z.enum(["low", "medium", "high", "critical"]).optional(),
   // Difusión
-  activityStartDate: z.string().optional(),
-  desiredDiffusionDate: z.string().optional(),
+  activityStartDate: calendarDateSchema.optional().or(z.literal("")),
+  desiredDiffusionDate: calendarDateSchema.optional().or(z.literal("")),
   targetAudience: z.string().optional(),
   // Fondo Editorial (metadata dinámica)
   fedRequestType: z.string().optional(),
@@ -156,7 +160,7 @@ export const updateProviderSchema = z.object({
 export const createProviderTicketSchema = z.object({
   externalCode: z.string().min(1, "El código externo es obligatorio"),
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
-  requestDate: z.string().min(1, "La fecha de requerimiento es obligatoria"),
+  requestDate: calendarDateSchema,
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
   providerId: z.coerce.number().min(1, "Selecciona un proveedor"),
   ticketId: z.coerce.number().optional(), // Enlace opcional
@@ -167,12 +171,12 @@ export const updateProviderTicketSchema = z.object({
   id: z.coerce.number().min(1),
   externalCode: z.string().min(1, "El código externo es obligatorio"),
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
-  requestDate: z.string().min(1, "La fecha de requerimiento es obligatoria"),
+  requestDate: calendarDateSchema,
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
   providerId: z.coerce.number().min(1, "Selecciona un proveedor"),
   status: z.enum(["en_proceso", "cerrado"]),
   ticketId: z.coerce.number().optional(),
-  completionDate: z.string().optional(), // Fecha de atención (para calcular tiempos)
+  completionDate: calendarDateSchema.optional(), // Fecha de atención (para calcular tiempos)
   priority: z.enum(["baja", "media", "alta", "critica"]).optional(),
 });
 
