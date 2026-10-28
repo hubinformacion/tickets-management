@@ -29,6 +29,7 @@ interface KPIs {
   avgCommunication: number;
   avgSolution: number;
   responseRate: number;
+  invalidRatingCount?: number;
 }
 
 interface Distributions {
@@ -102,8 +103,8 @@ export function SurveyResultsView({ surveys, kpis }: SurveyResultsViewProps) {
         </div>
         <h3 className="text-lg font-semibold text-foreground">Sin encuestas aún</h3>
         <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
-          Las encuestas de satisfacción aparecerán aquí cuando los usuarios confirmen la resolución de
-          tickets de tu área.
+          Hay {kpis.resolvedCount} ticket(s) resueltos con los filtros actuales, todavía sin encuestas.
+          Las respuestas aparecerán aquí cuando los usuarios las envíen.
         </p>
       </div>
     );
@@ -113,6 +114,11 @@ export function SurveyResultsView({ surveys, kpis }: SurveyResultsViewProps) {
 
   return (
     <div className="space-y-8">
+      {(kpis.invalidRatingCount ?? 0) > 0 ? (
+        <p className="text-sm text-muted-foreground" role="status">
+          Algunas calificaciones históricas están fuera de rango y no se incluyen en los promedios. Las respuestas se conservan en la tabla.
+        </p>
+      ) : null}
       {/* Row 1: 4 criterion KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <CriterionCard
@@ -177,7 +183,7 @@ export function SurveyResultsView({ surveys, kpis }: SurveyResultsViewProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-muted-foreground">Total de encuestas</p>
-                <p className="text-xs text-muted-foreground/70 mb-1">Cantidad de encuestas realizadas</p>
+                <p className="text-xs text-muted-foreground/70 mb-1">Respuestas de los tickets resueltos con estos filtros</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-bold tracking-tight">
                     {kpis.totalSurveys}
@@ -211,7 +217,7 @@ export function SurveyResultsView({ surveys, kpis }: SurveyResultsViewProps) {
               <thead>
                 <tr className="border-b bg-muted/30">
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Ticket</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Fecha</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Fecha de respuesta</th>
                   <th className="text-center py-3 px-4 font-medium text-muted-foreground">Tiempo</th>
                   <th className="text-center py-3 px-4 font-medium text-muted-foreground">Comunicación</th>
                   <th className="text-center py-3 px-4 font-medium text-muted-foreground">Solución</th>

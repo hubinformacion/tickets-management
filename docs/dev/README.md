@@ -26,7 +26,7 @@ El [bloque de catálogos](2026-10-28-orden-catalogos.md) está integrado y despl
 
 El [bloque de adjuntos](2026-10-28-validacion-adjuntos.md) está integrado y desplegado en `a4a225c`: PDF/Office/imágenes/texto/ZIP, firmas y cuerpos acotados, 4 MB por archivo. Preview y Production aprobados; comprobaciones públicas aprobadas.
 
-El siguiente bloque se trabaja en `fix/integridad-encuestas`: respuestas enteras y únicas, coordinación con el estado del ticket, tasa sobre el mismo conjunto de cierres y exportación con el filtro de área. No está integrado ni desplegado.
+En `fix/integridad-encuestas` está preparado el [bloque de encuestas de usuarios](2026-10-28-integridad-encuestas.md): respuestas enteras y únicas, coordinación con el ticket, tasa sobre el mismo conjunto de cierres y exportación por área. Pendiente de integrar y desplegar en producción.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 

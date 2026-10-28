@@ -90,7 +90,12 @@ export default async function UserSurveysPage({ searchParams }: PageProps) {
 
       {/* Filters */}
       <Suspense fallback={<div className="h-12 animate-pulse bg-muted rounded-lg" />}>
-        <SurveyFilters agents={agents} attentionAreas={allAreas} />
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Las fechas filtran por cierre del ticket en hora de Lima. La tasa compara respuestas y tickets resueltos con los mismos filtros.
+          </p>
+          <SurveyFilters agents={agents} attentionAreas={allAreas} />
+        </div>
       </Suspense>
 
       {/* Results */}

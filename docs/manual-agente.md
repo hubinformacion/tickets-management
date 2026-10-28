@@ -114,7 +114,7 @@ La página muestra:
 - **Gráficos**: Distribución de calificaciones por pregunta (1 al 5).
 - **Tabla**: Detalle de cada respuesta individual con código de ticket, fecha, calificaciones y comentarios.
 
-> Las encuestas aplican solo al área TSI por el momento.
+Cada agente consulta las encuestas de su área; administración puede filtrar por área. Las fechas del filtro corresponden al cierre de los tickets en hora de Lima. La tasa compara sus respuestas con el total de tickets resueltos de ese mismo conjunto, incluso si la respuesta llegó después del cierre. La tabla mantiene la fecha de respuesta.
 
 ---
 

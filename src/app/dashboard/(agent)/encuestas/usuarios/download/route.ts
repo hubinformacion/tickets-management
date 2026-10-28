@@ -3,6 +3,8 @@ import type { NextRequest } from "next/server";
 import { requireAgent } from "@/lib/auth/helpers";
 import { escapeHtml } from "@/lib/email/escape-html";
 import { surveyFiltersSchema } from "@/lib/validation/schemas";
+import { formatDateShort } from "@/lib/utils/format";
+import { PERU_TIMEZONE } from "@/lib/utils/date";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,6 +19,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const parsedFilters = surveyFiltersSchema.safeParse({
     agentId: searchParams.get("agentId") ?? undefined,
+    areaId: searchParams.get("areaId") ?? undefined,
     dateFrom: searchParams.get("dateFrom") ?? undefined,
     dateTo: searchParams.get("dateTo") ?? undefined,
   });
@@ -32,6 +35,7 @@ export async function GET(request: NextRequest) {
 
   const filterLabel = [
     filters.agentId ? `Agente filtrado` : "",
+    filters.areaId ? "Área seleccionada" : "",
     filters.dateFrom ? `Desde: ${filters.dateFrom}` : "",
     filters.dateTo ? `Hasta: ${filters.dateTo}` : "",
   ].filter(Boolean).join(" · ");
@@ -41,7 +45,7 @@ export async function GET(request: NextRequest) {
       <td>${escapeHtml(String(s.ticket.ticketCode))}</td>
       <td>${escapeHtml(String(s.user?.name ?? "—"))}</td>
       <td>${escapeHtml(String(s.attentionArea?.name ?? "—"))}</td>
-      <td>${new Date(s.createdAt).toLocaleDateString("es-PE")}</td>
+      <td>${escapeHtml(formatDateShort(s.createdAt))}</td>
       <td class="center">${escapeHtml(String(s.responseTimeRating))}</td>
       <td class="center">${escapeHtml(String(s.communicationRating))}</td>
       <td class="center">${escapeHtml(String(s.solutionRating))}</td>
@@ -80,7 +84,9 @@ export async function GET(request: NextRequest) {
 </head>
 <body>
   <h1>Reporte: Encuestas de satisfacción de usuarios</h1>
-  <p class="subtitle">Generado el ${new Date().toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" })}${filterLabel ? ` · ${escapeHtml(filterLabel)}` : ""}</p>
+  <p class="subtitle">Generado el ${new Date().toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric", timeZone: PERU_TIMEZONE })}${filterLabel ? ` · ${escapeHtml(filterLabel)}` : ""}</p>
+
+  <p class="subtitle">Periodo según fecha de cierre de los tickets en hora de Lima. Respuestas y tasa comparten los mismos filtros.</p>
 
   <div class="kpi-grid">
     <div class="kpi">
@@ -101,10 +107,12 @@ export async function GET(request: NextRequest) {
     </div>
   </div>
 
+  ${kpis.invalidRatingCount > 0 ? '<p class="subtitle">Las calificaciones históricas fuera de rango se conservan en la tabla y se excluyen de los promedios.</p>' : ""}
+
   <table>
     <thead>
       <tr>
-        <th>Ticket</th><th>Solicitante</th><th>Área</th><th>Fecha</th>
+        <th>Ticket</th><th>Solicitante</th><th>Área</th><th>Fecha de respuesta</th>
         <th>Tiempo</th><th>Comunicación</th><th>Solución</th><th>General</th>
         <th>Comentario</th>
       </tr>
@@ -112,7 +120,7 @@ export async function GET(request: NextRequest) {
     <tbody>${rows || '<tr><td colspan="9" style="text-align:center;padding:20px;color:#888;">Sin encuestas con los filtros aplicados</td></tr>'}</tbody>
   </table>
 
-  <div class="footer">Sistema de Gestión de Tickets · ${new Date().getFullYear()}</div>
+  <div class="footer">Sistema de Gestión de Tickets · ${new Date().toLocaleDateString("es-PE", { year: "numeric", timeZone: PERU_TIMEZONE })}</div>
 
   <script>window.onload = () => window.print();</script>
 </body>

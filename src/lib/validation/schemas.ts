@@ -13,8 +13,8 @@ export const ticketMessageSchema = z.string().trim().min(1).max(20000);
 export const surveyFiltersSchema = z.object({
   agentId: z.string().trim().min(1).max(256).optional(),
   areaId: z.string().regex(/^[1-9]\d*$/).refine(value => Number.isSafeInteger(Number(value))).optional(),
-  dateFrom: z.iso.date().optional(),
-  dateTo: z.iso.date().optional(),
+  dateFrom: calendarDateSchema.optional(),
+  dateTo: calendarDateSchema.optional(),
 }).refine(filters => !filters.dateFrom || !filters.dateTo || filters.dateFrom <= filters.dateTo, {
   message: "El inicio del rango debe ser anterior al fin", path: ["dateTo"],
 });
@@ -200,10 +200,10 @@ export const closeProviderTicketSchema = z.object({
 
 // ─── Satisfaction Survey schemas ───
 
-const ratingField = z.coerce.number().min(1, "La calificación mínima es 1").max(5, "La calificación máxima es 5");
+const ratingField = z.coerce.number().int("La calificación debe ser un número entero").min(1, "La calificación mínima es 1").max(5, "La calificación máxima es 5");
 
 export const submitSurveySchema = z.object({
-  ticketId: z.coerce.number().min(1),
+  ticketId: z.coerce.number().int().positive(),
   responseTimeRating: ratingField,
   communicationRating: ratingField,
   solutionRating: ratingField,
