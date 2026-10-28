@@ -210,3 +210,29 @@ export const submitSurveySchema = z.object({
   overallRating: ratingField,
   improvementSuggestion: z.string().max(1000, "Máximo 1000 caracteres").optional(),
 });
+
+// ─── Catálogos y ordenación ───
+const catalogFields = {
+  name: z.string().trim().min(1, "El nombre es requerido").max(200),
+  description: z.string().trim().max(10000),
+  isActive: z.boolean(),
+};
+const catalogId = z.coerce.number().int().positive();
+const categoryFields = { ...catalogFields, attentionAreaId: catalogId.nullable() };
+const subcategoryFields = { ...catalogFields, categoryId: catalogId };
+const toggleCatalogCommand = z.object({ operation: z.literal("toggle"), id: catalogId, newState: z.boolean().optional() });
+const deleteCatalogCommand = z.object({ operation: z.literal("delete"), id: catalogId });
+const moveCatalogFields = { operation: z.literal("move"), id: catalogId, direction: z.enum(["up", "down"]) };
+
+export const categoryMutationSchema = z.discriminatedUnion("operation", [
+  z.object({ operation: z.literal("create"), ...categoryFields }),
+  z.object({ operation: z.literal("update"), id: catalogId, ...categoryFields }),
+  toggleCatalogCommand, deleteCatalogCommand, z.object(moveCatalogFields),
+]);
+
+export const subcategoryMutationSchema = z.discriminatedUnion("operation", [
+  z.object({ operation: z.literal("create"), ...subcategoryFields }),
+  z.object({ operation: z.literal("update"), id: catalogId, ...subcategoryFields }),
+  toggleCatalogCommand, deleteCatalogCommand,
+  z.object({ ...moveCatalogFields, expectedCategoryId: catalogId }),
+]);

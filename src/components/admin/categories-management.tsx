@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -47,6 +47,9 @@ export function AdminCategoriesManagement({
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const router = useRouter();
+  const orderedCategories = useMemo(() => [...initialCategories].sort((a, b) =>
+    (a.attentionAreaId ?? 0) - (b.attentionAreaId ?? 0) || a.displayOrder - b.displayOrder || a.id - b.id
+  ), [initialCategories]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -201,7 +204,7 @@ export function AdminCategoriesManagement({
                 </TableCell>
               </TableRow>
             ) : (
-              initialCategories.map((category, index) => (
+              orderedCategories.map((category, index) => (
                 <TableRow key={category.id}>
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell>
@@ -231,7 +234,7 @@ export function AdminCategoriesManagement({
                         variant="ghost"
                         size="sm"
                         onClick={() => handleMoveUp(category.id, category.displayOrder)}
-                        disabled={index === 0 || isPending}
+                        disabled={isPending || index === 0 || (orderedCategories[index - 1].attentionAreaId ?? null) !== (category.attentionAreaId ?? null)}
                         aria-label={`Mover arriba ${category.name}`}
                       >
                         <ArrowUp className="h-3 w-3" />
@@ -240,7 +243,7 @@ export function AdminCategoriesManagement({
                         variant="ghost"
                         size="sm"
                         onClick={() => handleMoveDown(category.id, category.displayOrder)}
-                        disabled={index === initialCategories.length - 1 || isPending}
+                        disabled={isPending || index === orderedCategories.length - 1 || (orderedCategories[index + 1].attentionAreaId ?? null) !== (category.attentionAreaId ?? null)}
                         aria-label={`Mover abajo ${category.name}`}
                       >
                         <ArrowDown className="h-3 w-3" />

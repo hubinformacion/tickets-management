@@ -18,7 +18,7 @@ export async function getActiveCategories() {
         attentionAreaId: true,
         displayOrder: true,
       },
-      orderBy: (categories, { asc }) => [asc(categories.displayOrder)],
+      orderBy: (categories, { asc }) => [asc(categories.displayOrder), asc(categories.id)],
       with: {
         subcategories: {
           where: (subcategories, { eq }) => eq(subcategories.isActive, true),
@@ -29,7 +29,7 @@ export async function getActiveCategories() {
             categoryId: true,
             displayOrder: true,
           },
-          orderBy: (subcategories, { asc }) => [asc(subcategories.displayOrder)],
+          orderBy: (subcategories, { asc }) => [asc(subcategories.displayOrder), asc(subcategories.id)],
         },
       },
     });

@@ -28,10 +28,10 @@ export default async function ConfiguracionAgentePage() {
       where: eq(ticketCategories.attentionAreaId, session.user.attentionAreaId),
       with: {
         subcategories: {
-          orderBy: [asc(ticketSubcategories.displayOrder)],
+          orderBy: [asc(ticketSubcategories.displayOrder), asc(ticketSubcategories.id)],
         },
       },
-      orderBy: [asc(ticketCategories.displayOrder)],
+      orderBy: [asc(ticketCategories.displayOrder), asc(ticketCategories.id)],
     }),
     db.query.priorityConfig.findMany({
       where: eq(priorityConfig.attentionAreaId, session.user.attentionAreaId),
@@ -53,7 +53,7 @@ export default async function ConfiguracionAgentePage() {
     with: {
       category: true,
     },
-    orderBy: [asc(ticketSubcategories.categoryId), asc(ticketSubcategories.displayOrder)],
+    orderBy: [asc(ticketSubcategories.categoryId), asc(ticketSubcategories.displayOrder), asc(ticketSubcategories.id)],
   });
 
   return (

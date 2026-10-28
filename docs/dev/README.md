@@ -22,7 +22,7 @@ El [bloque de fechas](2026-10-27-fechas-calendario.md) está integrado y despleg
 
 El [bloque de proveedores](2026-10-27-integridad-proveedores.md) está integrado y desplegado en `a85e691`: referencias del área, encuesta completa o ausente, transiciones condicionales y conservación de evaluaciones. Preview y Production aprobados; login 200, sesión anónima 200/null y dashboard 307 a login.
 
-El siguiente bloque se trabaja en `fix/orden-catalogos`: orden por área/categoría, transacciones y bloqueo para todas las escrituras del catálogo. No está integrado ni desplegado.
+En `fix/orden-catalogos` está preparado el [bloque de catálogos](2026-10-28-orden-catalogos.md): orden por área/categoría, transacciones y bloqueo para todas sus escrituras en la aplicación. Pendiente de integración y despliegue en producción.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 

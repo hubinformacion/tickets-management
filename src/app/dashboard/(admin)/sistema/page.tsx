@@ -24,13 +24,13 @@ export default async function SistemaPage() {
     getAppSetting("ticket_disabled_message"),
     getAppSetting("knowledge_base_url"),
     db.query.ticketCategories.findMany({
-      orderBy: [asc(ticketCategories.displayOrder)],
+      orderBy: [asc(ticketCategories.attentionAreaId), asc(ticketCategories.displayOrder), asc(ticketCategories.id)],
       with: {
         subcategories: true,
       },
     }),
     db.query.ticketSubcategories.findMany({
-      orderBy: [asc(ticketSubcategories.categoryId), asc(ticketSubcategories.displayOrder)],
+      orderBy: [asc(ticketSubcategories.categoryId), asc(ticketSubcategories.displayOrder), asc(ticketSubcategories.id)],
       with: {
         category: true,
       },
