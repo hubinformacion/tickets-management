@@ -162,23 +162,41 @@ export const createProviderTicketSchema = z.object({
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
   requestDate: calendarDateSchema,
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
-  providerId: z.coerce.number().min(1, "Selecciona un proveedor"),
-  ticketId: z.coerce.number().optional(), // Enlace opcional
+  providerId: z.coerce.number().int().positive("Selecciona un proveedor"),
+  ticketId: z.coerce.number().int().positive().optional(), // Enlace opcional
   priority: z.enum(["baja", "media", "alta", "critica"]).optional(),
 });
 
 export const updateProviderTicketSchema = z.object({
-  id: z.coerce.number().min(1),
+  id: z.coerce.number().int().positive(),
   externalCode: z.string().min(1, "El código externo es obligatorio"),
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
   requestDate: calendarDateSchema,
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
-  providerId: z.coerce.number().min(1, "Selecciona un proveedor"),
+  providerId: z.coerce.number().int().positive("Selecciona un proveedor"),
   status: z.enum(["en_proceso", "cerrado"]),
-  ticketId: z.coerce.number().optional(),
+  ticketId: z.coerce.number().int().positive().optional(),
   completionDate: calendarDateSchema.optional(), // Fecha de atención (para calcular tiempos)
   priority: z.enum(["baja", "media", "alta", "critica"]).optional(),
 });
+
+const providerRatingMessage = "Las calificaciones deben ser números enteros entre 1 y 5";
+const optionalProviderRating = z.coerce.number(providerRatingMessage).int(providerRatingMessage)
+  .min(1, providerRatingMessage).max(5, providerRatingMessage).optional();
+
+export const closeProviderTicketSchema = z.object({
+  id: z.coerce.number("ID de ticket inválido").int("ID de ticket inválido").positive("ID de ticket inválido"),
+  completionDate: calendarDateSchema,
+  responseTimeRating: optionalProviderRating,
+  deadlineRating: optionalProviderRating,
+  qualityRating: optionalProviderRating,
+  requirementUnderstandingRating: optionalProviderRating,
+  attentionRating: optionalProviderRating,
+}).refine(data => {
+  const ratings = [data.responseTimeRating, data.deadlineRating, data.qualityRating,
+    data.requirementUnderstandingRating, data.attentionRating];
+  return ratings.every(rating => rating === undefined) || ratings.every(rating => rating !== undefined);
+}, { message: "Completa las cinco calificaciones o cierra el ticket sin encuesta", path: ["responseTimeRating"] });
 
 // ─── Satisfaction Survey schemas ───
 

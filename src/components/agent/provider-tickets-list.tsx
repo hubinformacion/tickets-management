@@ -370,9 +370,9 @@ export function ProviderTicketsList({ providerTickets, providers, areaTickets }:
                         variant="ghost"
                         size="icon"
                         onClick={() => setDeleteId(ticket.id)}
-                        disabled={isPending}
+                        disabled={isPending || ticket.status === "cerrado"}
                         aria-label={`Eliminar ${ticket.externalCode}`}
-                        title="Eliminar"
+                        title={ticket.status === "cerrado" ? "Los tickets cerrados se conservan" : "Eliminar"}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>

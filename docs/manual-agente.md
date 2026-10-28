@@ -85,20 +85,20 @@ La sección **"Tickets de proveedores"** es un módulo independiente para dar se
    - **Código externo**: Referencia o número del proveedor.
    - **Título**: Descripción breve del trabajo.
    - **Descripción**: Detalles del trabajo solicitado.
-   - **Proveedor**: Selecciona de la lista de proveedores de tu área.
+   - **Proveedor**: Selecciona un proveedor activo de tu área.
    - **Fecha de solicitud**: Cuándo se envió el trabajo.
    - **Prioridad** (opcional): Baja, Media, Alta o Crítica.
-   - **Ticket vinculado** (opcional): Enlaza con un ticket del sistema si corresponde.
+   - **Ticket vinculado** (opcional): Enlaza con un ticket del sistema de tu misma área si corresponde.
 
 ### Gestionar tickets de proveedor
 
 Desde la tabla de tickets de proveedor puedes:
 
 - **Filtrar** por proveedor, estado o prioridad.
-- **Editar** los detalles de un ticket existente.
-- **Cerrar** un ticket cuando el proveedor complete el trabajo (indicando fecha de finalización).
-- **Reabrir** un ticket cerrado si es necesario.
-- **Eliminar** tickets que ya no sean relevantes.
+- **Editar** los detalles de un ticket en proceso. Si ya tiene una evaluación, se conserva el proveedor evaluado.
+- **Cerrar** un ticket cuando el proveedor complete el trabajo, indicando fecha de finalización. Puedes omitir la encuesta o completar sus cinco calificaciones.
+- **Reabrir** un ticket cerrado si es necesario. La evaluación previa se conserva; al cerrarlo otra vez debes omitir una nueva encuesta si ya existe una.
+- **Eliminar** únicamente tickets en proceso sin evaluación. Los tickets cerrados y las evaluaciones se conservan.
 
 Los tickets de proveedor solo tienen 2 estados: **En proceso** y **Cerrado**.
 
