@@ -2,7 +2,7 @@
 
 ## Alcance y estado
 
-Preparado en `b01c88d` (`fix/fechas-calendario`), sobre el cierre del despliegue `e24f3e7`. Pendiente de integración y despliegue en producción. Se implementa el bloque de fechas del plan aprobado sin cambiar el esquema ni reescribir datos históricos.
+Implementado en `b01c88d` e integrado y desplegado en producción como `8562497`, sobre el cierre anterior `e24f3e7`. Se implementa el bloque de fechas del plan aprobado sin cambiar el esquema ni reescribir datos históricos.
 
 - Una fecha `AAAA-MM-DD` se valida como día real y se presenta como `DD/MM/AAAA` sin aplicarle zona horaria. No se convierten fechas puras en instantes de medianoche.
 - `formatDate` y `formatDateShort` distinguen fechas puras de instantes. Los instantes siguen presentándose en Lima; entradas ausentes o inválidas muestran `-`. Se mantiene la lectura de instantes en metadata histórica de derivaciones.
@@ -28,4 +28,8 @@ Las relaciones de área y las transiciones concurrentes de proveedores requieren
 
 ## Preview
 
-La [Preview de `b01c88d`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/HuQ1BidXLMt1ASiohY7CGVGcxy93) figura como `success` (registro de GitHub `7376639495`). Este resultado acredita compilación, no el recorrido visual o autenticado ni la concurrencia real. La rama no está integrada ni desplegada en producción.
+La [Preview de `b01c88d`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/HuQ1BidXLMt1ASiohY7CGVGcxy93) figura como `success` (registro de GitHub `7376639495`). Este resultado acredita compilación, no el recorrido visual o autenticado ni la concurrencia real. La rama se integró en `main` tras su aprobación y se desplegó en producción como `8562497`.
+
+## Producción
+
+El [despliegue de `8562497`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/FXppNv4dQnva327trs89FeXfPHsL) figura como `success` (registro de GitHub `7376704736`). En https://requerimientos-hub.vercel.app se verificaron login 200, sesión anónima 200/`null` y dashboard 307 a login. No se ejecutaron migraciones, backfills, scripts de mantenimiento ni operaciones manuales sobre datos, correo o archivos de producción.

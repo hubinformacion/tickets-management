@@ -1,6 +1,6 @@
 # Plan de ejecución de la estabilización
 
-> Estado actual: dependencias, limpieza, autorización e integridad transaccional están desplegadas en `e089be3`, junto con la protección de scripts y la recuperación de sesiones inactivas. La corrección de fechas está en curso en una rama separada. El recorrido Google y la concurrencia real continúan pendientes. El [estado de estabilización](README.md) es el registro actualizado; el punto de partida siguiente conserva el contexto original.
+> Estado actual: dependencias, limpieza, autorización e integridad transaccional están desplegadas en `8562497`, junto con la protección de scripts, la recuperación de sesiones inactivas y la corrección de fechas. La integridad de proveedores se trabaja en una rama separada. El recorrido Google y la concurrencia real continúan pendientes. El [estado de estabilización](README.md) es el registro actualizado; el punto de partida siguiente conserva el contexto original.
 
 ## Punto de partida
 

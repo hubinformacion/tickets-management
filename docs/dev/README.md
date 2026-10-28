@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El commit `e089be3` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye las dependencias actualizadas, la limpieza de mantenimiento, la retirada de `doctor.config.ts`, la autorización por ticket/área, el bloque de integridad transaccional, la protección de scripts y la recuperación de sesiones inactivas.
+El commit `8562497` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye las dependencias actualizadas, la limpieza de mantenimiento, la retirada de `doctor.config.ts`, la autorización por ticket/área, el bloque de integridad transaccional, la protección de scripts la recuperación de sesiones inactivas y la corrección de fechas.
 
 Vercel aprobó Preview y Production. Se verificaron login público, sesión anónima y redirección del dashboard. El recorrido autenticado de Google y los escenarios con datos reales no se presentan como aprobados. No se ejecutaron migraciones, reset, drop, seed ni operaciones manuales sobre datos de producción.
 
@@ -18,14 +18,16 @@ La guía operativa exige preservar los datos históricos y preparar cambios de e
 
 La [protección de scripts de BD](2026-10-27-proteccion-scripts.md) (`3463601`) y la [recuperación de sesiones inactivas](2026-10-27-sesion-inactiva.md) (`e089be3`) están integradas y desplegadas. Preview y Production aprobados; login 200, sesión anónima 200/null y dashboard 307 a login.
 
-En `fix/fechas-calendario` está preparado el [bloque de fechas](2026-10-27-fechas-calendario.md): separación de calendario e instantes, validación estricta y horas hábiles en Lima. El código `b01c88d` tiene build de Preview aprobado y continúa pendiente de integración y despliegue en producción.
+El [bloque de fechas](2026-10-27-fechas-calendario.md) está integrado y desplegado en `8562497`: calendario separado de instantes, validación estricta y helper de horas hábiles en Lima. Preview y Production aprobados; comprobaciones públicas de login/sesión/dashboard aprobadas.
+
+El siguiente bloque se trabaja en `fix/integridad-proveedores`: enlaces por área, cierre con encuesta completa o ausente, escrituras condicionales y preservación de evaluaciones previas. No está integrado ni desplegado.
 
 ## Pendientes
 
 - [Validación de concurrencia real y recorrido autenticado](2026-10-27-validacion-funcional-pendiente.md) antes de cerrar los hallazgos de integridad; validar en navegador la corrección desplegada para la redirección circular con sesión inactiva.
 - Recordatorios recuperables, compensaciones de archivos y limpieza de huérfanos.
 - Formatos/contenido, tamaño global/cantidad de uploads y rate limiting compartido.
-- Fechas (bloque en curso), proveedores, ordenamiento e índices/constraints.
+- Integridad de proveedores (bloque en curso), ordenamiento e índices/constraints; métricas de SLA pendientes aunque el helper de horas hábiles ya usa Lima.
 - Métricas, paginación, CI y accesibilidad; tres advertencias de ESLint y cuatro avisos transitivos.
 
 La secuencia general está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md). Las siguientes funcionalidades se incorporarán después de estabilizar los riesgos aplicables.
