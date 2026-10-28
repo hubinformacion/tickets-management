@@ -1,6 +1,6 @@
 # Plan de ejecución de la estabilización
 
-> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos, validación de adjuntos y encuestas están desplegados en `a606073`. Los recordatorios recuperables de 48 horas se preparan en una rama separada; su tabla adicional requiere autorización específica antes de aplicarse. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
+> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos, validación de adjuntos y encuestas y recordatorios recuperables de 48 horas están desplegados en `3a598b7`. La tabla adicional fue aplicada con autorización específica del usuario y snapshot confirmado, sin modificar datos históricos. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
 
 ## Punto de partida
 

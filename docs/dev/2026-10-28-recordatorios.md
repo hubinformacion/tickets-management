@@ -2,7 +2,7 @@
 
 ## Estado
 
-Preparado en `fix/recordatorios-recuperables`, sobre la producción `a606073`. La tabla adicional está aplicada con autorización específica del usuario y snapshot confirmado. El código de activación está pendiente de merge y despliegue. El usuario confirmó **solo cierres nuevos desde la activación**, sin recuperar tickets antiguos.
+Preparado en `fix/recordatorios-recuperables`, sobre la producción `a606073`. La tabla adicional está aplicada con autorización específica del usuario y snapshot confirmado el 28 de octubre. El código de activación `3a598b7` está integrado en `main` y desplegado en producción, con modo `queue`, corte fijo y tabla disponible comprobados mediante la ruta autenticada de estado. El usuario confirmó **solo cierres nuevos desde la activación**, sin recuperar tickets antiguos.
 
 El [diseño y procedimiento de activación](../plans/2026-10-28-recordatorios-design.md) detalla flujo, alternativas, límites y rollback operativo. La [propuesta SQL aditiva](../migrations/2026-10-28-survey-reminders.sql) creó exclusivamente una tabla vacía e índices propios. El usuario autorizó añadir tablas sin eliminar existentes y confirmó su snapshot antes de aplicarse. Se verificaron 13 columnas, 4 índices, 6 constraints y 0 filas operativas, sin escrituras sobre datos de negocio. La restauración del snapshot no se probó de forma independiente.
 
@@ -23,4 +23,18 @@ Las comprobaciones usan fuentes/dependencias de solo lectura, entorno ficticio, 
 - El cron sigue siendo diario a las 08:00 de Lima; el plazo de 48 horas habilita el envío, no fija su hora exacta. Backlog, fallos o el límite del lote pueden posponerlo.
 - Gmail y PostgreSQL no comparten transacción. Una confirmación perdida después de aceptar el correo puede ocasionar un duplicado posterior. El diseño conserva ese límite explícito.
 - La comprobación antes de Gmail reduce el envío a tickets reabiertos o ya evaluados, pero no bloquea al usuario durante la llamada de red.
-- Quedan pendientes publicación y comprobación del modo/corte efectivos, integración real Gmail/OAuth, concurrencia de PG y observación del cron durante 48–72 horas. La tabla fue aplicada; no se añadieron datos de prueba.
+- Quedan pendientes integración real Gmail/OAuth, concurrencia de PG y observación del cron durante 48–72 horas. La tabla fue aplicada; no se añadieron datos de prueba.
+
+## Registro de la migración autorizada
+
+Se aplicó únicamente `docs/migrations/2026-10-28-survey-reminders.sql`, SHA-256 `b9d98f588817d911ef4d415e20bfc8c80b238e6cffbad8baed445d5f84224d7d`. La conexión exigió el destino Neon configurado del proyecto y TLS `verify-full`. La transacción limitó la espera por locks a 3 segundos y cada sentencia a 30 segundos. No se ejecutaron reset, drop, seed, setup, db:push, backfills ni cambios de datos históricos.
+
+La [Preview de activación `3a598b7`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/EUt596JKsDbCvDi76L818zx7FpFz) fue aprobada antes del merge. La hora de corte permanece fija para despliegues futuros; no se usa la hora de ejecución del cron.
+
+## Producción y comprobación final
+
+La [Production de `3a598b7`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/38LMqVyKMMdtEVeDE5S8r7f8bALg) fue aprobada por Vercel (registro de GitHub `7391867560`). El endpoint autenticado independiente de estado respondió 200 con `mode=queue`, `startAt=2026-10-28T17:00:00.000Z`, `queueReady=true` y el SHA exacto `3a598b794e68554342a7ca2dbd2d3003318dd60a`.
+
+Comprobaciones públicas: login 200, sesión anónima 200/null, dashboard 307 a login y estado del cron sin credencial 401. No se invocó el worker, se reservaron trabajos ni se enviaron correos de prueba a usuarios.
+
+Se incluyen exclusivamente cierres desde el **28 de octubre de 2026 a las 12:00 de Lima**. El cron existente conserva las 08:00 de Lima para recordatorios y las 19:00 para cierre automático. La elegibilidad del recordatorio comienza 48 horas después del cierre efectivo, manual o automático; el procesamiento sucede en el primer cron posterior con capacidad disponible. No se recuperan cierres anteriores al corte.

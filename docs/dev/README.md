@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El commit `a606073` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos e integridad de encuestas.
+El código `3a598b7` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas y recordatorios recuperables de 48 horas.
 
 Vercel aprobó Preview y Production. Se verificaron login público, sesión anónima y redirección del dashboard. El recorrido autenticado de Google y los escenarios con datos reales no se presentan como aprobados. No se ejecutaron migraciones, reset, drop, seed ni operaciones manuales sobre datos de producción.
 
@@ -28,7 +28,7 @@ El [bloque de adjuntos](2026-10-28-validacion-adjuntos.md) está integrado y des
 
 El [bloque de encuestas de usuarios](2026-10-28-integridad-encuestas.md) está integrado y desplegado en `a606073`: respuestas enteras y únicas, coordinación con el ticket, tasa sobre el mismo conjunto de cierres y exportación por área. Preview y Production aprobados; login 200, sesión anónima 200/null y dashboard 307 a login. La rama integrada se eliminó.
 
-En `fix/recordatorios-recuperables` está preparado el [recordatorio de 48 horas](../plans/2026-10-28-recordatorios-design.md): cola independiente, reservas persistentes y reintentos. El usuario eligió solo cierres nuevos desde la activación. El usuario confirmó snapshot y autorizó crear la tabla adicional, ya aplicada y vacía sin modificar datos existentes. La activación versionada usa el corte del 28 de octubre a las 12:00 de Lima; queda pendiente publicar y comprobar el modo efectivo.
+El [bloque de recordatorios](2026-10-28-recordatorios.md) está integrado y desplegado en `3a598b7`. La tabla independiente se creó vacía con autorización específica y snapshot confirmados por el usuario, sin modificar tablas ni datos históricos. Preview y Production aprobados; estado autenticado 200 con `queue`, corte fijo y tabla disponible, login 200, sesión anónima 200/null y dashboard 307 a login. Solo se incluyen cierres desde el 28 de octubre a las 12:00 de Lima, con recordatorio elegible 48 horas después del cierre efectivo. No se ejecutó el worker ni se enviaron correos de prueba.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
@@ -36,7 +36,7 @@ La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Co
 
 | Prioridad | Bloque | Trabajo restante |
 |---|---|---|
-| Alta | Recordatorios | Preparación en rama: vencidos desde 48 h, corte de activación, cola y reservas. Tabla adicional aplicada con snapshot/autorización confirmados. Pendientes publicación, activación y validación real; límite de duplicados ante confirmación incierta documentado. |
+| Alta | Recordatorios | Cola, reservas, reintentos y corte de 48 h desplegados. Pendientes observación de ejecuciones reales e integración Gmail/OAuth/PG; límite de duplicados ante confirmación incierta documentado. |
 | Alta | Archivos | Cuotas globales/cantidad con reserva atómica, coordinación vinculación/revert, recuperación de persistencia incierta y borrados/huérfanos revisables. |
 | Alta | Rate limiting | Almacén compartido entre instancias y namespaces de operación en todos los consumidores. |
 | Alta | Validación real | Google, Drive/Gmail, permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
@@ -44,7 +44,7 @@ La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Co
 | Media | Esquema y operación | Revisar índices/constraints con datos/planes reales y preparar migraciones compatibles; respaldo y restauración verificables antes de operar sobre producción. |
 | Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, tres advertencias de ESLint, React Doctor y avisos transitivos registrados. |
 
-Los bloques de persistencia pueden requerir tablas/columnas nuevas. Su preparación debe ser aditiva y compatible; este despliegue no aplica migraciones ni autoriza operaciones sobre datos. No se certifican los servicios o datos reales por haber aprobado un build.
+Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. En recordatorios solo se creó la tabla expresamente autorizada; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.
 
 La secuencia general está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md). Las siguientes funcionalidades se incorporarán después de estabilizar los riesgos aplicables.
 
