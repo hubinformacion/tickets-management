@@ -30,7 +30,7 @@ El [bloque de encuestas de usuarios](2026-10-28-integridad-encuestas.md) está i
 
 El [bloque de recordatorios](2026-10-28-recordatorios.md) está integrado y desplegado en `3a598b7`. La tabla independiente se creó vacía con autorización específica y snapshot confirmados por el usuario, sin modificar tablas ni datos históricos. Preview y Production aprobados; estado autenticado 200 con `queue`, corte fijo y tabla disponible, login 200, sesión anónima 200/null y dashboard 307 a login. Solo se incluyen cierres desde el 28 de octubre a las 12:00 de Lima, con recordatorio elegible 48 horas después del cierre efectivo. No se ejecutó el worker ni se enviaron correos de prueba.
 
-En `fix/coordinacion-adjuntos` está preparada la [coordinación de cargas pendientes](2026-10-28-coordinacion-adjuntos.md): intención persistente antes de Drive, bloqueo compartido con la vinculación, retención de referencias y validación del ticket dentro de la transacción. La tabla operativa se creó vacía con autorización de cambios aditivos. Se valida localmente y se publicará una sola vez desde main, sin Preview.
+En `94ead20` está integrada y publicada en main la [coordinación de cargas pendientes](2026-10-28-coordinacion-adjuntos.md): intención persistente antes de Drive, bloqueo compartido con la vinculación, retención de referencias y validación del ticket dentro de la transacción. La tabla operativa se creó vacía con autorización de cambios aditivos. Build local, tipos, lint y 123 comprobaciones aprobados. Se hizo un único push de main, sin Preview; falta que Vercel registre el despliegue. Producción sigue en `3a598b7` y no se presenta este bloque como activo.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
@@ -39,7 +39,7 @@ La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Co
 | Prioridad | Bloque | Trabajo restante |
 |---|---|---|
 | Alta | Recordatorios | Cola, reservas, reintentos y corte de 48 h desplegados. Pendientes observación de ejecuciones reales e integración Gmail/OAuth/PG; límite de duplicados ante confirmación incierta documentado. |
-| Alta | Archivos | Coordinación vinculación/revert preparada; pendientes cuotas globales/cantidad y reservas antes del upload, altas inciertas, reconciliación y revisión del borrado de vinculados/huérfanos. |
+| Alta | Archivos | Coordinación vinculación/revert integrada en main, despliegue pendiente; pendientes cuotas globales/cantidad y reservas antes del upload, altas inciertas, reconciliación y revisión del borrado de vinculados/huérfanos. |
 | Alta | Rate limiting | Almacén compartido entre instancias y namespaces de operación en todos los consumidores. |
 | Alta | Validación real | Google, Drive/Gmail, permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
 | Media | Métricas y consultas | SLA por ciclo de cierre/reapertura, periodos del dashboard, métricas restantes y paginación/agregación de listados grandes. |

@@ -2,7 +2,7 @@
 
 ## Alcance
 
-Rama local `fix/coordinacion-adjuntos`. Corrige la carrera entre cancelar una carga pendiente y vincularla durante la creación de un ticket o al añadir archivos a uno existente. El [diseño](../plans/2026-10-28-coordinacion-adjuntos-design.md) conserva referencias y registra una intención antes de llamar a Drive.
+Código `94ead20`, integrado y publicado en `main`, sin publicar rama de trabajo ni generar Preview. La rama integrada se eliminó. Corrige la carrera entre cancelar una carga pendiente y vincularla durante la creación de un ticket o al añadir archivos a uno existente. El [diseño](../plans/2026-10-28-coordinacion-adjuntos-design.md) conserva referencias y registra una intención antes de llamar a Drive.
 
 La vinculación y la cancelación bloquean la misma fila. La vinculación consulta las intenciones en una sentencia posterior al bloqueo, con aislamiento READ COMMITTED explícito en sus transacciones. Una cancelación confirmada o incierta impide vincular ese archivo; una vinculación confirmada impide cancelar la carga como pendiente. Los adjuntos cancelados conservan su fila y el registro operativo, sin aparecer entre los archivos de un ticket.
 
@@ -22,9 +22,9 @@ TypeScript aprobado con `tsc --noEmit --incremental false`; ESLint aprobado con 
 
 Los verificadores temporales se ejecutaron sin red ni credenciales, con fuentes/dependencias de solo lectura y límites de recursos. Se eliminan copias y scripts al terminar y no se incorpora framework de tests. La simulación de carreras no certifica concurrencia real de PostgreSQL.
 
-Build local completo aprobado con Next.js 16.4.3/Turbopack: compilación, TypeScript, generación de las 23 páginas estáticas y optimización. Se usaron variables ficticias, sin archivos ni credenciales de producción; fuentes y dependencias de solo lectura y copia de trabajo en scratch temporal. Para descargar Inter se habilitó HTTPS con certificados públicos y proxies sin credenciales, a diferencia de los fixtures con red deshabilitada.
+Build local completo aprobado con Next.js 16.4.3/Turbopack: compilación, TypeScript, fase de generación de páginas (23/23) y optimización. Se usaron variables ficticias, sin archivos ni credenciales de producción; fuentes y dependencias de solo lectura y copia de trabajo en scratch temporal. Para descargar Inter se habilitó HTTPS con certificados públicos y proxies sin credenciales, a diferencia de los fixtures con red deshabilitada.
 
-El proceso local limitó CPU/afinidad a dos núcleos, heap de Node a 3 GiB, DATA a 4 GiB por proceso, espacio virtual a 64 GiB, procesos a 256 y scratch a 1,5 GiB. `--disable-wasm-trap-handler` evitó reservas virtuales de Wasm bajo el límite; `CIRCLE_NODE_TOTAL=3` y `UV_THREADPOOL_SIZE=2` limitaron los trabajadores sin modificar `next.config.ts`, package.json ni producción. Los intentos anteriores con Webpack/fuentes simuladas no se presentan como builds aprobados. Se eliminaron fuentes descargadas, copias y resultados temporales.
+El proceso local limitó CPU/afinidad a dos núcleos, heap principal de Node a 3 GiB, DATA a 4 GiB por proceso, espacio virtual a 64 GiB, procesos a 256 y scratch a 1,5 GiB. `--disable-wasm-trap-handler` evitó reservas virtuales de Wasm bajo el límite; `CIRCLE_NODE_TOTAL=3` y `UV_THREADPOOL_SIZE=2` limitaron los trabajadores sin modificar `next.config.ts`, package.json ni producción. Los intentos anteriores con Webpack/fuentes simuladas no se presentan como builds aprobados. Se eliminaron fuentes descargadas, copias y resultados temporales.
 
 Por petición del usuario, la rama de trabajo es local y no genera Preview. El código y la documentación acumulada se publican juntos desde main en un único despliegue. La confirmación final queda en el estado de deployment asociado al commit y en el registro de cierre, que se agrupa con el siguiente bloque para evitar desplegar solo documentación.
 
@@ -35,3 +35,13 @@ La recuperación de una cancelación es manual: reserva vigente devuelve 409; fa
 Un 404 de Drive no se convierte automáticamente en éxito porque puede representar falta de acceso. Los estados inciertos requieren reconciliación posterior; nunca se reutiliza esa referencia para vincularla a un ticket.
 
 Quedan cuotas globales/cantidad y reservas antes del upload, uploads que terminan después de enviar el formulario, persistencia incierta en altas, reconciliación y huérfanos. El borrado explícito de archivos ya vinculados conserva su flujo actual y requiere una revisión separada. No se incorporó limpieza automática.
+
+## Publicación y estado de producción
+
+Se publicó main con el bloque y la documentación acumulada: `3a598b7..94ead205be079430a94575121282e78fd26befe0`. Tipos, lint, comprobaciones y build local completos estaban aprobados antes del push.
+
+GitHub confirma el SHA nuevo en main, pero Vercel todavía no ha registrado deployment, check-run ni commit status para este código. La consulta autenticada de `/api/cron/survey-reminder/status` sigue respondiendo 200 con el SHA `3a598b794e68554342a7ca2dbd2d3003318dd60a`, modo queue, corte fijo y tabla de recordatorios disponible. No presentar el bloque de adjuntos como desplegado hasta verificar la nueva versión.
+
+No hay token, sesión CLI ni deploy hook de Vercel disponibles en este entorno. Se consulta si se cambió la configuración de despliegues Git; los permisos y credenciales de BD sí están disponibles y la tabla adicional ya fue confirmada vacía. No se ejecutan escrituras sobre tablas existentes, uploads, borrados ni crons como prueba.
+
+Después de comprobar que el primer push no generó deployment, status ni check-run, se reintenta una sola vez la entrega Git de main con este registro. No se publica ninguna rama de trabajo ni se genera Preview. El estado del proveedor puede revisarse en el commit de main y compararse con el SHA que devuelve el endpoint autenticado de estado.
