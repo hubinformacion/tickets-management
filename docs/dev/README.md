@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El commit `8562497` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye las dependencias actualizadas, la limpieza de mantenimiento, la retirada de `doctor.config.ts`, la autorización por ticket/área, el bloque de integridad transaccional, la protección de scripts, la recuperación de sesiones inactivas y la corrección de fechas.
+El commit `a85e691` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye las dependencias actualizadas, la limpieza de mantenimiento, la retirada de `doctor.config.ts`, la autorización por ticket/área, el bloque de integridad transaccional, la protección de scripts, la recuperación de sesiones inactivas, la corrección de fechas y la integridad de proveedores.
 
 Vercel aprobó Preview y Production. Se verificaron login público, sesión anónima y redirección del dashboard. El recorrido autenticado de Google y los escenarios con datos reales no se presentan como aprobados. No se ejecutaron migraciones, reset, drop, seed ni operaciones manuales sobre datos de producción.
 
@@ -20,14 +20,18 @@ La [protección de scripts de BD](2026-10-27-proteccion-scripts.md) (`3463601`) 
 
 El [bloque de fechas](2026-10-27-fechas-calendario.md) está integrado y desplegado en `8562497`: calendario separado de instantes, validación estricta y helper de horas hábiles en Lima. Preview y Production aprobados; comprobaciones públicas de login/sesión/dashboard aprobadas.
 
-En `fix/integridad-proveedores` está preparado el [bloque de integridad de proveedores](2026-10-27-integridad-proveedores.md): enlaces por área, cierre con encuesta completa o ausente, escrituras condicionales y conservación de evaluaciones previas. El código `d1b05b8` tiene build de Preview aprobado; continúa pendiente de integrar y desplegar en producción.
+El [bloque de proveedores](2026-10-27-integridad-proveedores.md) está integrado y desplegado en `a85e691`: referencias del área, encuesta completa o ausente, transiciones condicionales y conservación de evaluaciones. Preview y Production aprobados; login 200, sesión anónima 200/null y dashboard 307 a login.
+
+El siguiente bloque se trabaja en `fix/orden-catalogos`: orden por área/categoría, transacciones y bloqueo para todas las escrituras del catálogo. No está integrado ni desplegado.
+
+La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
 ## Pendientes
 
 - [Validación de concurrencia real y recorrido autenticado](2026-10-27-validacion-funcional-pendiente.md) antes de cerrar los hallazgos de integridad; validar en navegador la corrección desplegada para la redirección circular con sesión inactiva.
 - Recordatorios recuperables, compensaciones de archivos y limpieza de huérfanos.
 - Formatos/contenido, tamaño global/cantidad de uploads y rate limiting compartido.
-- Integridad de proveedores (bloque en curso), ordenamiento e índices/constraints; métricas de SLA pendientes aunque el helper de horas hábiles ya usa Lima.
+- Ordenamiento de catálogos (bloque en curso) e índices/constraints; métricas de SLA pendientes aunque el helper de horas hábiles ya usa Lima.
 - Métricas, paginación, CI y accesibilidad; tres advertencias de ESLint y cuatro avisos transitivos.
 
 La secuencia general está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md). Las siguientes funcionalidades se incorporarán después de estabilizar los riesgos aplicables.

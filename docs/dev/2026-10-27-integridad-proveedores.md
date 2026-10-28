@@ -2,7 +2,7 @@
 
 ## Estado y alcance
 
-Preparado en `d1b05b8` (`fix/integridad-proveedores`), sobre `3b89f87`. Pendiente de integración y despliegue en producción. Desarrolla el bloque de proveedores del plan aprobado: referencias del área, encuesta completa o ausente y escrituras condicionales. No incluye cambios de esquema, migraciones ni corrección masiva de registros.
+Implementado en `d1b05b8` e integrado y desplegado en producción como `a85e691` el 28 de octubre de 2026, sobre `3b89f87`. Desarrolla el bloque de proveedores del plan aprobado: referencias del área, encuesta completa o ausente y escrituras condicionales. No incluye cambios de esquema, migraciones ni corrección masiva de registros.
 
 ## Cambios
 
@@ -35,4 +35,8 @@ La serialización con cambios administrativos de catálogos y los constraints de
 
 ## Preview
 
-La [Preview de `d1b05b8`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/HwoBWeNiQrtJLrpsKE5VSzMSHgzm) figura como `success` (registro de GitHub `7376800076`). La rama continúa pendiente de integración y despliegue en producción.
+La [Preview de `d1b05b8`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/HwoBWeNiQrtJLrpsKE5VSzMSHgzm) figura como `success` (registro de GitHub `7376800076`). La rama se integró y desplegó en producción tras su aprobación.
+
+## Producción
+
+El [despliegue de `a85e691`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/FVtqtYmqUY7UDqcEpCzyhR2VKAJY) figura como `success` (registro de GitHub `7388054394`). En https://requerimientos-hub.vercel.app se verificaron login 200, sesión anónima 200/`null` y dashboard 307 a login. No se ejecutaron migraciones, backfills, comandos de mantenimiento ni operaciones manuales sobre datos, correo o archivos reales. La validación autenticada y de concurrencia real continúa pendiente.
