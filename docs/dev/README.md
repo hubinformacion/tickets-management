@@ -30,6 +30,8 @@ El [bloque de encuestas de usuarios](2026-10-28-integridad-encuestas.md) está i
 
 El [bloque de recordatorios](2026-10-28-recordatorios.md) está integrado y desplegado en `3a598b7`. La tabla independiente se creó vacía con autorización específica y snapshot confirmados por el usuario, sin modificar tablas ni datos históricos. Preview y Production aprobados; estado autenticado 200 con `queue`, corte fijo y tabla disponible, login 200, sesión anónima 200/null y dashboard 307 a login. Solo se incluyen cierres desde el 28 de octubre a las 12:00 de Lima, con recordatorio elegible 48 horas después del cierre efectivo. No se ejecutó el worker ni se enviaron correos de prueba.
 
+En `fix/coordinacion-adjuntos` está preparada la [coordinación de cargas pendientes](2026-10-28-coordinacion-adjuntos.md): intención persistente antes de Drive, bloqueo compartido con la vinculación, retención de referencias y validación del ticket dentro de la transacción. La tabla operativa se creó vacía con autorización de cambios aditivos. Se valida localmente y se publicará una sola vez desde main, sin Preview.
+
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
 ## Pendientes
@@ -37,14 +39,14 @@ La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Co
 | Prioridad | Bloque | Trabajo restante |
 |---|---|---|
 | Alta | Recordatorios | Cola, reservas, reintentos y corte de 48 h desplegados. Pendientes observación de ejecuciones reales e integración Gmail/OAuth/PG; límite de duplicados ante confirmación incierta documentado. |
-| Alta | Archivos | Cuotas globales/cantidad con reserva atómica, coordinación vinculación/revert, recuperación de persistencia incierta y borrados/huérfanos revisables. |
+| Alta | Archivos | Coordinación vinculación/revert preparada; pendientes cuotas globales/cantidad y reservas antes del upload, altas inciertas, reconciliación y revisión del borrado de vinculados/huérfanos. |
 | Alta | Rate limiting | Almacén compartido entre instancias y namespaces de operación en todos los consumidores. |
 | Alta | Validación real | Google, Drive/Gmail, permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
 | Media | Métricas y consultas | SLA por ciclo de cierre/reapertura, periodos del dashboard, métricas restantes y paginación/agregación de listados grandes. |
 | Media | Esquema y operación | Revisar índices/constraints con datos/planes reales y preparar migraciones compatibles; respaldo y restauración verificables antes de operar sobre producción. |
 | Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, tres advertencias de ESLint, React Doctor y avisos transitivos registrados. |
 
-Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. En recordatorios solo se creó la tabla expresamente autorizada; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.
+Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. Se crearon únicamente las tablas aditivas autorizadas de recordatorios y cancelaciones pendientes; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.
 
 La secuencia general está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md). Las siguientes funcionalidades se incorporarán después de estabilizar los riesgos aplicables.
 

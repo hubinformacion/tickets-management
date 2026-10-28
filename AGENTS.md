@@ -312,6 +312,7 @@ if (!result.success) {
 - Cada nueva funcionalidad se implementa en una **branch independiente**
 - Se requiere **aprobación del usuario** antes de merge a main
 - Después del merge se elimina la branch
+- No generar ni usar Preview: mantener las ramas de trabajo locales, validar localmente y publicar únicamente desde `main`. Agrupar documentación y código para evitar despliegues adicionales de solo documentación (petición del usuario del 28 de octubre de 2026).
 ### Verificación de Estabilidad 🛡️
 
 ```bash

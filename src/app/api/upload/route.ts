@@ -2,13 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/helpers";
 import { db } from "@/db";
 import { ticketAttachments } from "@/db/schema";
-import { uploadFileToDrive, deleteFileFromDrive } from "@/lib/drive/client";
-import { eq, and, isNull } from "drizzle-orm";
+import { uploadFileToDrive } from "@/lib/drive/client";
 import { uploadTokenSchema, attachmentIdSchema } from "@/lib/validation/schemas";
 import { MAX_UPLOAD_BODY_BYTES, MAX_REVERT_BODY_BYTES } from "@/lib/constants/attachments";
 import { readLimitedBody, UploadRequestError } from "@/lib/uploads/request-body";
 import { validateAttachmentMetadata, validateAttachmentContent } from "@/lib/uploads/validate-attachment";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
+import { revertPendingAttachment } from "@/lib/uploads/pending-attachments";
+
+export const maxDuration = 60;
 
 const uploadLimiter = createRateLimiter("RELAXED");
 
@@ -98,7 +100,8 @@ export async function POST(request: NextRequest) {
 
 /**
  * DELETE /api/upload
- * Elimina un archivo no vinculado a un ticket (solo el uploader puede hacerlo).
+ * Cancela un archivo no vinculado a un ticket (solo el uploader puede hacerlo).
+ * Conserva la referencia en BD y registra el resultado de Drive.
  * FilePond envía el ID del attachment como body de texto plano.
  */
 export async function DELETE(request: NextRequest) {
@@ -119,36 +122,17 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "ID de archivo requerido" }, { status: 400 });
     }
 
-    // Buscar el attachment: debe pertenecer al usuario y NO estar vinculado a un ticket
-    const [attachment] = await db
-      .select()
-      .from(ticketAttachments)
-      .where(
-        and(
-          eq(ticketAttachments.id, attachmentId),
-          eq(ticketAttachments.uploadedById, session.user.id),
-          isNull(ticketAttachments.ticketId)
-        )
-      )
-      .limit(1);
-
-    if (!attachment) {
-      return NextResponse.json(
-        { error: "Archivo no encontrado o no se puede eliminar" },
-        { status: 404 }
-      );
+    const result = await revertPendingAttachment(attachmentId, session.user.id);
+    if (result === "missing") {
+      return NextResponse.json({ error: "Archivo no encontrado o no se puede eliminar" }, { status: 404 });
     }
-
-    // Eliminar de Google Drive
-    try {
-      await deleteFileFromDrive(attachment.driveFileId);
-    } catch {
-      console.error("No se confirmó el borrado en Drive");
-      return NextResponse.json({ error: "No se pudo completar la eliminación del archivo" }, { status: 502 });
+    if (result === "busy") {
+      return NextResponse.json({ error: "La cancelación del archivo ya está en curso. Intenta nuevamente en un momento." },
+        { status: 409, headers: { "Retry-After": "30" } });
     }
-
-    // Eliminar de la BD
-    await db.delete(ticketAttachments).where(eq(ticketAttachments.id, attachmentId));
+    if (result === "failed") {
+      return NextResponse.json({ error: "No se pudo confirmar la cancelación del archivo" }, { status: 502 });
+    }
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {

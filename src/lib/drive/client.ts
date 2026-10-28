@@ -62,8 +62,11 @@ export async function uploadFileToDrive(
 /**
  * Elimina un archivo de Google Drive.
  */
-export async function deleteFileFromDrive(driveFileId: string): Promise<void> {
+export async function deleteFileFromDrive(
+  driveFileId: string,
+  options?: { signal: AbortSignal; timeout: number },
+): Promise<void> {
   await drive.files.delete({
     fileId: driveFileId,
-  });
+  }, options ? { ...options, retry: false } : undefined);
 }

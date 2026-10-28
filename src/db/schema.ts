@@ -494,3 +494,23 @@ export const surveyReminderDeliveries = pgTable("survey_reminder_delivery", {
   check("survey_reminder_lease_check", sql`(${table.state} = 'leased') = (${table.leaseToken} IS NOT NULL AND ${table.leaseUntil} IS NOT NULL)`),
   check("survey_reminder_sent_check", sql`(${table.state} = 'sent') = (${table.sentAt} IS NOT NULL)`),
 ]);
+
+// Registro independiente sin FK: conserva la intención y la evidencia de cancelación.
+export const attachmentReverts = pgTable("attachment_revert", {
+  attachmentId: uuid("attachment_id").primaryKey(),
+  requestedById: text("requested_by_id").notNull(),
+  state: text("state").notNull().default("removing"),
+  leaseToken: uuid("lease_token"),
+  leaseUntil: timestamp("lease_until", { withTimezone: true }),
+  attempts: integer("attempts").notNull().default(1),
+  lastErrorCode: text("last_error_code"),
+  driveDeletedAt: timestamp("drive_deleted_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index("attachment_revert_state_idx").on(table.state, table.leaseUntil),
+  check("attachment_revert_state_check", sql`${table.state} IN ('removing', 'failed', 'removed')`),
+  check("attachment_revert_attempts_check", sql`${table.attempts} >= 1`),
+  check("attachment_revert_lease_check", sql`(${table.state} = 'removing' AND ${table.leaseToken} IS NOT NULL AND ${table.leaseUntil} IS NOT NULL) OR (${table.state} <> 'removing' AND ${table.leaseToken} IS NULL AND ${table.leaseUntil} IS NULL)`),
+  check("attachment_revert_removed_check", sql`(${table.state} = 'removed') = (${table.driveDeletedAt} IS NOT NULL)`),
+]);

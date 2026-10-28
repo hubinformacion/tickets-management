@@ -1,7 +1,8 @@
 import { db } from "@/db";
-import { tickets, attentionAreas, ticketAttachments } from "@/db/schema";
-import { sql, eq, and, isNull } from "drizzle-orm";
+import { tickets, attentionAreas } from "@/db/schema";
+import { sql, eq } from "drizzle-orm";
 import { recordStatusChange } from "@/lib/utils/status-history";
+import { linkPendingAttachments } from "@/lib/uploads/pending-attachments";
 import type { TicketStatus } from "@/types";
 
 interface TicketCreationOptions {
@@ -75,15 +76,10 @@ export async function insertTicketWithCode(
         if (!created) throw new Error("No se pudo crear el ticket");
         await recordStatusChange(created.id, null, values.status ?? "open", values.createdById, undefined, tx);
         if (options.uploadToken) {
-          await tx.update(ticketAttachments).set({ ticketId: created.id, uploadToken: null })
-            .where(and(
-              eq(ticketAttachments.uploadToken, options.uploadToken),
-              eq(ticketAttachments.uploadedById, values.createdById),
-              isNull(ticketAttachments.ticketId),
-            ));
+          await linkPendingAttachments(tx, created.id, values.createdById, options.uploadToken);
         }
         return created;
-      });
+      }, { isolationLevel: "read committed" });
 
       return result;
     } catch (error: unknown) {
