@@ -60,7 +60,7 @@ Si seleccionaste el área de **Difusión**, aparecerán campos adicionales:
 
 ### Archivos adjuntos
 
-Para las áreas de **TSI** y **Fondo Editorial**, puedes adjuntar archivos de hasta 5 MB cada uno (imágenes, documentos, hojas de cálculo, etc.). El área de Difusión no admite archivos adjuntos.
+Para las áreas de **TSI** y **Fondo Editorial**, puedes adjuntar archivos de hasta 4 MB cada uno (PDF, Word/Excel/PowerPoint, JPG/PNG/GIF/WebP, texto/CSV y ZIP). El área de Difusión no admite archivos adjuntos.
 
 ### Envío
 

@@ -30,6 +30,7 @@ import { PrioritySelector } from "@/components/tickets/priority-selector";
 import { DiffusionFields } from "@/components/tickets/diffusion-fields";
 import { FedFields } from "@/components/tickets/fed-fields";
 import { FED_SIDEBAR_INSTRUCTIONS, getFedFieldConfig } from "@/lib/constants/fed-fields";
+import { MAX_ATTACHMENT_SIZE_LABEL } from "@/lib/constants/attachments";
 
 const FileUpload = lazy(() =>
   import("@/components/shared/file-upload").then(mod => ({ default: mod.FileUpload }))
@@ -700,7 +701,7 @@ export function NewTicketForm({
                               <span className="text-xs text-muted-foreground">(opcional)</span>
                             </div>
                             <p className="text-xs text-muted-foreground mb-3">
-                              Adjunta capturas de pantalla, documentos u otros archivos relevantes. Máximo 5 MB por archivo.
+                              Adjunta capturas de pantalla, documentos u otros archivos relevantes. Máximo {MAX_ATTACHMENT_SIZE_LABEL} por archivo.
                             </p>
                             <Suspense fallback={null}>
                               <FileUpload uploadToken={uploadToken} />

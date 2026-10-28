@@ -156,6 +156,6 @@ En **"Configuración del área"** puedes personalizar los siguientes aspectos de
 
 Como agente puedes:
 
-- Subir archivos adjuntos a tickets de tu área (hasta 5 MB por archivo).
+- Subir archivos adjuntos a tickets de tu área (hasta 4 MB por archivo).
 - Eliminar archivos adjuntos que tú hayas subido o que pertenezcan a tickets de tu área.
 - El área de Difusión no admite archivos adjuntos.

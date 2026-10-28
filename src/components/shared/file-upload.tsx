@@ -5,6 +5,8 @@ import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 
+import { ACCEPTED_ATTACHMENT_MIME_TYPES, MAX_ATTACHMENT_BYTES, MAX_ATTACHMENT_SIZE_LABEL, getAttachmentMimeType } from "@/lib/constants/attachments";
+
 import "filepond/dist/filepond.min.css";
 
 // Registrar plugins
@@ -32,7 +34,11 @@ export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: Fil
           setFiles(fileItems.map((fi) => fi.file as File));
         }}
         allowMultiple={true}
-        maxFileSize="5MB"
+        maxFileSize={`${MAX_ATTACHMENT_BYTES}B`}
+        acceptedFileTypes={ACCEPTED_ATTACHMENT_MIME_TYPES}
+        fileValidateTypeDetectType={(file, type) => {
+          return Promise.resolve(getAttachmentMimeType(file.name, type) ?? "application/x-formato-no-permitido");
+        }}
         name="file"
         credits={false}
         server={{
@@ -76,11 +82,12 @@ export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: Fil
         labelMaxFileSizeExceeded="El archivo excede el tamaño máximo"
         labelMaxFileSize="El tamaño máximo es {filesize}"
         labelFileTypeNotAllowed="Tipo de archivo no permitido"
-        fileValidateTypeLabelExpectedTypes="Se esperan {allButLastType} o {lastType}"
+        fileValidateTypeLabelExpectedTypes="Usa PDF, Office, imágenes, texto/CSV o ZIP"
         onprocessfiles={() => {
           onUploadComplete?.();
         }}
       />
+      <p className="text-xs text-muted-foreground">PDF, Office, JPG, PNG, GIF, WebP, texto/CSV y ZIP. Máximo {MAX_ATTACHMENT_SIZE_LABEL} por archivo.</p>
     </div>
   );
 }

@@ -215,7 +215,7 @@ Los archivos adjuntos se almacenan en **Google Drive** mediante la API. El flujo
 3. Al guardar el ticket, se vincula el archivo con el `driveFileId` y `driveViewLink`.
 4. Los archivos se pueden visualizar directamente desde el enlace de Drive.
 
-Límite: 5 MB por archivo. El área de Difusión no admite adjuntos.
+Límite: 4 MB por archivo y 4.065.536 bytes por solicitud multipart. La API valida extensión/MIME y firmas/contenedores antes de enviar a Drive. Ver [Validación de adjuntos](dev/2026-10-28-validacion-adjuntos.md). El área de Difusión no admite adjuntos.
 
 ---
 

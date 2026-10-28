@@ -24,7 +24,7 @@ El [bloque de proveedores](2026-10-27-integridad-proveedores.md) está integrado
 
 El [bloque de catálogos](2026-10-28-orden-catalogos.md) está integrado y desplegado en `d100754`: orden por área/categoría, transacciones y bloqueo para todas sus escrituras en la aplicación. Preview y Production aprobados; comprobaciones públicas aprobadas.
 
-El siguiente bloque se trabaja en `fix/limites-adjuntos`: formatos y contenido, tamaño real de solicitudes y alineación con el límite de Vercel. Incluye ZIP según la preferencia del usuario y excluye videos y archivos de diseño. No está integrado ni desplegado.
+En `fix/limites-adjuntos` está preparado el [bloque de adjuntos](2026-10-28-validacion-adjuntos.md): formatos y firmas, cuerpo acotado antes de parsear y límite coherente de 4 MB por archivo. Incluye ZIP y excluye videos/diseño según la preferencia del usuario. Pendiente de integrar y desplegar en producción.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
@@ -32,7 +32,7 @@ La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Co
 
 - [Validación de concurrencia real y recorrido autenticado](2026-10-27-validacion-funcional-pendiente.md) antes de cerrar los hallazgos de integridad; validar en navegador la corrección desplegada para la redirección circular con sesión inactiva.
 - Recordatorios recuperables, compensaciones de archivos y limpieza de huérfanos.
-- Formatos/contenido, tamaño global/cantidad de uploads y rate limiting compartido.
+- Integrar la validación de adjuntos preparada; cuota global/cantidad de uploads y rate limiting compartido siguen pendientes.
 - Índices/constraints; métricas de SLA pendientes aunque el helper de horas hábiles ya usa Lima.
 - Métricas, paginación, CI y accesibilidad; tres advertencias de ESLint y cuatro avisos transitivos.
 
