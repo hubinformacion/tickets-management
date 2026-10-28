@@ -1,6 +1,6 @@
 # Plan de ejecución de la estabilización
 
-> Actualización de cierre: el primer bloque de dependencias está desplegado en producción desde `1fe7997`, con build de Vercel aprobado. Continúan pendientes el recorrido autenticado, los avisos transitivos y las correcciones funcionales enumeradas abajo. Ver el [registro del despliegue](2026-10-27-estabilizacion.md).
+> Estado actual: dependencias, limpieza, autorización e integridad transaccional están desplegadas en `d1f961d`. La protección de scripts y la recuperación de sesiones inactivas están preparadas en ramas separadas, pendientes de integración y despliegue. El recorrido Google y la concurrencia real continúan pendientes. El [estado de estabilización](README.md) es el registro actualizado; el punto de partida siguiente conserva el contexto original.
 
 ## Punto de partida
 

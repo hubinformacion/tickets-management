@@ -13,9 +13,9 @@ export default async function LoginPage() {
     headers: await headers(),
   });
 
-  if (session?.user) {
+  if (session?.user.isActive) {
     redirect("/dashboard");
   }
 
-  return <LoginForm />;
+  return <LoginForm accountInactive={Boolean(session?.user)} />;
 }

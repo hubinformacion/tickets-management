@@ -16,11 +16,11 @@ La guía operativa exige preservar los datos históricos y preparar cambios de e
 
 ## Trabajo actual
 
-En `fix/proteccion-scripts-bd` está preparada la [protección de scripts de BD](2026-10-27-proteccion-scripts.md): bloqueo por defecto, simulación sin conexión, ejecución local confirmada y retirada de drop/reset/limpieza masiva FED. Pendiente de integrar y desplegar. No se realizaron operaciones sobre la BD.
+La [protección de scripts de BD](2026-10-27-proteccion-scripts.md) está en `3463601` (`fix/proteccion-scripts-bd`): bloqueo por defecto, simulación sin conexión, ejecución local confirmada y retirada de drop/reset/limpieza masiva FED. La rama `fix/sesion-inactiva` parte de ese commit y añade la [recuperación de sesiones inactivas](2026-10-27-sesion-inactiva.md). Ambos bloques están pendientes de integrar y desplegar en producción. No se realizaron operaciones sobre la BD.
 
 ## Pendientes
 
-- [Validación de concurrencia real y recorrido autenticado](2026-10-27-validacion-funcional-pendiente.md) antes de cerrar los hallazgos de integridad; corregir también la posible redirección circular con sesión inactiva.
+- [Validación de concurrencia real y recorrido autenticado](2026-10-27-validacion-funcional-pendiente.md) antes de cerrar los hallazgos de integridad; integrar y validar en navegador la corrección preparada para la redirección circular con sesión inactiva.
 - Recordatorios recuperables, compensaciones de archivos y limpieza de huérfanos.
 - Formatos/contenido, tamaño global/cantidad de uploads y rate limiting compartido.
 - Integrar la protección de scripts destructivos preparada; fechas, proveedores, ordenamiento e índices/constraints.

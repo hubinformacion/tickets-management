@@ -11,6 +11,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const features = [
@@ -32,8 +33,31 @@ const features = [
   },
 ];
 
-export function LoginForm() {
+interface LoginFormProps {
+  accountInactive?: boolean;
+}
+
+export function LoginForm({ accountInactive = false }: LoginFormProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsLoading(true);
+    try {
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => router.refresh(),
+          onError: () => {
+            toast.error("No se pudo cerrar la sesión. Intenta de nuevo.");
+          },
+        },
+      });
+    } catch {
+      toast.error("No se pudo cerrar la sesión. Intenta de nuevo.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -102,21 +126,26 @@ export function LoginForm() {
               <h2 className="text-2xl font-semibold tracking-tight">
                 Te damos la bienvenida
               </h2>
-              <p className="text-muted-foreground text-sm">
-                Ingresa con tu cuenta institucional para
-                continuar.
-              </p>
+              {accountInactive ? (
+                <p role="alert" className="text-destructive text-sm">
+                  Tu cuenta está desactivada. Contacta al administrador para recuperar el acceso.
+                </p>
+              ) : (
+                <p className="text-muted-foreground text-sm">
+                  Ingresa con tu cuenta institucional para continuar.
+                </p>
+              )}
             </div>
 
             <Button
               variant="outline"
               className="w-full h-11 text-sm font-medium"
-              onClick={handleLogin}
+              onClick={accountInactive ? handleSignOut : handleLogin}
               disabled={isLoading}
             >
               {isLoading ? (
                 <Loader2 className="mr-2.5 size-4 animate-spin" />
-              ) : (
+              ) : accountInactive ? null : (
                 <svg
                   className="mr-2.5 size-4"
                   viewBox="0 0 24 24"
@@ -140,9 +169,9 @@ export function LoginForm() {
                   />
                 </svg>
               )}
-              {isLoading
-                ? "Redirigiendo..."
-                : "Ingresar con Google"}
+              {accountInactive
+                ? isLoading ? "Cerrando sesión..." : "Cerrar sesión"
+                : isLoading ? "Redirigiendo..." : "Ingresar con Google"}
             </Button>
           </div>
 

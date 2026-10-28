@@ -13,7 +13,7 @@ Pendiente de una sesión del responsable del proyecto: no hay una sesión de nav
 3. Ejercitar creación, asignación, validación, rechazo, reapertura, adjuntos y correo con datos ficticios fuera de producción, conservando un único historial ganador por transición.
 4. Revisar sesión caducada y sesión de cuenta inactiva, incluyendo ausencia de bucles entre login y dashboard.
 
-La inspección del código muestra un caso pendiente en el último punto: `login/page.tsx` redirige a dashboard con cualquier `session.user`, mientras `requireAuth()` devuelve una cuenta inactiva a login. La combinación puede volver a redirigir entre ambas páginas. Requiere corrección y verificación aislada antes de considerar cerrada la validación de autenticación; no se ha probado con cuentas reales.
+La inspección detectó una redirección circular entre login y dashboard para sesiones inactivas. La [corrección y sus 33 comprobaciones aisladas](2026-10-27-sesion-inactiva.md) están preparadas en `fix/sesion-inactiva`, aún sin integrar ni desplegar. El recorrido real continúa pendiente; no se ha probado con cuentas reales.
 
 ## Concurrencia de PostgreSQL
 
