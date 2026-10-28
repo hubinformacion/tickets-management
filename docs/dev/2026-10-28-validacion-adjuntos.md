@@ -2,7 +2,7 @@
 
 ## Estado y alcance
 
-Preparado en `fix/limites-adjuntos`, sobre `6d081e3`. Pendiente de integración y despliegue en producción. Continúa el bloque de entradas de archivos del plan aprobado. El usuario confirmó conservar ZIP además de documentos e imágenes, dejando fuera videos y archivos de diseño.
+Preparado en `bbac6e4` (`fix/limites-adjuntos`), sobre `6d081e3`. Pendiente de integración y despliegue en producción. Continúa el bloque de entradas de archivos del plan aprobado. El usuario confirmó conservar ZIP además de documentos e imágenes, dejando fuera videos y archivos de diseño.
 
 No incluye migraciones ni cambios de esquema. Se aplica a nuevas cargas; no revisa, transforma ni elimina adjuntos históricos.
 
@@ -16,7 +16,7 @@ Lista compartida entre cliente y servidor:
 - TXT, LOG y CSV sin bytes de control binarios. Para texto UTF-16, guardar una copia en UTF-8 antes de subir.
 - ZIP.
 
-No se admiten videos, PSD/AI, SVG/HTML, ejecutables, RAR/7z ni extensiones Office con macros como DOCM. No se inspecciona el contenido de los archivos comprimidos dentro de un ZIP.
+No se admiten cargas directas de videos, PSD/AI, SVG/HTML, ejecutables, RAR/7z ni extensiones Office con macros como DOCM. No se inspecciona el contenido de los archivos comprimidos dentro de un ZIP.
 
 El formulario anunciaba 5 MB, pero [Vercel Functions limita las solicitudes a 4,5 MB](https://vercel.com/docs/functions/limitations#request-body-size). El nuevo máximo es **4.000.000 bytes (4 MB) por archivo**, con **65.536 bytes adicionales** para el formulario multipart: solicitud de hasta **4.065.536 bytes**. FilePond y servidor usan las mismas constantes y unidades decimales. No se intenta aumentar el límite de la plataforma mediante configuración de Next.js.
 
@@ -37,7 +37,7 @@ Las firmas y nombres internos no certifican un documento válido o libre de malw
 
 409 comprobaciones temporales: 405 de política, firmas/contenedores, truncamiento y 128 mutaciones de ZIP sin excepciones inesperadas, lectura por chunks/longitudes, multipart real, respuestas de FilePond, sesión/inactividad, límites, campos duplicados/extra, MIME/extensión, fallos simulados de Drive/BD y autorización del revert. Otras 4 comprueban que un archivo de exactamente 4 MB más su formulario cabe en el límite y llega íntegro al validador.
 
-Las cabeceras/contenedores son fixtures sintéticos para comprobar las decisiones del validador; no sustituyen abrir documentos reales en sus aplicaciones. BD, sesiones y Drive se simulan. TypeScript aprobado con `tsc --noEmit --incremental false`; ESLint aprobado con 0 errores y las 3 advertencias conocidas. Preview pendiente.
+Las cabeceras/contenedores son fixtures sintéticos para comprobar las decisiones del validador; no sustituyen abrir documentos reales en sus aplicaciones. BD, sesiones y Drive se simulan. TypeScript aprobado con `tsc --noEmit --incremental false`; ESLint aprobado con 0 errores y las 3 advertencias conocidas. Vercel aprobó el build de Preview del código `bbac6e4`.
 
 Se usan dependencias existentes, red aislada, entorno ficticio sin credenciales, fuentes/dependencias de solo lectura, scratch de 512 MiB y límites de CPU/memoria/procesos/archivos del bloque anterior. El material se crea en un directorio temporal privado de la caché y se elimina en `finally`; no se conserva `.codex-validation-tickets` ni se añade un framework de tests.
 
@@ -47,3 +47,7 @@ Se usan dependencias existentes, red aislada, entorno ficticio sin credenciales,
 - Rate limiting compartido entre instancias; el limitador actual solo protege cada proceso.
 - Recuperación de cargas con persistencia incierta, coordinación entre vinculación y revert, compensaciones, borrado recuperable y huérfanos. No se borra automáticamente un archivo recién subido si la inserción falla de forma incierta: podría haberse confirmado en BD.
 - Recorrido visual/autenticado y comprobación efectiva de Drive. No se invocaron uploads ni borrados reales, crons o correos de producción.
+
+## Preview
+
+La [Preview de `bbac6e4`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/wxm8gVjpdQTm8k5GiydYidzgLc3P) figura como `success` (registro de GitHub `7389277846`). La rama continúa pendiente de merge y despliegue en producción. Esta compilación no certifica uploads reales, el recorrido visual ni los servicios externos.

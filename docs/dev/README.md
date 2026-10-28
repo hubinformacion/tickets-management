@@ -24,7 +24,7 @@ El [bloque de proveedores](2026-10-27-integridad-proveedores.md) está integrado
 
 El [bloque de catálogos](2026-10-28-orden-catalogos.md) está integrado y desplegado en `d100754`: orden por área/categoría, transacciones y bloqueo para todas sus escrituras en la aplicación. Preview y Production aprobados; comprobaciones públicas aprobadas.
 
-En `fix/limites-adjuntos` está preparado el [bloque de adjuntos](2026-10-28-validacion-adjuntos.md): formatos y firmas, cuerpo acotado antes de parsear y límite coherente de 4 MB por archivo. Incluye ZIP y excluye videos/diseño según la preferencia del usuario. Pendiente de integrar y desplegar en producción.
+En `fix/limites-adjuntos` está preparado el [bloque de adjuntos](2026-10-28-validacion-adjuntos.md): formatos y firmas, cuerpo acotado antes de parsear y límite coherente de 4 MB por archivo. Incluye ZIP y excluye videos/diseño según la preferencia del usuario. El código `bbac6e4` tiene build de Preview aprobado; continúa pendiente de integrar y desplegar en producción.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
