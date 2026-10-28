@@ -14,6 +14,8 @@ El cron diario actual usa una ventana heredada de 23–25 horas; el código nuev
 
 TypeScript aprobado con `tsc --noEmit --incremental false`; ESLint aprobado con 0 errores y las 3 advertencias conocidas. No se añade framework ni archivos de tests al repositorio.
 
+Vercel aprobó la [Preview del código `28acfef`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/BoU7cUc57w6ZNdJYBWaoPdqEoNf1). Este resultado no certifica la tabla propuesta ni activa la cola. El bloque sigue pendiente de merge y activación en producción.
+
 Las comprobaciones usan fuentes/dependencias de solo lectura, entorno ficticio, red aislada y límites de CPU/memoria/procesos/archivos/scratch. Los verificadores y copias temporales se eliminan al terminar. No se cargó el cliente real de BD, ejecutó SQL contra un motor ni enviaron correos reales. La comprobación de migración fue estática; no se certifica su aplicación real ni la concurrencia real de PostgreSQL.
 
 ## Limitaciones operativas
