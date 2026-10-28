@@ -2,7 +2,7 @@
 
 ## Estado y alcance
 
-Preparado en `fix/integridad-encuestas`, sobre `ae8d659`. Pendiente de integración y despliegue en producción. Continúa la validación de respuestas y la corrección de muestras comparables del plan aprobado. No modifica el esquema ni aplica migraciones o backfills.
+Preparado en `213c846` (`fix/integridad-encuestas`), sobre `ae8d659`. Pendiente de integración y despliegue en producción. Continúa la validación de respuestas y la corrección de muestras comparables del plan aprobado. No modifica el esquema ni aplica migraciones o backfills.
 
 ## Envío de respuestas
 
@@ -36,10 +36,14 @@ El alcance de agentes exige tanto el área del ticket actual como el área almac
 
 Se cubren calificaciones/IDs inválidos, promedios y distribuciones conocidos, conservación de valores históricos, cero respuestas, filtros por área/agente, ambos límites del día de Lima, respuestas posteriores al cierre, registros sin fecha de cierre, lectura consistente ante cambio concurrente, selector con agentes sin respuestas, roles, duplicados, fallo de inserción, carrera con reapertura, exportación por área y escape de texto libre. El SQL compilado conserva la subconsulta de tickets y sus columnas sin mezclar aliases de encuestas.
 
-TypeScript aprobado con `tsc --noEmit --incremental false`; ESLint aprobado con 0 errores y las 3 advertencias conocidas. El build de Preview sigue pendiente. Las comprobaciones no se presentan como concurrencia real de PostgreSQL ni validación visual/autenticada.
+TypeScript aprobado con `tsc --noEmit --incremental false`; ESLint aprobado con 0 errores y las 3 advertencias conocidas. Vercel aprobó el build de Preview del código `213c846`. Las comprobaciones no se presentan como concurrencia real de PostgreSQL ni validación visual/autenticada.
 
 Los verificadores, copias y logs temporales se eliminan automáticamente; no se añade framework de tests ni se recrea `.codex-validation-tickets`. La ejecución usa aislamiento de red, entorno ficticio explícito, fuentes/dependencias de solo lectura y los límites de CPU/memoria/procesos/archivos/scratch de los bloques anteriores.
 
 ## Pendientes relacionados
 
 Paginación/agregación de colecciones grandes, métricas de proveedores/dashboard/SLA y sus periodos/ciclos, índices/constraints efectivos y validación real. No se inspeccionó la BD de producción ni se certificaron sus constraints; la aplicación usa el vínculo único ya declarado en el modelo.
+
+## Preview
+
+La [Preview de `213c846`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/AUWDg7XiPwthXCgtZXyiaZ76DtcX) figura como `success` (registro de GitHub `7390054229`). La rama continúa pendiente de merge y despliegue en producción.
