@@ -18,7 +18,7 @@ La guía operativa exige preservar los datos históricos y preparar cambios de e
 
 La [protección de scripts de BD](2026-10-27-proteccion-scripts.md) (`3463601`) y la [recuperación de sesiones inactivas](2026-10-27-sesion-inactiva.md) (`e089be3`) están integradas y desplegadas. Preview y Production aprobados; login 200, sesión anónima 200/null y dashboard 307 a login.
 
-En `fix/fechas-calendario` está preparado el [bloque de fechas](2026-10-27-fechas-calendario.md): separación de calendario e instantes, validación estricta y horas hábiles en Lima. No forma parte del código desplegado.
+En `fix/fechas-calendario` está preparado el [bloque de fechas](2026-10-27-fechas-calendario.md): separación de calendario e instantes, validación estricta y horas hábiles en Lima. El código `b01c88d` tiene build de Preview aprobado y continúa pendiente de integración y despliegue en producción.
 
 ## Pendientes
 

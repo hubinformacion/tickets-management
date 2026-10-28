@@ -2,7 +2,7 @@
 
 ## Alcance y estado
 
-Preparado en `fix/fechas-calendario`, sobre el cierre del despliegue `e24f3e7`. Pendiente de integración y despliegue en producción. Se implementa el bloque de fechas del plan aprobado sin cambiar el esquema ni reescribir datos históricos.
+Preparado en `b01c88d` (`fix/fechas-calendario`), sobre el cierre del despliegue `e24f3e7`. Pendiente de integración y despliegue en producción. Se implementa el bloque de fechas del plan aprobado sin cambiar el esquema ni reescribir datos históricos.
 
 - Una fecha `AAAA-MM-DD` se valida como día real y se presenta como `DD/MM/AAAA` sin aplicarle zona horaria. No se convierten fechas puras en instantes de medianoche.
 - `formatDate` y `formatDateShort` distinguen fechas puras de instantes. Los instantes siguen presentándose en Lima; entradas ausentes o inválidas muestran `-`. Se mantiene la lectura de instantes en metadata histórica de derivaciones.
@@ -18,10 +18,14 @@ Verificadores temporales externos al repositorio, sin framework nuevo. Se ejecut
 
 110 comprobaciones bajo cada una de cuatro zonas (`UTC`, `America/Lima`, `Asia/Tokyo`, `America/Los_Angeles`), 440 en total: calendario/instantes, cambio de año, bisiestos, días inválidos, fechas opcionales, validación DIF/proveedores, jornadas completas/parciales, fin de semana, cambio de día UTC, días configurados, entradas inválidas y comparación con la nueva fecha de requerimiento. La actualización de proveedor usa un doble de BD y comprueba ausencia de escritura cuando se rechazan fechas.
 
-Además, 146 comprobaciones previas de permisos aprobadas. TypeScript y ESLint aprobados con 0 errores y las 3 advertencias conocidas. Los verificadores no conectan a PostgreSQL ni a servicios reales. La compilación de esta rama sigue pendiente.
+Además, 146 comprobaciones previas de permisos aprobadas. TypeScript y ESLint aprobados con 0 errores y las 3 advertencias conocidas. Los verificadores no conectan a PostgreSQL ni a servicios reales. Vercel aprobó el build de Preview del código `b01c88d`.
 
 ## Límites
 
 El helper de horas hábiles aún no tiene consumidores que calculen métricas. No se afirma que este bloque cambie los KPIs/SLA actuales ni se reemplaza su cálculo de tiempo natural. Las cohortes, los ciclos de reapertura y la integración con horarios siguen pendientes en el bloque de métricas.
 
 Las relaciones de área y las transiciones concurrentes de proveedores requieren su revisión propia. Este bloque solo corrige la validación y comparación de fechas; no certifica esa integridad pendiente. El recorrido visual de calendarios y las comprobaciones autenticadas continúan pendientes.
+
+## Preview
+
+La [Preview de `b01c88d`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/HuQ1BidXLMt1ASiohY7CGVGcxy93) figura como `success` (registro de GitHub `7376639495`). Este resultado acredita compilación, no el recorrido visual o autenticado ni la concurrencia real. La rama no está integrada ni desplegada en producción.
