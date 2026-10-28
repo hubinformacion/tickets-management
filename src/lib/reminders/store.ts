@@ -15,6 +15,13 @@ function eligibility(startAt: Date) {
     AND NOT EXISTS (SELECT 1 FROM satisfaction_survey s WHERE s.ticket_id = t.id)`;
 }
 
+export async function isReminderQueueReady(): Promise<boolean> {
+  const result = await db.execute<{ ready: boolean }>(sql`
+    SELECT to_regclass('public.survey_reminder_delivery') IS NOT NULL AS ready
+  `);
+  return result.rows[0]?.ready === true;
+}
+
 export const reminderStore: ReminderStore = {
   async enqueue(startAt) {
     // Conserva los registros operativos invalidados sin alterar el ticket ni su historia.

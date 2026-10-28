@@ -27,7 +27,7 @@ Los eventos invalidados se cancelan sin eliminarlos; si el mismo evento vuelve a
 
 La tabla adicional no tiene FK hacia tickets deliberadamente: conserva evidencia operativa y no cambia las acciones existentes de eliminación. No se añaden columnas ni relaciones a los modelos de negocio. El código puede desplegarse antes de crear la tabla porque solo la consulta con `SURVEY_REMINDER_MODE=queue`.
 
-El modo predeterminado `legacy` conserva el flujo anterior de 23–25 horas hasta la activación explícita. `paused` detiene únicamente los recordatorios, sin consultar la cola. Configuración de cola inválida o tabla ausente producen 503, sin recurrir al comportamiento anterior.
+Después de la autorización específica y de crear la tabla, producción en Vercel usa `queue` por defecto con el corte UTC fijo `2026-10-28T17:00:00Z` (28 de octubre, 12:00 de Lima), versionado en `production-rollout.ts`. Desarrollo y Preview conservan `legacy` por defecto; los overrides explícitos siguen disponibles. La activación no depende de introducir variables en el panel de Vercel. `paused` detiene únicamente los recordatorios, sin consultar la cola. Configuración de cola inválida o tabla ausente producen 503, sin recurrir al comportamiento anterior.
 
 Con ejecución diaria, un cierre pasa a ser elegible a las 48 horas y se procesa en la primera ejecución posterior, normalmente entre 48 y 72 horas; fallos, capacidad o retrasos del cron pueden ampliarlo. Los límites actuales son conservadores y deberán ajustarse con volumen real. No se promete entrega exactamente a la hora 48.
 
@@ -35,15 +35,15 @@ Gmail y PostgreSQL no comparten transacción. Si Gmail acepta el mensaje pero se
 
 Las peticiones de Gmail del worker reciben señal de cancelación y timeout de 20 segundos, sin reintento automático de Gaxios ni consulta de metadata posterior al envío. El presupuesto no es un límite global de la autenticación OAuth o de PostgreSQL; la plataforma limita la función a 60 segundos y la reserva permite recuperación. Los otros correos conservan su contrato. La plantilla presenta la fecha de cierre en Lima.
 
-## Activación pendiente de autorización específica
+## Procedimiento de activación y autorización
 
-La [propuesta SQL](../migrations/2026-10-28-survey-reminders.sql) solo crea una tabla vacía, sus constraints e índices propios. No es un script de despliegue ni se ejecuta automáticamente. No contiene ALTER, backfill, borrado, seed o cambios sobre tablas existentes.
+La [propuesta SQL](../migrations/2026-10-28-survey-reminders.sql) solo crea una tabla vacía, sus constraints e índices propios. No es un script automático de despliegue. No contiene ALTER, backfill, borrado, seed o cambios sobre tablas existentes. El usuario confirmó snapshot y autorizó expresamente añadir tablas/datos sin eliminar existentes; esta propuesta se aplicó el 28 de octubre antes de publicar el código.
 
-Antes de activarla:
+Procedimiento seguido y controles de operación:
 
 1. Confirmar respaldo recuperable y compatibilidad del esquema/destino; obtener autorización específica para esta propuesta SQL. El permiso de merge/despliegue no la incluye.
 2. Aplicar exclusivamente la propuesta revisada, mediante el procedimiento operativo autorizado. No usar `db:push`, `setup` ni migraciones automáticas como atajo.
-3. Preparar `SURVEY_REMINDER_MODE=queue` y `SURVEY_REMINDER_START_AT` con el instante UTC real elegido para la activación. Ejemplo de formato: `2026-10-28T18:00:00Z`; no copiar este ejemplo como fecha operativa. Mantener ese valor fijo en despliegues posteriores.
+3. Publicar la configuración de producción versionada con el corte `2026-10-28T17:00:00Z`. Las variables `SURVEY_REMINDER_MODE` y `SURVEY_REMINDER_START_AT` permiten un override explícito; confirmar su resultado efectivo en la ruta de estado. No mover el corte en despliegues posteriores.
 4. Coordinar la activación fuera de una ejecución legacy en curso. Si se pausa el servicio mientras se prepara el cambio, usar `paused`, que no detiene el cierre automático de tickets.
 5. Observar cron, pendientes, reservas vencidas y errores durante 48–72 horas. No disparar envíos de prueba contra usuarios ni recuperar cierres anteriores al corte.
 
@@ -54,3 +54,7 @@ Quedan pendientes validación real de concurrencia en PostgreSQL, integración G
 ## Referencias técnicas consultadas
 
 La implementación se contrastó mediante Context7 con la [ejecución SQL de Drizzle](https://orm.drizzle.team/docs/sql), las [opciones por petición de Google APIs Node.js](https://github.com/googleapis/google-api-nodejs-client#request-options) y la [duración de funciones de Vercel](https://vercel.com/docs/functions/configuring-functions/duration). Se comprobaron además los tipos instalados de Gaxios/Google APIs para `timeout`, `signal` y `retry`.
+
+## Comprobación de estado sin envíos
+
+`GET /api/cron/survey-reminder/status` requiere el mismo Bearer `CRON_SECRET`. Devuelve modo, corte, disponibilidad de la tabla y SHA del despliegue. Solo consulta metadata; nunca reserva ni envía mensajes. Es una ruta independiente para evitar invocar accidentalmente el worker durante un despliegue. No forma parte de los cron configurados.

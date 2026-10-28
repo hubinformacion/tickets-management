@@ -28,7 +28,7 @@ El [bloque de adjuntos](2026-10-28-validacion-adjuntos.md) está integrado y des
 
 El [bloque de encuestas de usuarios](2026-10-28-integridad-encuestas.md) está integrado y desplegado en `a606073`: respuestas enteras y únicas, coordinación con el ticket, tasa sobre el mismo conjunto de cierres y exportación por área. Preview y Production aprobados; login 200, sesión anónima 200/null y dashboard 307 a login. La rama integrada se eliminó.
 
-En `fix/recordatorios-recuperables` está preparado el [recordatorio de 48 horas](../plans/2026-10-28-recordatorios-design.md): cola independiente, reservas persistentes y reintentos. El usuario eligió solo cierres nuevos desde la activación. La propuesta de tabla adicional no se ha aplicado; la corrección no está activa en producción.
+En `fix/recordatorios-recuperables` está preparado el [recordatorio de 48 horas](../plans/2026-10-28-recordatorios-design.md): cola independiente, reservas persistentes y reintentos. El usuario eligió solo cierres nuevos desde la activación. El usuario confirmó snapshot y autorizó crear la tabla adicional, ya aplicada y vacía sin modificar datos existentes. La activación versionada usa el corte del 28 de octubre a las 12:00 de Lima; queda pendiente publicar y comprobar el modo efectivo.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
@@ -36,7 +36,7 @@ La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Co
 
 | Prioridad | Bloque | Trabajo restante |
 |---|---|---|
-| Alta | Recordatorios | Preparación en rama: vencidos desde 48 h, corte de activación, cola y reservas. Pendientes aprobación de esquema, respaldo, migración, activación y validación real; límite de duplicados ante confirmación incierta documentado. |
+| Alta | Recordatorios | Preparación en rama: vencidos desde 48 h, corte de activación, cola y reservas. Tabla adicional aplicada con snapshot/autorización confirmados. Pendientes publicación, activación y validación real; límite de duplicados ante confirmación incierta documentado. |
 | Alta | Archivos | Cuotas globales/cantidad con reserva atómica, coordinación vinculación/revert, recuperación de persistencia incierta y borrados/huérfanos revisables. |
 | Alta | Rate limiting | Almacén compartido entre instancias y namespaces de operación en todos los consumidores. |
 | Alta | Validación real | Google, Drive/Gmail, permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
