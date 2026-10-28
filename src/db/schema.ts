@@ -1,7 +1,7 @@
 
 
-import { pgTable, text, timestamp, boolean, uuid, serial, integer, jsonb, unique, type AnyPgColumn, smallint, date } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { pgTable, text, timestamp, boolean, uuid, serial, integer, jsonb, unique, type AnyPgColumn, smallint, date, index, uniqueIndex, check } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
 
 // --- AUTH SCHEMA (Better-Auth Compatible) ---
 
@@ -468,3 +468,29 @@ export const providerSatisfactionSurveysRelations = relations(providerSatisfacti
     references: [users.id],
   }),
 }));
+
+// Cola operativa independiente: no añade columnas a tickets ni modifica relaciones históricas.
+// Sin FK deliberadamente: conserva evidencia de entrega si se elimina un ticket por una acción existente.
+export const surveyReminderDeliveries = pgTable("survey_reminder_delivery", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ticketId: integer("ticket_id").notNull(),
+  closedAt: timestamp("closed_at").notNull(),
+  state: text("state").notNull().default("pending"),
+  leaseToken: uuid("lease_token"),
+  leaseUntil: timestamp("lease_until", { withTimezone: true }),
+  attempts: integer("attempts").notNull().default(0),
+  nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true }).notNull().defaultNow(),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  gmailMessageId: text("gmail_message_id"),
+  lastErrorCode: text("last_error_code"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  unique("survey_reminder_event_unique").on(table.ticketId, table.closedAt),
+  uniqueIndex("survey_reminder_one_lease").on(table.ticketId).where(sql`${table.state} = 'leased'`),
+  index("survey_reminder_due_idx").on(table.state, table.nextAttemptAt, table.leaseUntil),
+  check("survey_reminder_state_check", sql`${table.state} IN ('pending', 'leased', 'sent', 'cancelled')`),
+  check("survey_reminder_attempts_check", sql`${table.attempts} >= 0`),
+  check("survey_reminder_lease_check", sql`(${table.state} = 'leased') = (${table.leaseToken} IS NOT NULL AND ${table.leaseUntil} IS NOT NULL)`),
+  check("survey_reminder_sent_check", sql`(${table.state} = 'sent') = (${table.sentAt} IS NOT NULL)`),
+]);

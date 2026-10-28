@@ -1,132 +1,35 @@
-import { db } from "@/db";
-import { tickets, users, satisfactionSurveys, attentionAreas } from "@/db/schema";
-import { lt, and, eq, gte, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { sendSurveyReminderEmail } from "@/lib/email/send-emails";
+import { getReminderConfig } from "@/lib/reminders/config";
+import { runLegacySurveyReminders } from "@/lib/reminders/legacy";
+import { reminderStore } from "@/lib/reminders/store";
+import { runReminderQueue } from "@/lib/reminders/worker";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-/**
- * Send survey reminder emails for tickets closed ~24h ago without a satisfaction survey.
- * This endpoint is called by Vercel Cron daily at 13:00 UTC (08:00 UTC-5).
- */
 export async function GET(request: Request) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
   try {
-    const authHeader = request.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET;
-
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const config = getReminderConfig(process.env);
+    if (config.mode === "paused") {
+      return NextResponse.json({ success: true, mode: config.mode, sent: 0 });
     }
-
-    const now = new Date();
-    // Window: tickets closed between ~23h and ~25h ago
-    const lowerBound = new Date(now.getTime() - 25 * 60 * 60 * 1000);
-    const upperBound = new Date(now.getTime() - 23 * 60 * 60 * 1000);
-
-    // Find resolved tickets closed in the window without a survey and without a prior reminder
-    const candidates = await db
-      .select({
-        id: tickets.id,
-        ticketCode: tickets.ticketCode,
-        title: tickets.title,
-        closedAt: tickets.closedAt,
-        createdById: tickets.createdById,
-        attentionAreaId: tickets.attentionAreaId,
-        emailThreadId: tickets.emailThreadId,
-        initialMessageId: tickets.initialMessageId,
-      })
-      .from(tickets)
-      .leftJoin(satisfactionSurveys, eq(satisfactionSurveys.ticketId, tickets.id))
-      .where(
-        and(
-          eq(tickets.status, 'resolved'),
-          gte(tickets.closedAt, lowerBound),
-          lt(tickets.closedAt, upperBound),
-          isNull(satisfactionSurveys.id),
-          isNull(tickets.surveyReminderSentAt)
-        )
-      );
-
-    if (candidates.length === 0) {
-      return NextResponse.json({
-        success: true,
-        message: 'No tickets to send survey reminders',
-        count: 0,
-      });
-    }
-
-    let sentCount = 0;
-
-    for (const ticket of candidates) {
-      try {
-        // Fetch creator, agents for area, and watchers in parallel
-        const [creator, agents, attentionArea] = await Promise.all([
-          db.query.users.findFirst({
-            where: eq(users.id, ticket.createdById),
-            columns: { name: true, email: true },
-          }),
-          db.select({ email: users.email })
-            .from(users)
-            .where(
-              and(
-                eq(users.role, 'agent'),
-                eq(users.attentionAreaId, ticket.attentionAreaId!)
-              )
-            ),
-          db.query.attentionAreas.findFirst({
-            where: eq(attentionAreas.id, ticket.attentionAreaId!),
-            columns: { name: true },
-          }),
-        ]);
-
-        if (!creator) continue;
-
-        const agentEmails = agents.map(a => a.email);
-
-        const emailResult = await sendSurveyReminderEmail({
-          ticketId: ticket.id,
-          ticketCode: ticket.ticketCode,
-          title: ticket.title,
-          creatorEmail: creator.email,
-          creatorName: creator.name,
-          agentEmails,
-          watcherEmails: [],
-          attentionAreaName: attentionArea?.name || 'Hub de Información',
-          closedAt: ticket.closedAt!,
-          emailThreadId: ticket.emailThreadId,
-          initialMessageId: ticket.initialMessageId,
-        });
-
-        if (!emailResult.success) {
-          console.error("No se envió el recordatorio; permanece pendiente", { ticketId: ticket.id });
-          continue;
-        }
-
-        // Marcar como enviado solo después de confirmar el resultado del correo
-        await db.update(tickets)
-          .set({ surveyReminderSentAt: now })
-          .where(eq(tickets.id, ticket.id));
-
-        sentCount++;
-      } catch (emailError) {
-        console.error(`Failed to send survey reminder for ticket ${ticket.ticketCode}:`, emailError);
-      }
-    }
-
-    console.log(`Sent ${sentCount} survey reminder(s) for ${candidates.length} candidate(s)`);
-
-    return NextResponse.json({
-      success: true,
-      message: `Sent ${sentCount} survey reminder(s)`,
-      count: sentCount,
-      candidates: candidates.length,
-    });
-  } catch (error) {
-    console.error('Error in survey-reminder cron job:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+    // Compatible con producción sin la tabla nueva. Activación explícita después de la migración.
+    if (config.mode === "legacy") return runLegacySurveyReminders(request);
+    const counts = await runReminderQueue(
+      reminderStore,
+      (params, signal) => sendSurveyReminderEmail(params, { signal, timeout: 20_000 }),
+      config.startAt,
     );
+    console.info("Resultado del lote de recordatorios", counts);
+    return NextResponse.json({ success: true, mode: config.mode, ...counts });
+  } catch {
+    // No publicar errores del driver/OAuth ni recurrir al flujo anterior si falla la cola.
+    console.error("No se pudo completar el lote de recordatorios");
+    return NextResponse.json({ error: "Recordatorios no disponibles" }, { status: 503 });
   }
 }

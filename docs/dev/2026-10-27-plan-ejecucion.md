@@ -1,6 +1,6 @@
 # Plan de ejecución de la estabilización
 
-> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos y validación de adjuntos están desplegados en `a4a225c`. La integridad y métricas de encuestas de usuario se trabajan en una rama separada. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
+> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos, validación de adjuntos y encuestas están desplegados en `a606073`. Los recordatorios recuperables de 48 horas se preparan en una rama separada; su tabla adicional requiere autorización específica antes de aplicarse. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
 
 ## Punto de partida
 

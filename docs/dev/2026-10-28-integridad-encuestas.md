@@ -2,7 +2,7 @@
 
 ## Estado y alcance
 
-Preparado en `213c846` (`fix/integridad-encuestas`), sobre `ae8d659`. Pendiente de integración y despliegue en producción. Continúa la validación de respuestas y la corrección de muestras comparables del plan aprobado. No modifica el esquema ni aplica migraciones o backfills.
+Código `213c846`, integrado y desplegado en producción mediante `a606073`, sobre `ae8d659`. La rama `fix/integridad-encuestas` se eliminó después del merge. Continúa la validación de respuestas y la corrección de muestras comparables del plan aprobado. No modifica el esquema ni aplica migraciones o backfills.
 
 ## Envío de respuestas
 
@@ -46,4 +46,4 @@ Paginación/agregación de colecciones grandes, métricas de proveedores/dashboa
 
 ## Preview
 
-La [Preview de `213c846`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/AUWDg7XiPwthXCgtZXyiaZ76DtcX) figura como `success` (registro de GitHub `7390054229`). La rama continúa pendiente de merge y despliegue en producción.
+La [Preview de `213c846`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/AUWDg7XiPwthXCgtZXyiaZ76DtcX) figura como `success` (registro de GitHub `7390054229`). Después se integró `a606073` a `main`. La [Production de `a606073`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/VbA1H7guw31WSnGY7qmCHUaXaaFm) figura como `success`; login 200, sesión anónima 200/null y dashboard 307 a login. No se aplicaron operaciones de esquema ni cambios manuales de datos.

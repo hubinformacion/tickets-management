@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El commit `a4a225c` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos y validación de adjuntos.
+El commit `a606073` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos e integridad de encuestas.
 
 Vercel aprobó Preview y Production. Se verificaron login público, sesión anónima y redirección del dashboard. El recorrido autenticado de Google y los escenarios con datos reales no se presentan como aprobados. No se ejecutaron migraciones, reset, drop, seed ni operaciones manuales sobre datos de producción.
 
@@ -26,7 +26,9 @@ El [bloque de catálogos](2026-10-28-orden-catalogos.md) está integrado y despl
 
 El [bloque de adjuntos](2026-10-28-validacion-adjuntos.md) está integrado y desplegado en `a4a225c`: PDF/Office/imágenes/texto/ZIP, firmas y cuerpos acotados, 4 MB por archivo. Preview y Production aprobados; comprobaciones públicas aprobadas.
 
-En `fix/integridad-encuestas` está preparado el [bloque de encuestas de usuarios](2026-10-28-integridad-encuestas.md): respuestas enteras y únicas, coordinación con el ticket, tasa sobre el mismo conjunto de cierres y exportación por área. El código `213c846` tiene build de Preview aprobado; continúa pendiente de integrar y desplegar en producción.
+El [bloque de encuestas de usuarios](2026-10-28-integridad-encuestas.md) está integrado y desplegado en `a606073`: respuestas enteras y únicas, coordinación con el ticket, tasa sobre el mismo conjunto de cierres y exportación por área. Preview y Production aprobados; login 200, sesión anónima 200/null y dashboard 307 a login. La rama integrada se eliminó.
+
+En `fix/recordatorios-recuperables` está preparado el [recordatorio de 48 horas](../plans/2026-10-28-recordatorios-design.md): cola independiente, reservas persistentes y reintentos. El usuario eligió solo cierres nuevos desde la activación. La propuesta de tabla adicional no se ha aplicado; la corrección no está activa en producción.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
@@ -34,11 +36,11 @@ La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Co
 
 | Prioridad | Bloque | Trabajo restante |
 |---|---|---|
-| Alta | Recordatorios | Selección recuperable de vencidos, claim/lease persistente, reintentos y lotes; sin enviar dos veces por carreras. |
+| Alta | Recordatorios | Preparación en rama: vencidos desde 48 h, corte de activación, cola y reservas. Pendientes aprobación de esquema, respaldo, migración, activación y validación real; límite de duplicados ante confirmación incierta documentado. |
 | Alta | Archivos | Cuotas globales/cantidad con reserva atómica, coordinación vinculación/revert, recuperación de persistencia incierta y borrados/huérfanos revisables. |
 | Alta | Rate limiting | Almacén compartido entre instancias y namespaces de operación en todos los consumidores. |
 | Alta | Validación real | Google, Drive/Gmail, permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
-| Media | Métricas y consultas | Integrar la corrección de encuestas en curso; SLA por ciclo de cierre/reapertura, periodos del dashboard, métricas restantes y paginación/agregación de listados grandes. |
+| Media | Métricas y consultas | SLA por ciclo de cierre/reapertura, periodos del dashboard, métricas restantes y paginación/agregación de listados grandes. |
 | Media | Esquema y operación | Revisar índices/constraints con datos/planes reales y preparar migraciones compatibles; respaldo y restauración verificables antes de operar sobre producción. |
 | Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, tres advertencias de ESLint, React Doctor y avisos transitivos registrados. |
 

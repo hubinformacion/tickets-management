@@ -1,4 +1,4 @@
-import { sendGmailEmail, EmailRecipient, getThreadMessageIds } from './gmail-client';
+import { sendGmailEmail, EmailRecipient, getThreadMessageIds, type EmailRequestOptions } from './gmail-client';
 import { getTicketCreatedTemplate } from './templates/ticket-created';
 import { getUserCommentTemplate } from './templates/user-comment';
 import { getValidationRequestTemplate } from './templates/validation-request';
@@ -376,7 +376,7 @@ export interface SendSurveyReminderEmailParams extends TicketContext {
   closedAt: Date;
 }
 
-export async function sendSurveyReminderEmail(params: SendSurveyReminderEmailParams) {
+export async function sendSurveyReminderEmail(params: SendSurveyReminderEmailParams, options?: EmailRequestOptions) {
   const ticketUrl = `${BASE_URL}/dashboard/tickets/${params.ticketCode}`;
 
   const htmlContent = getSurveyReminderTemplate({
@@ -385,6 +385,7 @@ export async function sendSurveyReminderEmail(params: SendSurveyReminderEmailPar
     ticketUrl,
     attentionAreaName: params.attentionAreaName,
     closedAt: params.closedAt.toLocaleString('es-PE', {
+      timeZone: 'America/Lima',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -400,7 +401,7 @@ export async function sendSurveyReminderEmail(params: SendSurveyReminderEmailPar
   if (params.initialMessageId) {
     threadingHeaders = { inReplyTo: params.initialMessageId, references: params.initialMessageId };
   } else if (params.emailThreadId) {
-    threadingHeaders = await getThreadMessageIds(params.emailThreadId);
+    threadingHeaders = await getThreadMessageIds(params.emailThreadId, options);
   }
 
   return await sendGmailEmail({
@@ -411,5 +412,5 @@ export async function sendSurveyReminderEmail(params: SendSurveyReminderEmailPar
     senderName: params.attentionAreaName,
     threadId: params.emailThreadId || undefined,
     ...threadingHeaders
-  });
+  }, options);
 }

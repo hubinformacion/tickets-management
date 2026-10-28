@@ -19,6 +19,12 @@ export interface SendEmailParams {
   customMessageId?: string; // Force a specific Message-ID (for thread root)
 }
 
+// Opciones acotadas del worker; los demás envíos conservan su comportamiento.
+export interface EmailRequestOptions {
+  timeout: number;
+  signal: AbortSignal;
+}
+
 // Initialize OAuth2 client
 const oauth2Client = new auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -116,9 +122,9 @@ function quotedPrintableEncode(str: string): string {
  * Fetch thread details to get references for threading
  * Includes retry logic to handle API consistency delays
  */
-export async function getThreadMessageIds(threadId: string): Promise<{ inReplyTo?: string, references?: string }> {
+export async function getThreadMessageIds(threadId: string, options?: EmailRequestOptions): Promise<{ inReplyTo?: string, references?: string }> {
   let attempt = 0;
-  const maxAttempts = 3;
+  const maxAttempts = options ? 1 : 3;
 
   while (attempt < maxAttempts) {
     try {
@@ -127,7 +133,7 @@ export async function getThreadMessageIds(threadId: string): Promise<{ inReplyTo
         id: threadId,
         format: 'metadata',
         metadataHeaders: ['Message-ID', 'Message-Id', 'message-id'],
-      });
+      }, options ? { ...options, retry: false } : undefined);
 
       if (!thread.data.messages || thread.data.messages.length === 0) {
         console.warn(`⚠️ [Threading] Thread ${threadId} found but has no messages. Attempt ${attempt + 1}/${maxAttempts}`);
@@ -159,7 +165,8 @@ export async function getThreadMessageIds(threadId: string): Promise<{ inReplyTo
       return { inReplyTo, references };
 
     } catch (error) {
-      console.error(`❌ [Threading] Failed to fetch thread details (Attempt ${attempt + 1}):`, error);
+      if (options) console.error("No se pudieron obtener referencias del recordatorio");
+      else console.error(`❌ [Threading] Failed to fetch thread details (Attempt ${attempt + 1}):`, error);
       attempt++;
       if (attempt < maxAttempts) await new Promise(r => setTimeout(r, 1000));
     }
@@ -172,9 +179,10 @@ export async function getThreadMessageIds(threadId: string): Promise<{ inReplyTo
 /**
  * Send email using Gmail API
  */
-export async function sendGmailEmail(params: SendEmailParams) {
+export async function sendGmailEmail(params: SendEmailParams, options?: EmailRequestOptions) {
   if (!process.env.GMAIL_REFRESH_TOKEN) {
-    console.warn("⚠️ GMAIL_REFRESH_TOKEN is missing. Email not sent:", {
+    if (options) console.warn("Falta configuración de Gmail para el recordatorio");
+    else console.warn("⚠️ GMAIL_REFRESH_TOKEN is missing. Email not sent:", {
       to: params.to.map(r => r.email),
       subject: params.subject
     });
@@ -182,6 +190,7 @@ export async function sendGmailEmail(params: SendEmailParams) {
   }
 
   try {
+    options?.signal.throwIfAborted();
     const rawMessage = createEmailMessage(params);
     const encodedMessage = Buffer.from(rawMessage)
       .toString('base64')
@@ -200,7 +209,10 @@ export async function sendGmailEmail(params: SendEmailParams) {
     const result = await gmail.users.messages.send({
       userId: 'me',
       requestBody,
-    });
+    }, options ? { ...options, retry: false } : undefined);
+
+    // El worker solo necesita el ID de Gmail; evita una consulta posterior al envío confirmado.
+    if (options) return { success: true, data: { ...result.data, rfcMessageId: undefined } };
 
     // Fetch the ACTUAL Message-ID assigned by Gmail/Google
     let rfcMessageId: string | undefined;
@@ -226,7 +238,8 @@ export async function sendGmailEmail(params: SendEmailParams) {
 
     return { success: true, data: { ...result.data, rfcMessageId } };
   } catch (error) {
-    console.error('❌ Error sending email via Gmail API:', error);
+    if (options) console.error("Envío de recordatorio no confirmado por Gmail");
+    else console.error('❌ Error sending email via Gmail API:', error);
     return { success: false, error };
   }
 }
