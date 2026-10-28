@@ -1,6 +1,6 @@
 # Plan de ejecución de la estabilización
 
-> Estado actual: dependencias, limpieza, autorización e integridad transaccional están desplegadas en `a85e691`, junto con la protección de scripts, la recuperación de sesiones inactivas, la corrección de fechas y la integridad de proveedores. El orden de catálogos se trabaja en una rama separada. El recorrido Google y la concurrencia real continúan pendientes. El [estado de estabilización](README.md) es el registro actualizado; el punto de partida siguiente conserva el contexto original.
+> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores y catálogos están desplegados en `d100754`. La validación de adjuntos se trabaja en una rama separada. El recorrido Google y la concurrencia real continúan pendientes. El [estado de estabilización](README.md) es el registro actualizado; el punto de partida siguiente conserva el contexto original.
 
 ## Punto de partida
 

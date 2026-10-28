@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El commit `a85e691` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye las dependencias actualizadas, la limpieza de mantenimiento, la retirada de `doctor.config.ts`, la autorización por ticket/área, el bloque de integridad transaccional, la protección de scripts, la recuperación de sesiones inactivas, la corrección de fechas y la integridad de proveedores.
+El commit `d100754` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye dependencias actualizadas, limpieza de mantenimiento, autorización por ticket/área, integridad transaccional, protección de scripts, recuperación de sesiones inactivas, fechas, integridad de proveedores y ordenación de catálogos.
 
 Vercel aprobó Preview y Production. Se verificaron login público, sesión anónima y redirección del dashboard. El recorrido autenticado de Google y los escenarios con datos reales no se presentan como aprobados. No se ejecutaron migraciones, reset, drop, seed ni operaciones manuales sobre datos de producción.
 
@@ -22,7 +22,9 @@ El [bloque de fechas](2026-10-27-fechas-calendario.md) está integrado y despleg
 
 El [bloque de proveedores](2026-10-27-integridad-proveedores.md) está integrado y desplegado en `a85e691`: referencias del área, encuesta completa o ausente, transiciones condicionales y conservación de evaluaciones. Preview y Production aprobados; login 200, sesión anónima 200/null y dashboard 307 a login.
 
-En `fix/orden-catalogos` está preparado el [bloque de catálogos](2026-10-28-orden-catalogos.md): orden por área/categoría, transacciones y bloqueo para todas sus escrituras en la aplicación. El código `234cab9` tiene build de Preview aprobado; continúa pendiente de integración y despliegue en producción.
+El [bloque de catálogos](2026-10-28-orden-catalogos.md) está integrado y desplegado en `d100754`: orden por área/categoría, transacciones y bloqueo para todas sus escrituras en la aplicación. Preview y Production aprobados; comprobaciones públicas aprobadas.
+
+El siguiente bloque se trabaja en `fix/limites-adjuntos`: formatos y contenido, tamaño real de solicitudes y alineación con el límite de Vercel. Incluye ZIP según la preferencia del usuario y excluye videos y archivos de diseño. No está integrado ni desplegado.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
@@ -31,7 +33,7 @@ La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Co
 - [Validación de concurrencia real y recorrido autenticado](2026-10-27-validacion-funcional-pendiente.md) antes de cerrar los hallazgos de integridad; validar en navegador la corrección desplegada para la redirección circular con sesión inactiva.
 - Recordatorios recuperables, compensaciones de archivos y limpieza de huérfanos.
 - Formatos/contenido, tamaño global/cantidad de uploads y rate limiting compartido.
-- Ordenamiento de catálogos (bloque en curso) e índices/constraints; métricas de SLA pendientes aunque el helper de horas hábiles ya usa Lima.
+- Índices/constraints; métricas de SLA pendientes aunque el helper de horas hábiles ya usa Lima.
 - Métricas, paginación, CI y accesibilidad; tres advertencias de ESLint y cuatro avisos transitivos.
 
 La secuencia general está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md). Las siguientes funcionalidades se incorporarán después de estabilizar los riesgos aplicables.

@@ -2,7 +2,7 @@
 
 ## Estado y alcance
 
-Preparado en `234cab9` (`fix/orden-catalogos`), sobre `448b338`. Pendiente de integración y despliegue en producción. Implementa el bloque de ordenación del plan aprobado. No modifica el esquema ni ejecuta migraciones o backfills.
+Implementado en `234cab9` e integrado y desplegado en producción como `d100754` el 28 de octubre de 2026, sobre `448b338`. Implementa el bloque de ordenación del plan aprobado. No modifica el esquema ni ejecuta migraciones o backfills.
 
 ## Diseño aplicado
 
@@ -40,4 +40,8 @@ El orden es un campo operativo del catálogo: al mover un grupo con empates se a
 
 ## Preview
 
-La [Preview de `234cab9`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/3xxkphQ8VWn8Kas9CNW1wpz5HnNf) figura como `success` (registro de GitHub `7388382483`). La rama continúa pendiente de merge y despliegue en producción. La compilación no acredita el recorrido autenticado ni las comprobaciones con PostgreSQL real.
+La [Preview de `234cab9`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/3xxkphQ8VWn8Kas9CNW1wpz5HnNf) figura como `success` (registro de GitHub `7388382483`). La rama se integró y desplegó tras su aprobación. La compilación no acredita el recorrido autenticado ni las comprobaciones con PostgreSQL real.
+
+## Producción
+
+El [despliegue de `d100754`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/3WNHKY1XjJLF7Br3Lkj8Jeyt3vmf) figura como `success` (registro de GitHub `7388583068`). En https://requerimientos-hub.vercel.app se verificaron login 200, sesión anónima 200/`null` y dashboard 307 a login. No se ejecutaron migraciones, backfills, scripts de mantenimiento ni operaciones manuales sobre datos, archivos o correo reales.
