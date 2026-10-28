@@ -20,7 +20,7 @@ La [protección de scripts de BD](2026-10-27-proteccion-scripts.md) (`3463601`) 
 
 El [bloque de fechas](2026-10-27-fechas-calendario.md) está integrado y desplegado en `8562497`: calendario separado de instantes, validación estricta y helper de horas hábiles en Lima. Preview y Production aprobados; comprobaciones públicas de login/sesión/dashboard aprobadas.
 
-En `fix/integridad-proveedores` está preparado el [bloque de integridad de proveedores](2026-10-27-integridad-proveedores.md): enlaces por área, cierre con encuesta completa o ausente, escrituras condicionales y conservación de evaluaciones previas. Pendiente de integrar y desplegar en producción.
+En `fix/integridad-proveedores` está preparado el [bloque de integridad de proveedores](2026-10-27-integridad-proveedores.md): enlaces por área, cierre con encuesta completa o ausente, escrituras condicionales y conservación de evaluaciones previas. El código `d1b05b8` tiene build de Preview aprobado; continúa pendiente de integrar y desplegar en producción.
 
 ## Pendientes
 

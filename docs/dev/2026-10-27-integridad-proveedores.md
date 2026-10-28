@@ -2,7 +2,7 @@
 
 ## Estado y alcance
 
-Preparado en `fix/integridad-proveedores`, sobre `3b89f87`. Pendiente de integración y despliegue en producción. Desarrolla el bloque de proveedores del plan aprobado: referencias del área, encuesta completa o ausente y escrituras condicionales. No incluye cambios de esquema, migraciones ni corrección masiva de registros.
+Preparado en `d1b05b8` (`fix/integridad-proveedores`), sobre `3b89f87`. Pendiente de integración y despliegue en producción. Desarrolla el bloque de proveedores del plan aprobado: referencias del área, encuesta completa o ausente y escrituras condicionales. No incluye cambios de esquema, migraciones ni corrección masiva de registros.
 
 ## Cambios
 
@@ -27,8 +27,12 @@ Además, 146 comprobaciones previas de permisos aprobadas. TypeScript aprobado c
 
 ## Límites
 
-Los dobles comprueban decisiones, predicados y uso de transacción; no certifican bloqueos/concurrencia de PostgreSQL. El build de esta rama y el recorrido autenticado/visual siguen pendientes.
+Los dobles comprueban decisiones, predicados y uso de transacción; no certifican bloqueos/concurrencia de PostgreSQL. Vercel aprobó el build de Preview de `d1b05b8`; el recorrido autenticado/visual sigue pendiente.
 
 La versión se compara desde la lectura de la acción del servidor; no se envía una versión del formulario del navegador. Una edición ya finalizada antes de esa lectura no se detecta como conflicto de un formulario antiguo.
 
 La serialización con cambios administrativos de catálogos y los constraints de área siguen pendientes. No se migra la historia ni se reconstruyen cierres anteriores de proveedores. Los cambios de borrado están limitados al módulo de proveedores; no constituyen una revisión de todos los mecanismos de retención de la aplicación.
+
+## Preview
+
+La [Preview de `d1b05b8`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/HwoBWeNiQrtJLrpsKE5VSzMSHgzm) figura como `success` (registro de GitHub `7376800076`). La rama continúa pendiente de integración y despliegue en producción.
