@@ -1,6 +1,6 @@
 # Plan de ejecución de la estabilización
 
-> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores y catálogos están desplegados en `d100754`. La validación de adjuntos se trabaja en una rama separada. El recorrido Google y la concurrencia real continúan pendientes. El [estado de estabilización](README.md) es el registro actualizado; el punto de partida siguiente conserva el contexto original.
+> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos y validación de adjuntos están desplegados en `a4a225c`. La integridad y métricas de encuestas de usuario se trabajan en una rama separada. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
 
 ## Punto de partida
 

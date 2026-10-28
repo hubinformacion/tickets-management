@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El commit `d100754` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye dependencias actualizadas, limpieza de mantenimiento, autorización por ticket/área, integridad transaccional, protección de scripts, recuperación de sesiones inactivas, fechas, integridad de proveedores y ordenación de catálogos.
+El commit `a4a225c` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos y validación de adjuntos.
 
 Vercel aprobó Preview y Production. Se verificaron login público, sesión anónima y redirección del dashboard. El recorrido autenticado de Google y los escenarios con datos reales no se presentan como aprobados. No se ejecutaron migraciones, reset, drop, seed ni operaciones manuales sobre datos de producción.
 
@@ -24,17 +24,25 @@ El [bloque de proveedores](2026-10-27-integridad-proveedores.md) está integrado
 
 El [bloque de catálogos](2026-10-28-orden-catalogos.md) está integrado y desplegado en `d100754`: orden por área/categoría, transacciones y bloqueo para todas sus escrituras en la aplicación. Preview y Production aprobados; comprobaciones públicas aprobadas.
 
-En `fix/limites-adjuntos` está preparado el [bloque de adjuntos](2026-10-28-validacion-adjuntos.md): formatos y firmas, cuerpo acotado antes de parsear y límite coherente de 4 MB por archivo. Incluye ZIP y excluye videos/diseño según la preferencia del usuario. El código `bbac6e4` tiene build de Preview aprobado; continúa pendiente de integrar y desplegar en producción.
+El [bloque de adjuntos](2026-10-28-validacion-adjuntos.md) está integrado y desplegado en `a4a225c`: PDF/Office/imágenes/texto/ZIP, firmas y cuerpos acotados, 4 MB por archivo. Preview y Production aprobados; comprobaciones públicas aprobadas.
+
+El siguiente bloque se trabaja en `fix/integridad-encuestas`: respuestas enteras y únicas, coordinación con el estado del ticket, tasa sobre el mismo conjunto de cierres y exportación con el filtro de área. No está integrado ni desplegado.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
 ## Pendientes
 
-- [Validación de concurrencia real y recorrido autenticado](2026-10-27-validacion-funcional-pendiente.md) antes de cerrar los hallazgos de integridad; validar en navegador la corrección desplegada para la redirección circular con sesión inactiva.
-- Recordatorios recuperables, compensaciones de archivos y limpieza de huérfanos.
-- Integrar la validación de adjuntos preparada; cuota global/cantidad de uploads y rate limiting compartido siguen pendientes.
-- Índices/constraints; métricas de SLA pendientes aunque el helper de horas hábiles ya usa Lima.
-- Métricas, paginación, CI y accesibilidad; tres advertencias de ESLint y cuatro avisos transitivos.
+| Prioridad | Bloque | Trabajo restante |
+|---|---|---|
+| Alta | Recordatorios | Selección recuperable de vencidos, claim/lease persistente, reintentos y lotes; sin enviar dos veces por carreras. |
+| Alta | Archivos | Cuotas globales/cantidad con reserva atómica, coordinación vinculación/revert, recuperación de persistencia incierta y borrados/huérfanos revisables. |
+| Alta | Rate limiting | Almacén compartido entre instancias y namespaces de operación en todos los consumidores. |
+| Alta | Validación real | Google, Drive/Gmail, permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
+| Media | Métricas y consultas | Integrar la corrección de encuestas en curso; SLA por ciclo de cierre/reapertura, periodos del dashboard, métricas restantes y paginación/agregación de listados grandes. |
+| Media | Esquema y operación | Revisar índices/constraints con datos/planes reales y preparar migraciones compatibles; respaldo y restauración verificables antes de operar sobre producción. |
+| Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, tres advertencias de ESLint, React Doctor y avisos transitivos registrados. |
+
+Los bloques de persistencia pueden requerir tablas/columnas nuevas. Su preparación debe ser aditiva y compatible; este despliegue no aplica migraciones ni autoriza operaciones sobre datos. No se certifican los servicios o datos reales por haber aprobado un build.
 
 La secuencia general está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md). Las siguientes funcionalidades se incorporarán después de estabilizar los riesgos aplicables.
 

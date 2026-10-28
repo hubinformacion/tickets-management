@@ -2,7 +2,7 @@
 
 ## Estado y alcance
 
-Preparado en `bbac6e4` (`fix/limites-adjuntos`), sobre `6d081e3`. Pendiente de integración y despliegue en producción. Continúa el bloque de entradas de archivos del plan aprobado. El usuario confirmó conservar ZIP además de documentos e imágenes, dejando fuera videos y archivos de diseño.
+Implementado en `bbac6e4` e integrado y desplegado en producción como `a4a225c` el 28 de octubre de 2026, sobre `6d081e3`. Continúa el bloque de entradas de archivos del plan aprobado. El usuario confirmó conservar ZIP además de documentos e imágenes, dejando fuera videos y archivos de diseño.
 
 No incluye migraciones ni cambios de esquema. Se aplica a nuevas cargas; no revisa, transforma ni elimina adjuntos históricos.
 
@@ -50,4 +50,8 @@ Se usan dependencias existentes, red aislada, entorno ficticio sin credenciales,
 
 ## Preview
 
-La [Preview de `bbac6e4`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/wxm8gVjpdQTm8k5GiydYidzgLc3P) figura como `success` (registro de GitHub `7389277846`). La rama continúa pendiente de merge y despliegue en producción. Esta compilación no certifica uploads reales, el recorrido visual ni los servicios externos.
+La [Preview de `bbac6e4`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/wxm8gVjpdQTm8k5GiydYidzgLc3P) figura como `success` (registro de GitHub `7389277846`). La rama se integró y desplegó tras su aprobación. Esta compilación no certifica uploads reales, el recorrido visual ni los servicios externos.
+
+## Producción
+
+El [despliegue de `a4a225c`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/CrHtSQdhwe5jJCExi2j7HZJPhp5r) figura como `success` (registro de GitHub `7389424380`). Se verificaron login 200, sesión anónima 200/`null` y dashboard 307 a login en https://requerimientos-hub.vercel.app. No se ejecutaron uploads/borrados reales, migraciones, backfills ni operaciones manuales sobre datos o servicios de producción.
