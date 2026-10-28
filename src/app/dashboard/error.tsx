@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 
@@ -55,11 +56,11 @@ export default function DashboardError({
             Intentar de nuevo
           </Button>
           <Button
-            onClick={() => window.location.href = '/dashboard'}
+            asChild
             variant="outline"
             className="w-full"
           >
-            Volver al inicio
+            <Link href="/dashboard" prefetch={false}>Volver al inicio</Link>
           </Button>
         </div>
       </div>

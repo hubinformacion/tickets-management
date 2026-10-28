@@ -2,9 +2,9 @@
 
 ## Integrado y desplegado
 
-El código está integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app) mediante `504fc86`. Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas y coordinación de adjuntos pendientes.
+El último despliegue verificado antes del bloque de calidad es `e2e1596`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
 
-La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios y cancelaciones. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
+La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones e intentos de carga. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
 Las ramas de limpieza y autorización se eliminaron después de integrarlas. El alcance de permisos y sus verificaciones están en [Autorización y validación](2026-10-27-autorizacion.md).
 
@@ -32,21 +32,23 @@ El [bloque de recordatorios](2026-10-28-recordatorios.md) está integrado y desp
 
 La [coordinación de cargas pendientes](2026-10-28-coordinacion-adjuntos.md) está integrada y desplegada en `504fc86`: intención persistente antes de Drive, bloqueo compartido con la vinculación, retención de referencias y validación del ticket dentro de la transacción. La tabla operativa se creó vacía con autorización de cambios aditivos. Build local, tipos, lint y 123 comprobaciones aprobados. El primer push no generó deployment y se reintentó una vez con el registro de cierre. Vercel aprobó un único Production, sin Preview. El dominio público confirmó el SHA nuevo y el estado de recordatorios; no se probaron uploads o borrados reales.
 
-El usuario confirmó cantidad ilimitada de archivos con máximo de 4 MB por archivo/carga. Se retiran las cuotas de cantidad o espacio del alcance de estabilización. En `fix/registro-cargas-drive` está preparado el registro previo a Drive con identificador estable, ID remoto anticipado, reserva y reintentos de la misma carga. La tabla nueva se creó vacía con autorización de cambios aditivos; build local, tipos, lint y 255 comprobaciones aprobados, además de 11 consultas planificadas en READ ONLY. El [registro de cargas](2026-10-28-registro-cargas-drive.md) recoge compatibilidad, comportamiento ante fallos y límites de validación real. La ruta autenticada de estado permitirá comprobar el destino efectivo de Drive sin crear ni borrar archivos.
+El usuario confirmó cantidad ilimitada de archivos con máximo de 4 MB por archivo/carga. Se retiran las cuotas de cantidad o espacio del alcance de estabilización. En `e2e1596` está integrado y desplegado el registro previo a Drive con identificador estable, ID remoto anticipado, reserva y reintentos de la misma carga. La tabla nueva se creó vacía con autorización de cambios aditivos; build local, tipos, lint y 255 comprobaciones aprobados, además de 11 consultas planificadas en READ ONLY. El [registro de cargas](2026-10-28-registro-cargas-drive.md) recoge compatibilidad, comportamiento ante fallos y límites de validación real. La ruta de estado confirmó la versión, la tabla y la política; Drive devolvió 404 para la carpeta configurada. Se actualizó el ID local al destino corregido por el usuario. Por decisión expresa del usuario se cerró la revisión de carpeta/permisos, conservando el refresh token institucional y sin cambios adicionales en Drive. No se probaron uploads/borrados reales.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
+
+El [bloque de calidad de ESLint](2026-10-28-calidad-eslint.md) elimina las tres advertencias conocidas mediante `useWatch` y enlaces internos de Next.js. TypeScript, ESLint completo con cero advertencias y build local aprobados. La entrega se agrupa con el cierre de cargas; no requiere migraciones ni cambios de Google.
 
 ## Pendientes
 
 | Prioridad | Bloque | Trabajo restante |
 |---|---|---|
 | Alta | Recordatorios | Cola, reservas, reintentos y corte de 48 h desplegados. Pendientes observación de ejecuciones reales e integración Gmail/OAuth/PG; límite de duplicados ante confirmación incierta documentado. |
-| Alta | Archivos | Coordinación vinculación/revert desplegada; registro previo y reintentos de altas preparado; pendientes reconciliación, uploads que terminan después de enviar el formulario y revisión del borrado de vinculados/huérfanos. Cantidad ilimitada, 4 MB por carga. |
+| Alta | Archivos | Coordinación vinculación/revert desplegada; registro previo y reintentos de altas desplegados; revisión de carpeta/permisos cerrada por el usuario; pendientes reconciliación, uploads que terminan después de enviar el formulario y revisión del borrado de vinculados/huérfanos. Cantidad ilimitada, 4 MB por carga. |
 | Alta | Rate limiting | Almacén compartido entre instancias y namespaces de operación en todos los consumidores. |
-| Alta | Validación real | Google, Drive/Gmail, permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
+| Alta | Validación real | Drive/Gmail (sin nuevas gestiones de carpeta o consentimiento por decisión del usuario), permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
 | Media | Métricas y consultas | SLA por ciclo de cierre/reapertura, periodos del dashboard, métricas restantes y paginación/agregación de listados grandes. |
 | Media | Esquema y operación | Revisar índices/constraints con datos/planes reales y preparar migraciones compatibles; respaldo y restauración verificables antes de operar sobre producción. |
-| Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, tres advertencias de ESLint, React Doctor y avisos transitivos registrados. |
+| Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, React Doctor y avisos transitivos registrados. |
 
 Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. Se crearon únicamente las tablas aditivas autorizadas de recordatorios, cancelaciones pendientes e intentos de carga; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.
 

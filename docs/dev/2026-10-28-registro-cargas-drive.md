@@ -2,7 +2,7 @@
 
 ## Alcance y política
 
-Implementado en la rama local `fix/registro-cargas-drive`, según el [diseño](../plans/2026-10-28-registro-cargas-drive-design.md). El usuario confirmó **cantidad ilimitada de adjuntos y 4 MB por archivo/carga**. No se agregan cuotas por ticket, usuario, lote ni espacio global. Se conservan los formatos y controles de frecuencia existentes.
+Integrado y desplegado en `e2e1596` (rama de trabajo local eliminada tras verificar igualdad de contenido), según el [diseño](../plans/2026-10-28-registro-cargas-drive-design.md). El usuario confirmó **cantidad ilimitada de adjuntos y 4 MB por archivo/carga**. No se agregan cuotas por ticket, usuario, lote ni espacio global. Se conservan los formatos y controles de frecuencia existentes.
 
 FilePond asigna el UUID de intento en `beforeAddFile`, antes de permitir el procesamiento automático, mediante metadata silenciosa. Cada elemento mantiene el UUID en sus reintentos; elementos distintos obtienen UUID distintos. El servidor normaliza su representación y comprueba contenido, uploader, token, nombre, tamaño y MIME. Clientes anteriores sin esa metadata siguen funcionando con un UUID generado por el servidor, con deduplicación limitada.
 
@@ -39,3 +39,19 @@ No se certifican concurrencia real de PostgreSQL ni upload/retry real de Drive p
 Un navegador anterior sin UUID estable no deduplica reintentos de solicitudes distintas. Abandonar la pestaña puede dejar un intento incierto registrado; este bloque no incorpora un reconciliador automático ni limpieza de huérfanos históricos. Un cambio externo de permisos o metadata puede requerir revisión manual antes de confirmar. También quedan uploads que terminan después de enviar el formulario, borrado de adjuntos ya vinculados y rate limiting compartido.
 
 La entrega se agrupa con el cierre documental anterior en un commit de main, sin publicar la rama de trabajo ni hacer un despliegue adicional de solo documentación.
+
+## Producción y cierre de revisión de Drive
+
+La [Production de `e2e1596`](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/3UcUGK2M59M1WWaJEFHptHS4v3VV) fue aprobada (registro GitHub `7399340558`). Se agrupó el código con el cierre anterior en un solo commit y un único despliegue de main; no se generó Preview.
+
+El dominio público confirmó el SHA exacto `e2e1596db84962ea32679adb1df3c1e0d568ed47`. Login 200, sesión anónima 200/null, dashboard 307 a login, GET de upload 405 y consulta de estado de upload sin credencial 401. Los recordatorios conservaron queue, corte fijo del 28 de octubre y tabla disponible.
+
+La consulta autenticada de uploads respondió 503 con `databaseReady=true`, `driveStatus=not_found`, `maxFileBytes=4000000` y `unlimitedFiles=true`. No se presenta el destino de Drive como validado ni se atribuye una causa no comprobada. El código está desplegado; esa comprobación no certifica una carga real. La investigación de carpeta/permisos se cerró posteriormente por decisión expresa del usuario.
+
+El usuario indicó la carpeta de destino mediante enlace; su ID difería del valor local. Se actualizó únicamente GOOGLE_DRIVE_FOLDER_ID en .env.local mediante escritura atómica, conservando las demás variables y sin incluir ese archivo en Git. Con el token local también respondió 404 la carpeta indicada. Se verificó que el token local pertenece a la cuenta institucional y solo tiene el alcance drive.file, no acceso completo a Drive; esto no certifica qué token o valor usa Vercel.
+
+El usuario confirmó inicialmente que producción ya tenía el ID indicado, pero luego corrigió el enlace: la primera carpeta correspondía a otro sistema. La confirmación anterior no acredita que producción use el destino corregido. Se actualizó solo GOOGLE_DRIVE_FOLDER_ID local al nuevo destino, conservando las demás variables. La nueva carpeta también respondió 404 con las credenciales locales; el estado autenticado de producción sigue en 503/not_found, con la tabla disponible y el mismo SHA. Esto no identifica por sí solo la causa del 404 ni confirma el ID efectivo de Vercel. No hay token administrativo, sesión CLI o deploy hook de Vercel disponibles aquí; Git permite publicar código pero no consultar o editar esas variables. No se modificó la configuración de Vercel ni se ampliaron permisos de Google. [Alcances oficiales](https://developers.google.com/workspace/drive/api/guides/api-specific-auth).
+
+Se preparó una operación local temporal de Google Picker con selección limitada a la carpeta indicada, estado aleatorio y PKCE S256, receptor exclusivo de loopback y expiración de 15 minutos. El primer flujo expiró sin completarse; se reemplazó por uno para el destino corregido. Solicita solamente drive.file, sin combinar alcances anteriores ni solicitar refresh token. No guarda ni sustituye tokens y no modifica la configuración de Gmail. La identidad local y los alcances gmail.send/gmail.readonly existentes se verificaron antes de iniciar. Se comprobó que el receptor rechaza un estado incorrecto y que la redirección conserva esas restricciones. El usuario pidió conservar el acceso mediante el refresh token de la cuenta institucional y no continuar con autorizaciones de carpeta. Se canceló el receptor local antes de completar consentimiento; no se regeneraron ni reemplazaron tokens. No se presenta la carpeta como verificada mediante una carga real. [Selector oficial integrado en OAuth](https://developers.google.com/workspace/drive/picker/guides/desktop-mobile-picker).
+
+No se crearon, movieron ni eliminaron archivos de Drive. Este cierre documental se acumula localmente para publicarse con el siguiente bloque de código y evitar otro despliegue de solo documentación.

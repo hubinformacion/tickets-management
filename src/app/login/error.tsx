@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 
@@ -54,11 +55,11 @@ export default function LoginError({
             Intentar de nuevo
           </Button>
           <Button
-            onClick={() => window.location.href = '/'}
+            asChild
             variant="outline"
             className="w-full"
           >
-            Volver al inicio
+            <Link href="/" prefetch={false}>Volver al inicio</Link>
           </Button>
         </div>
       </div>

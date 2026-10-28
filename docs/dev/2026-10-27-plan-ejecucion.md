@@ -1,6 +1,6 @@
 # Plan de ejecución de la estabilización
 
-> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos, validación de adjuntos, encuestas, recordatorios recuperables de 48 horas y coordinación de adjuntos pendientes están desplegados en `504fc86`. Las tablas adicionales fueron aplicadas con autorización del usuario y snapshot confirmado, sin modificar datos históricos. La entrega más reciente usó validación local y un único Production, sin Preview. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
+> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos, validación de adjuntos, encuestas, recordatorios recuperables de 48 horas y coordinación de adjuntos pendientes y registro de cargas están desplegados en `e2e1596`. La revisión de permisos y carpeta de Drive quedó cerrada por decisión del usuario; se conserva la carga mediante el refresh token institucional y no se certificó una carga real. Las tablas adicionales fueron aplicadas con autorización del usuario y snapshot confirmado, sin modificar datos históricos. La entrega más reciente usó validación local y un único Production, sin Preview. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
 
 ## Punto de partida
 

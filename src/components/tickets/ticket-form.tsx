@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, type Resolver } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createTicketFormSchema, type CreateTicketFormSchema } from "@/lib/validation/schemas";
 
@@ -291,7 +291,7 @@ export function NewTicketForm({
     },
   });
 
-  const watchedValues = form.watch();
+  const watchedValues = useWatch({ control: form.control });
   const hasDescription = Boolean(watchedValues.description && watchedValues.description.length >= 10);
 
   const sidebarContext = useSidebarContext(selectedAttentionArea, selectedCategory, selectedSubcategory, attentionAreas, categories);
