@@ -2,9 +2,9 @@
 
 ## Integrado y desplegado
 
-El código `3a598b7` está en `main` y [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas y recordatorios recuperables de 48 horas.
+El código está integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app) mediante `504fc86`. Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas y coordinación de adjuntos pendientes.
 
-Vercel aprobó Preview y Production. Se verificaron login público, sesión anónima y redirección del dashboard. El recorrido autenticado de Google y los escenarios con datos reales no se presentan como aprobados. No se ejecutaron migraciones, reset, drop, seed ni operaciones manuales sobre datos de producción.
+La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios y cancelaciones. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
 Las ramas de limpieza y autorización se eliminaron después de integrarlas. El alcance de permisos y sus verificaciones están en [Autorización y validación](2026-10-27-autorizacion.md).
 
@@ -30,7 +30,9 @@ El [bloque de encuestas de usuarios](2026-10-28-integridad-encuestas.md) está i
 
 El [bloque de recordatorios](2026-10-28-recordatorios.md) está integrado y desplegado en `3a598b7`. La tabla independiente se creó vacía con autorización específica y snapshot confirmados por el usuario, sin modificar tablas ni datos históricos. Preview y Production aprobados; estado autenticado 200 con `queue`, corte fijo y tabla disponible, login 200, sesión anónima 200/null y dashboard 307 a login. Solo se incluyen cierres desde el 28 de octubre a las 12:00 de Lima, con recordatorio elegible 48 horas después del cierre efectivo. No se ejecutó el worker ni se enviaron correos de prueba.
 
-En `94ead20` está integrada y publicada en main la [coordinación de cargas pendientes](2026-10-28-coordinacion-adjuntos.md): intención persistente antes de Drive, bloqueo compartido con la vinculación, retención de referencias y validación del ticket dentro de la transacción. La tabla operativa se creó vacía con autorización de cambios aditivos. Build local, tipos, lint y 123 comprobaciones aprobados. Se hizo un único push de main, sin Preview; falta que Vercel registre el despliegue. Producción sigue en `3a598b7` y no se presenta este bloque como activo.
+La [coordinación de cargas pendientes](2026-10-28-coordinacion-adjuntos.md) está integrada y desplegada en `504fc86`: intención persistente antes de Drive, bloqueo compartido con la vinculación, retención de referencias y validación del ticket dentro de la transacción. La tabla operativa se creó vacía con autorización de cambios aditivos. Build local, tipos, lint y 123 comprobaciones aprobados. El primer push no generó deployment y se reintentó una vez con el registro de cierre. Vercel aprobó un único Production, sin Preview. El dominio público confirmó el SHA nuevo y el estado de recordatorios; no se probaron uploads o borrados reales.
+
+El usuario confirmó cantidad ilimitada de archivos con máximo de 4 MB por archivo/carga. Se retiran las cuotas de cantidad o espacio del alcance de estabilización. En `fix/registro-cargas-drive` está preparado el registro previo a Drive con identificador estable, ID remoto anticipado, reserva y reintentos de la misma carga. La tabla nueva se creó vacía con autorización de cambios aditivos; build local, tipos, lint y 255 comprobaciones aprobados, además de 11 consultas planificadas en READ ONLY. El [registro de cargas](2026-10-28-registro-cargas-drive.md) recoge compatibilidad, comportamiento ante fallos y límites de validación real. La ruta autenticada de estado permitirá comprobar el destino efectivo de Drive sin crear ni borrar archivos.
 
 La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Contenía copias de código, verificadores con datos ficticios y logs; los resultados resumidos se conservan en estos documentos. Las comprobaciones siguientes eliminan su material temporal al terminar.
 
@@ -39,14 +41,14 @@ La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Co
 | Prioridad | Bloque | Trabajo restante |
 |---|---|---|
 | Alta | Recordatorios | Cola, reservas, reintentos y corte de 48 h desplegados. Pendientes observación de ejecuciones reales e integración Gmail/OAuth/PG; límite de duplicados ante confirmación incierta documentado. |
-| Alta | Archivos | Coordinación vinculación/revert integrada en main, despliegue pendiente; pendientes cuotas globales/cantidad y reservas antes del upload, altas inciertas, reconciliación y revisión del borrado de vinculados/huérfanos. |
+| Alta | Archivos | Coordinación vinculación/revert desplegada; registro previo y reintentos de altas preparado; pendientes reconciliación, uploads que terminan después de enviar el formulario y revisión del borrado de vinculados/huérfanos. Cantidad ilimitada, 4 MB por carga. |
 | Alta | Rate limiting | Almacén compartido entre instancias y namespaces de operación en todos los consumidores. |
 | Alta | Validación real | Google, Drive/Gmail, permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
 | Media | Métricas y consultas | SLA por ciclo de cierre/reapertura, periodos del dashboard, métricas restantes y paginación/agregación de listados grandes. |
 | Media | Esquema y operación | Revisar índices/constraints con datos/planes reales y preparar migraciones compatibles; respaldo y restauración verificables antes de operar sobre producción. |
 | Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, tres advertencias de ESLint, React Doctor y avisos transitivos registrados. |
 
-Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. Se crearon únicamente las tablas aditivas autorizadas de recordatorios y cancelaciones pendientes; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.
+Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. Se crearon únicamente las tablas aditivas autorizadas de recordatorios, cancelaciones pendientes e intentos de carga; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.
 
 La secuencia general está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md). Las siguientes funcionalidades se incorporarán después de estabilizar los riesgos aplicables.
 

@@ -1,6 +1,6 @@
 # Plan de ejecución de la estabilización
 
-> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos, validación de adjuntos y encuestas y recordatorios recuperables de 48 horas están desplegados en `3a598b7`. La tabla adicional fue aplicada con autorización específica del usuario y snapshot confirmado, sin modificar datos históricos. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
+> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos, validación de adjuntos, encuestas, recordatorios recuperables de 48 horas y coordinación de adjuntos pendientes están desplegados en `504fc86`. Las tablas adicionales fueron aplicadas con autorización del usuario y snapshot confirmado, sin modificar datos históricos. La entrega más reciente usó validación local y un único Production, sin Preview. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
 
 ## Punto de partida
 
@@ -45,7 +45,8 @@ La propuesta de sandbox de demos está cancelada. Las comprobaciones locales usa
 
 - Seleccionar todos los recordatorios vencidos no enviados, sin ventana estrecha de 23–25 horas. Procesar lotes con claim/lease persistente y recuperación de fallos.
 - Marcar envío únicamente ante éxito; documentar el posible duplicado si el proveedor acepta el correo y el proceso termina antes de persistir el resultado.
-- Compensar uploads si falla BD y conservar referencias de archivos hasta confirmar el borrado externo. Preparar recuperación y limpieza de huérfanos con plazo, límites y simulación.
+- Registrar intentos antes de subir contenido y persistir el ID remoto antes de Drive. Reutilizar el mismo ID al reintentar, conservar referencias ante confirmaciones inciertas y evitar borrados compensatorios ciegos. La reconciliación de huérfanos se prepara por separado sin borrar historia.
+- Decisión actual del usuario: cantidad ilimitada de archivos y máximo de 4 MB por carga. No incorporar cuotas propias de cantidad o almacenamiento.
 - Sustituir el Map local de rate limiting por almacenamiento compartido en PostgreSQL, aprovechando la infraestructura existente sin contratar otro servicio. Usar claves por operación/usuario, conservar límites actuales y adaptar consumidores a una API async.
 - Preparar migraciones aditivas para claims, recuperación y rate limiting; no aplicarlas a producción durante implementación.
 

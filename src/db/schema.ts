@@ -514,3 +514,34 @@ export const attachmentReverts = pgTable("attachment_revert", {
   check("attachment_revert_lease_check", sql`(${table.state} = 'removing' AND ${table.leaseToken} IS NOT NULL AND ${table.leaseUntil} IS NOT NULL) OR (${table.state} <> 'removing' AND ${table.leaseToken} IS NULL AND ${table.leaseUntil} IS NULL)`),
   check("attachment_revert_removed_check", sql`(${table.state} = 'removed') = (${table.driveDeletedAt} IS NOT NULL)`),
 ]);
+
+// Intentos de carga independientes: sin cuotas de cantidad ni cascadas sobre la historia.
+export const uploadAttempts = pgTable("upload_attempt", {
+  id: uuid("id").primaryKey(),
+  attachmentId: uuid("attachment_id").notNull().unique("upload_attempt_attachment_unique"),
+  uploadedById: text("uploaded_by_id").notNull(),
+  uploadToken: text("upload_token").notNull(),
+  fileName: text("file_name").notNull(),
+  fileSize: integer("file_size").notNull(),
+  mimeType: text("mime_type").notNull(),
+  sha256: text("sha256").notNull(),
+  md5: text("md5").notNull(),
+  driveFileId: text("drive_file_id").unique("upload_attempt_drive_unique"),
+  state: text("state").notNull().default("pending"),
+  leaseToken: uuid("lease_token"),
+  leaseUntil: timestamp("lease_until", { withTimezone: true }),
+  attempts: integer("attempts").notNull().default(0),
+  lastErrorCode: text("last_error_code"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index("upload_attempt_owner_token_idx").on(table.uploadedById, table.uploadToken),
+  index("upload_attempt_state_idx").on(table.state, table.updatedAt),
+  check("upload_attempt_state_check", sql`${table.state} IN ('pending', 'uploading', 'stored', 'uncertain')`),
+  check("upload_attempt_count_check", sql`${table.attempts} >= 0`),
+  check("upload_attempt_size_check", sql`${table.fileSize} > 0 AND ${table.fileSize} <= 4000000`),
+  check("upload_attempt_sha256_check", sql`${table.sha256} ~ '^[a-f0-9]{64}$'`),
+  check("upload_attempt_md5_check", sql`${table.md5} ~ '^[a-f0-9]{32}$'`),
+  check("upload_attempt_lease_check", sql`(${table.state} = 'uploading' AND ${table.leaseToken} IS NOT NULL AND ${table.leaseUntil} IS NOT NULL) OR (${table.state} <> 'uploading' AND ${table.leaseToken} IS NULL AND ${table.leaseUntil} IS NULL)`),
+  check("upload_attempt_stored_check", sql`${table.state} <> 'stored' OR ${table.driveFileId} IS NOT NULL`),
+]);

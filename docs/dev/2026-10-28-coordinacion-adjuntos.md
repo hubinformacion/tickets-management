@@ -38,10 +38,12 @@ Quedan cuotas globales/cantidad y reservas antes del upload, uploads que termina
 
 ## Publicación y estado de producción
 
-Se publicó main con el bloque y la documentación acumulada: `3a598b7..94ead205be079430a94575121282e78fd26befe0`. Tipos, lint, comprobaciones y build local completos estaban aprobados antes del push.
+El código `94ead20` se integró y publicó en main después de aprobar tipos, lint, 123 comprobaciones y build local completo. El primer push `3a598b7..94ead20` no generó deployment, check-run ni commit status de Vercel; producción seguía sirviendo el SHA anterior. El usuario confirmó que no había cambiado la configuración de Vercel. No se atribuye una causa no comprobada.
 
-GitHub confirma el SHA nuevo en main, pero Vercel todavía no ha registrado deployment, check-run ni commit status para este código. La consulta autenticada de `/api/cron/survey-reminder/status` sigue respondiendo 200 con el SHA `3a598b794e68554342a7ca2dbd2d3003318dd60a`, modo queue, corte fijo y tabla de recordatorios disponible. No presentar el bloque de adjuntos como desplegado hasta verificar la nueva versión.
+Se reintentó una sola vez la entrega Git de main con el registro de cierre, commit `504fc86c3fd6ecf8afd1af13ace4826498329768`, sin cambios adicionales de runtime. Ese reintento generó un único [despliegue Production](https://vercel.com/hub-de-informacions-projects/requerimientos-hub/3JPt6J2KGn8WBz8mvkeHzLmqRWGz), aprobado por Vercel (registro GitHub `7398498434`). No se generó Preview para este bloque.
 
-No hay token, sesión CLI ni deploy hook de Vercel disponibles en este entorno. Se consulta si se cambió la configuración de despliegues Git; los permisos y credenciales de BD sí están disponibles y la tabla adicional ya fue confirmada vacía. No se ejecutan escrituras sobre tablas existentes, uploads, borrados ni crons como prueba.
+La consulta autenticada de `/api/cron/survey-reminder/status` respondió 200 con el SHA exacto `504fc86c3fd6ecf8afd1af13ace4826498329768`, modo queue, corte `2026-10-28T17:00:00.000Z` y tabla de recordatorios disponible. Comprobaciones públicas: login 200, sesión anónima 200/null, dashboard 307 a login, GET de upload 405 y estado del cron sin credencial 401. No se invocó el worker ni se realizaron uploads o borrados reales como verificación.
 
-Después de comprobar que el primer push no generó deployment, status ni check-run, se reintenta una sola vez la entrega Git de main con este registro. No se publica ninguna rama de trabajo ni se genera Preview. El estado del proveedor puede revisarse en el commit de main y compararse con el SHA que devuelve el endpoint autenticado de estado.
+La tabla adicional de cancelaciones se confirmó vacía después de crearla y el SQL fue planificado en READ ONLY; no se modificaron registros históricos. El recorrido real de Google/Drive y la concurrencia de PostgreSQL permanecen pendientes.
+
+La rama de trabajo integrada fue eliminada. Este cierre se conserva localmente y se agrupará con el próximo bloque de código para evitar otro despliegue de solo documentación.

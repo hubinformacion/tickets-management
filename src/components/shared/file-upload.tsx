@@ -34,6 +34,10 @@ export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: Fil
           setFiles(fileItems.map((fi) => fi.file as File));
         }}
         allowMultiple={true}
+        beforeAddFile={(item) => {
+          if (!item.getMetadata("uploadId")) item.setMetadata("uploadId", crypto.randomUUID(), true);
+          return true;
+        }}
         maxFileSize={`${MAX_ATTACHMENT_BYTES}B`}
         acceptedFileTypes={ACCEPTED_ATTACHMENT_MIME_TYPES}
         fileValidateTypeDetectType={(file, type) => {

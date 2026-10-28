@@ -212,6 +212,7 @@ if (!result.success) {
 - **Migraciones compatibles:** preparar por defecto cambios aditivos. Las columnas nuevas deben admitir `null` o tener un valor predeterminado compatible con los registros existentes cuando corresponda. Revisar compatibilidad antes de añadir constraints.
 - **Preservar historia:** no eliminar ni reescribir registros históricos en migraciones, backfills o limpiezas. No ejecutar cambios destructivos de esquema o datos como parte de un despliegue de código.
 - Cualquier operación excepcional sobre datos o esquema de producción requiere una propuesta concreta, respaldo y autorización específica del usuario; un permiso de merge o despliegue de código no la incluye.
+- En la estabilización actual, el usuario autorizó expresamente cambios aditivos y nuevas tablas compatibles, con snapshot confirmado el 28 de octubre de 2026. Continuar dentro de ese alcance sin repetir la solicitud de permiso; no cubre borrados, backfills ni cambios destructivos.
 - NUNCA commitear `.env.local` o archivos con secretos
 - Usar variables de entorno para configuración sensible
 - Validar SIEMPRE inputs del usuario con Zod
@@ -273,6 +274,7 @@ if (!result.success) {
 - Solo 3 áreas fijas (TSI, Difusión, Fondo Editorial), no crecerán
 - **Campos de Difusión:** Columnas nullable en tabla `tickets` (no JSON): `activityStartDate`, `desiredDiffusionDate`, `targetAudience`
 - **Archivos adjuntos:** No disponibles para Difusión (ni en formulario ni en detalle)
+- **Política de cargas:** Cantidad ilimitada de adjuntos; máximo 4 MB decimales (4.000.000 bytes) por archivo/carga. No introducir cuotas por ticket, usuario, lote ni almacenamiento global (decisión expresa del usuario). Se conservan los controles existentes contra abuso por frecuencia.
 
 ### Formulario de Tickets
 - Flujo **classification-first** — el usuario primero elige área/categoría/subcategoría, luego aparece el resto del formulario con animación

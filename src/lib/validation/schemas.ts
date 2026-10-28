@@ -35,6 +35,9 @@ export const ticketCommentSchema = z.object({
 
 export const uploadTokenSchema = z.string().uuid();
 export const attachmentIdSchema = z.string().uuid();
+export const uploadAttemptMetadataSchema = z.object({
+  uploadId: z.uuid().transform(id => id.toLowerCase()).optional(),
+});
 
 export const ticketAttachmentSchema = z.object({
   ticketId: ticketIdSchema,

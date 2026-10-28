@@ -1,14 +1,15 @@
+import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/helpers";
-import { db } from "@/db";
-import { ticketAttachments } from "@/db/schema";
-import { uploadFileToDrive } from "@/lib/drive/client";
 import { uploadTokenSchema, attachmentIdSchema } from "@/lib/validation/schemas";
 import { MAX_UPLOAD_BODY_BYTES, MAX_REVERT_BODY_BYTES } from "@/lib/constants/attachments";
 import { readLimitedBody, UploadRequestError } from "@/lib/uploads/request-body";
 import { validateAttachmentMetadata, validateAttachmentContent } from "@/lib/uploads/validate-attachment";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 import { revertPendingAttachment } from "@/lib/uploads/pending-attachments";
+import { persistUpload } from "@/lib/uploads/persist-upload";
+import { parseUploadAttemptId } from "@/lib/uploads/upload-attempt-input";
+import { UploadPersistenceError } from "@/lib/uploads/upload-attempt-types";
 
 export const maxDuration = 60;
 
@@ -25,7 +26,7 @@ function rateLimitResponse(userId: string, operation: "post" | "delete") {
 /**
  * POST /api/upload
  * Recibe un archivo (multipart) + uploadToken.
- * Sube a Google Drive y guarda metadatos en la BD con ticketId = null.
+ * Registra el intento antes de Drive y confirma el adjunto sin duplicar reintentos.
  * Retorna el ID del attachment (compatible con FilePond server process).
  */
 export async function POST(request: NextRequest) {
@@ -66,30 +67,34 @@ export async function POST(request: NextRequest) {
       throw new UploadRequestError("Token de carga inválido", 400);
     }
     const uploadToken = parsedToken.data;
+    const uploadId = parseUploadAttemptId(fileEntries.find((entry): entry is string => typeof entry === "string"));
     const file = files[0];
     validateAttachmentMetadata(file);
     const buffer = Buffer.from(await file.arrayBuffer());
     const mimeType = validateAttachmentContent(file, buffer);
 
-    // Subir a Google Drive con la cuenta institucional
-    const driveResult = await uploadFileToDrive(buffer, file.name, mimeType);
-
-    // Guardar metadatos en la BD
-    const [attachment] = await db.insert(ticketAttachments).values({
-      ticketId: null,
+    const attachmentId = await persistUpload({
+      id: uploadId,
+      userId: session.user.id,
+      uploadToken,
       fileName: file.name,
       fileSize: file.size,
       mimeType,
-      driveFileId: driveResult.fileId,
-      driveViewLink: driveResult.viewLink,
-      uploadToken,
-      uploadedById: session.user.id,
-    }).returning({ id: ticketAttachments.id });
+      sha256: createHash("sha256").update(buffer).digest("hex"),
+      // Solo para contrastar el checksum binario que expone Drive; no sustituye SHA-256.
+      md5: createHash("md5").update(buffer).digest("hex"),
+    }, buffer, request.signal);
 
     // FilePond espera un ID de texto plano como respuesta al proceso
-    return new NextResponse(attachment.id, { status: 200 });
+    return new NextResponse(attachmentId, { status: 200 });
   } catch (error) {
     if (error instanceof UploadRequestError) return NextResponse.json({ error: error.message }, { status: error.status });
+    if (error instanceof UploadPersistenceError) {
+      return NextResponse.json({ error: error.message }, {
+        status: error.status,
+        headers: error.retryAfter ? { "Retry-After": String(error.retryAfter) } : undefined,
+      });
+    }
     console.error("No se pudo confirmar la carga del adjunto");
     return NextResponse.json(
       { error: "Error al subir el archivo" },
