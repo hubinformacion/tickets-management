@@ -1,8 +1,5 @@
-import { db } from "@/db";
-import { tickets } from "@/db/schema";
 import { requireAgent } from "@/lib/auth/helpers";
 import { getActiveProvidersByArea } from "@/actions/config/get-config";
-import { eq, desc } from "drizzle-orm";
 import { ProviderTicketsList } from "@/components/agent/provider-tickets-list";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -41,14 +38,9 @@ export default async function ProviderTicketsPage({ searchParams }: PageProps) {
   const parsed = providerTicketListFiltersSchema.safeParse({ providerId: params.providerId, status: params.status });
   if (!parsed.success) return <p className="p-8 text-destructive">Filtros de proveedores inválidos</p>;
   const filters = parsed.data;
-  const [result, activeProviders, areaTickets] = await Promise.all([
+  const [result, activeProviders] = await Promise.all([
     readProviderTicketsPage(attentionAreaId, filters, parsePage(params.page)),
     getActiveProvidersByArea(attentionAreaId),
-    db.query.tickets.findMany({
-      where: eq(tickets.attentionAreaId, attentionAreaId),
-      columns: { id: true, ticketCode: true, title: true },
-      orderBy: [desc(tickets.createdAt)],
-    }),
   ]);
 
   return (
@@ -76,7 +68,6 @@ export default async function ProviderTicketsPage({ searchParams }: PageProps) {
         pagination={result.pagination}
         filters={filters}
         providers={activeProviders}
-        areaTickets={areaTickets}
       />
     </div>
   );

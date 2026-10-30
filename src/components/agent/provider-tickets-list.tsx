@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useId } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -12,14 +12,6 @@ import {
 } from "@/actions/agent/provider-tickets";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -68,9 +60,7 @@ import { calendarDateSchema } from "@/lib/validation/schemas";
 import type { Provider, ProviderTicketStatus, ProviderTicketPriority } from "@/types";
 import {
   CalendarIcon,
-  Check,
   CheckCircle,
-  ChevronsUpDown,
   ExternalLink,
   Loader2,
   Pencil,
@@ -79,6 +69,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { es } from "react-day-picker/locale";
+import { ProviderTicketPicker } from "@/components/agent/provider-ticket-picker";
 import { toast } from "sonner";
 import { buildPageHref } from "@/lib/utils/pagination";
 import type { getPagination } from "@/lib/utils/pagination";
@@ -96,12 +87,6 @@ const providerTicketSchema = z.object({
 type ProviderTicketValues = z.infer<typeof providerTicketSchema>;
 
 // --- Types ---
-
-interface AreaTicket {
-  id: number;
-  ticketCode: string;
-  title: string;
-}
 
 interface ProviderTicketRow {
   id: number;
@@ -139,7 +124,6 @@ interface ProviderTicketRow {
 interface ProviderTicketsListProps {
   providerTickets: ProviderTicketRow[];
   providers: Provider[];
-  areaTickets: AreaTicket[];
   providerOptions: { id: number; name: string }[];
   pagination: ReturnType<typeof getPagination>;
   filters: ProviderTicketListFilters;
@@ -147,7 +131,7 @@ interface ProviderTicketsListProps {
 
 // --- Main Component ---
 
-export function ProviderTicketsList({ providerTickets, providers, areaTickets, providerOptions, pagination, filters }: ProviderTicketsListProps) {
+export function ProviderTicketsList({ providerTickets, providers, providerOptions, pagination, filters }: ProviderTicketsListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -396,7 +380,6 @@ export function ProviderTicketsList({ providerTickets, providers, areaTickets, p
         onOpenChange={setIsDialogOpen}
         ticket={editingTicket}
         providers={providers}
-        areaTickets={areaTickets}
       />
 
       {/* Close Dialog */}
@@ -449,86 +432,6 @@ function PriorityBadge({ priority }: { priority: string | null }) {
     <div className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium", style)}>
       {label}
     </div>
-  );
-}
-
-// --- Ticket Combobox (searchable by code or title) ---
-
-function TicketCombobox({
-  tickets,
-  value,
-  onChange,
-}: {
-  tickets: AreaTicket[];
-  value: number | null;
-  onChange: (ticketId: number | null) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const listboxId = useId();
-
-  const selectedTicket = tickets.find((t) => t.id === value);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          aria-controls={listboxId}
-          className={cn(
-            "w-full justify-between text-left font-normal text-sm",
-            !value && "text-muted-foreground"
-          )}
-        >
-          {selectedTicket
-            ? `${selectedTicket.ticketCode} — ${selectedTicket.title.length > 30 ? selectedTicket.title.slice(0, 30) + "…" : selectedTicket.title}`
-            : "Buscar ticket por código o título..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[400px] p-0" align="start">
-          <Command>
-            <CommandInput placeholder="Buscar ticket..." />
-            <CommandList id={listboxId}>
-            <CommandEmpty>No se encontraron tickets.</CommandEmpty>
-            <CommandGroup>
-              {/* Option to clear selection */}
-              <CommandItem
-                onSelect={() => {
-                  onChange(null);
-                  setOpen(false);
-                }}
-              >
-                <Check className={cn("mr-2 h-4 w-4", !value ? "opacity-100" : "opacity-0")} />
-                <span className="text-muted-foreground">Sin ticket vinculado</span>
-              </CommandItem>
-              {tickets.map((ticket) => (
-                <CommandItem
-                  key={ticket.id}
-                  value={`${ticket.ticketCode} ${ticket.title}`}
-                  onSelect={() => {
-                    onChange(ticket.id);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn("mr-2 h-4 w-4", value === ticket.id ? "opacity-100" : "opacity-0")}
-                  />
-                  <div className="flex flex-col">
-                    <span className="font-mono text-xs">{ticket.ticketCode}</span>
-                    <span className="text-xs text-muted-foreground truncate max-w-[320px]">
-                      {ticket.title}
-                    </span>
-                  </div>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
   );
 }
 
@@ -744,13 +647,11 @@ function ProviderTicketDialog({
   onOpenChange,
   ticket,
   providers,
-  areaTickets,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   ticket: ProviderTicketRow | null;
   providers: Provider[];
-  areaTickets: AreaTicket[];
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -976,8 +877,8 @@ function ProviderTicketDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Ticket vinculado <span className="text-muted-foreground text-xs font-normal">(opcional)</span></FormLabel>
-                  <TicketCombobox
-                    tickets={areaTickets}
+                  <ProviderTicketPicker
+                    initialTicket={ticket?.ticket ?? null}
                     value={field.value ?? null}
                     onChange={field.onChange}
                   />

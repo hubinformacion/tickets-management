@@ -98,3 +98,7 @@ Paginación de encuestas integrada/desplegada en `e8c46e7`, Production y SHA pú
 ## Aplicación autorizada de índices
 
 Tras la revisión y explicación de costes, el usuario autorizó la [aplicación aditiva de tres índices](2026-10-30-aplicacion-indices.md). Se crearon concurrentemente uno por vez, con catálogo validado antes/después y declaración Drizzle sincronizada; no hubo cambios de datos, DROP, REINDEX ni backfills. Se agrupa esta sincronización con la paginación aprobada para un único despliegue desde main.
+
+## Avance: publicación e inicio del selector remoto
+
+Paginación de proveedores e índices declarados se integraron/desplegaron en `d214f41`, con Production/SHA públicos confirmados y rama integrada eliminada. La [búsqueda remota de tickets vinculados](2026-10-30-busqueda-tickets-proveedores.md) está preparada en una nueva rama local, pendiente de aprobación de merge/despliegue. Retira la carga completa por render sin truncar la selección existente. Continúan encuestas de proveedores/otros listados, exportaciones, validación real y calidad.

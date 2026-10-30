@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado en `fix/paginacion-proveedores`, pendiente de merge/despliegue. Continúa D08 y, por petición expresa del usuario, se acompaña de la [revisión paralela de índices](2026-10-30-revision-indices.md). El [diseño](../plans/2026-10-30-paginacion-proveedores-design.md) delimita ambos trabajos. La implementación inicial no aplicó cambios de BD; después el usuario autorizó expresamente añadir los tres índices de la revisión. La [aplicación aditiva](2026-10-30-aplicacion-indices.md) registra esa operación sin DML ni cambios históricos.
+Implementado originalmente en `fix/paginacion-proveedores` e integrado/desplegado como `d214f41`, con Production `7450399708` aprobada, SHA público confirmado y rama integrada eliminada. Continúa D08 y, por petición expresa del usuario, se acompaña de la [revisión paralela de índices](2026-10-30-revision-indices.md). El [diseño](../plans/2026-10-30-paginacion-proveedores-design.md) delimita ambos trabajos. La implementación inicial no aplicó cambios de BD; después el usuario autorizó expresamente añadir los tres índices de la revisión. La [aplicación aditiva](2026-10-30-aplicacion-indices.md) registra esa operación sin DML ni cambios históricos.
 
 El bloque anterior de encuestas se integró y desplegó como `e8c46e73a5944f72cb2aa72e39903123ace220cf`. Production `7449414166` aprobada y SHA público confirmado, con cola disponible y corte fijo `2026-10-28T17:00:00.000Z`. Se verificó igualdad de contenido con main antes de eliminar `fix/paginacion-encuestas-usuarios`. Sin Preview ni invocación de worker, correo o borrados reales.
 
@@ -36,4 +36,6 @@ En paralelo se revisaron metadatos y diez planes adicionales, sin filas de negoc
 
 El snapshot pertenece a cada solicitud; nuevas altas o cambios de estado entre solicitudes pueden desplazar páginas OFFSET. El selector vinculado aún carga todos los tickets del área y la exportación completa mantiene su coste anterior. Las opciones/conteos requieren recorrer el alcance filtrado aunque solo se devuelvan 25 detalles. No se afirma una mejora de latencia con volumen real.
 
-Pendientes: merge/despliegue de este bloque, navegación autenticada/teclado/revisión visual, búsqueda remota del selector vinculado, exportaciones grandes, paginación de encuestas de proveedores y otros listados, aplicación/observación de índices si se justifica, CI/calidad/Doctor y observación de Gmail/Drive/PG/colas. No se reabre la revisión de carpeta/OAuth cerrada por el usuario.
+Pendientes: navegación autenticada/teclado/revisión visual, exportaciones grandes, paginación de encuestas de proveedores y otros listados, aplicación/observación de índices si se justifica, CI/calidad/Doctor y observación de Gmail/Drive/PG/colas. No se reabre la revisión de carpeta/OAuth cerrada por el usuario.
+
+La [búsqueda remota del selector](2026-10-30-busqueda-tickets-proveedores.md) se preparó después en una rama local independiente, pendiente de merge/despliegue.

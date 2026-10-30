@@ -12,6 +12,9 @@ export const ticketMessageSchema = z.string().trim().min(1).max(20000);
 
 export const paginationPageSchema = z.coerce.number().int().positive();
 export const surveyPageSchema = paginationPageSchema;
+export const providerTicketSearchSchema = z.string().trim().max(120, "Máximo 120 caracteres")
+  .refine(value => value.length === 0 || value.length >= 2, "Escribe al menos dos caracteres");
+
 export const providerTicketListFiltersSchema = z.object({
   providerId: z.string().regex(/^[1-9]\d*$/).refine(value => Number.isSafeInteger(Number(value)) && Number(value) <= 2_147_483_647).optional(),
   status: z.enum(["en_proceso", "cerrado"]).optional(),

@@ -38,3 +38,7 @@ TypeScript sin emisión, ESLint sin advertencias y build local completo aprobaro
 Esta aplicación de DDL fue una operación de producción autorizada, no una prueba ni consecuencia automática de aprobar un merge. Los datos históricos permanecen intactos. No se recrearon tablas ni se alteraron índices PK/UNIQUE. La construcción añade almacenamiento y mantenimiento en escrituras; no supone CPU permanentemente ocupada.
 
 Pendientes: observación representativa de uso/latencias y tamaño, planes con volumen real y ajustes selectivos si se justifican. No se añaden índices de todas las FK, de cada combinación de filtros o duplicados de UNIQUE. La paginación de proveedores se publica junto con esta sincronización; la búsqueda remota del selector vinculado y otros listados siguen separados. El material temporal de operación y validación se retira tras registrar el resultado.
+
+## Publicación
+
+La declaración sincronizada se integró con la paginación de proveedores en `d214f41`. Production `7450399708` aprobada y SHA público completo confirmado; la build no volvió a ejecutar el SQL manual. Se eliminó la rama integrada tras comprobar igualdad con main.

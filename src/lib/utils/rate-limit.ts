@@ -23,6 +23,7 @@ type RateLimitNamespace =
   | "surveys:submit"
   | "watchers:update"
   | "providers:create"
+  | "providers:ticket-search"
   | "priorities:admin:update"
   | "priorities:agent:update"
   | "uploads:post"
