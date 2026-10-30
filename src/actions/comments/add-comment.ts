@@ -13,15 +13,15 @@ import { canReadTicket } from "@/lib/auth/ticket-permissions";
 import { ticketCommentSchema } from "@/lib/validation/schemas";
 
 // Rate limiter para comentarios: 10 por minuto
-const commentRateLimiter = createRateLimiter('MODERATE');
+const commentRateLimiter = createRateLimiter("MODERATE", "comments:create");
 
 export async function addCommentAction(formData: FormData) {
   const session = await requireAuth();
 
   // Aplicar rate limiting
-  const rateLimitResult = commentRateLimiter(`comment-${session.user.id}`);
+  const rateLimitResult = await commentRateLimiter(session.user.id);
   if (!rateLimitResult.success) {
-    return { error: "Estás enviando comentarios muy rápido. Por favor, espera un momento." };
+    return { error: rateLimitResult.error ?? "Estás enviando comentarios muy rápido. Por favor, espera un momento." };
   }
 
   const parsed = ticketCommentSchema.safeParse({

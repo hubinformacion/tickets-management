@@ -9,14 +9,15 @@ import { canManageTicketWatchers } from "@/lib/auth/ticket-permissions";
 import { updateTicketWatchersSchema } from "@/lib/validation/schemas";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 
-const watchersLimiter = createRateLimiter("MODERATE");
+const watchersLimiter = createRateLimiter("MODERATE", "watchers:update");
 
 export async function updateWatchersAction(ticketId: number, watchers: string[]) {
   const session = await requireAuth();
   const parsed = updateTicketWatchersSchema.safeParse({ ticketId, watchers });
   if (!parsed.success) return { error: "Lista de observadores inválida", details: parsed.error.flatten() };
-  if (!watchersLimiter(`watchers:${session.user.id}`).success) {
-    return { error: "Demasiadas solicitudes. Intenta de nuevo en un momento" };
+  const rateLimitResult = await watchersLimiter(session.user.id);
+  if (!rateLimitResult.success) {
+    return { error: rateLimitResult.error ?? "Demasiadas solicitudes. Intenta de nuevo en un momento" };
   }
 
   try {

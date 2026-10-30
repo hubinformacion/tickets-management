@@ -10,7 +10,7 @@ import { createRateLimiter } from "@/lib/utils/rate-limit";
 import { userSurveyCohort } from "@/lib/surveys/cohort";
 import { summarizeUserSurveys } from "@/lib/surveys/summary";
 
-const surveyRateLimiter = createRateLimiter("MODERATE");
+const surveyRateLimiter = createRateLimiter("MODERATE", "surveys:submit");
 
 /** Solo el creador de un ticket resuelto puede enviar una evaluación, una vez por ticket. */
 export async function submitSurveyAction(data: {
@@ -23,8 +23,9 @@ export async function submitSurveyAction(data: {
 }) {
   const session = await requireAuth();
   if (!["user", "agent", "admin"].includes(session.user.role)) return { error: "No autorizado" };
-  if (!surveyRateLimiter(`survey:${session.user.id}`).success) {
-    return { error: "Demasiadas solicitudes. Intenta de nuevo en un momento." };
+  const rateLimitResult = await surveyRateLimiter(session.user.id);
+  if (!rateLimitResult.success) {
+    return { error: rateLimitResult.error ?? "Demasiadas solicitudes. Intenta de nuevo en un momento." };
   }
   const parsed = submitSurveySchema.safeParse(data);
   if (!parsed.success) return { error: "Datos inválidos", details: parsed.error.flatten() };

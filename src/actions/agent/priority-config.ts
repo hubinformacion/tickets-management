@@ -8,7 +8,7 @@ import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 
-const rateLimiter = createRateLimiter("MODERATE");
+const rateLimiter = createRateLimiter("MODERATE", "priorities:agent:update");
 
 export async function updateAgentPriorityConfigAction(formData: FormData) {
   const session = await requireAgent();
@@ -17,9 +17,9 @@ export async function updateAgentPriorityConfigAction(formData: FormData) {
     return { error: "No tienes área asignada" };
   }
 
-  const rateLimitResult = rateLimiter(session.user.id);
+  const rateLimitResult = await rateLimiter(session.user.id);
   if (!rateLimitResult.success) {
-    return { error: "Has alcanzado el límite de solicitudes. Inténtalo en un momento." };
+    return { error: rateLimitResult.error ?? "Has alcanzado el límite de solicitudes. Inténtalo en un momento." };
   }
 
   const rawData = {

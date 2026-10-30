@@ -8,14 +8,14 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 
-const rateLimiter = createRateLimiter("MODERATE");
+const rateLimiter = createRateLimiter("MODERATE", "priorities:admin:update");
 
 export async function updatePriorityConfigAction(formData: FormData) {
   const session = await requireAdmin();
 
-  const rateLimitResult = rateLimiter(session.user.id);
+  const rateLimitResult = await rateLimiter(session.user.id);
   if (!rateLimitResult.success) {
-    return { error: "Has alcanzado el límite de solicitudes. Inténtalo en un momento." };
+    return { error: rateLimitResult.error ?? "Has alcanzado el límite de solicitudes. Inténtalo en un momento." };
   }
 
   const rawData = {

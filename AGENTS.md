@@ -251,9 +251,11 @@ if (!result.success) {
   - Creación de tickets: 10 por minuto por usuario
   - Comentarios: 10 por minuto por usuario
   - Derivaciones: 10 por minuto por agente
-  - Acciones de admin: 30 por minuto por admin
+  - Edición de prioridades de admin/agente: 10 por minuto por usuario y operación
+  - Cargas y cancelaciones de adjuntos: 30 por minuto por usuario, con contadores separados
 - Rate limiter ubicado en: `src/lib/utils/rate-limit.ts`
-- Para crear nuevos limiters: `createRateLimiter('MODERATE')` o `createRateLimiter('STRICT')`
+- Crear limiters con namespace obligatorio: `createRateLimiter('MODERATE', 'comments:create')`. La fábrica es síncrona y la función retornada se espera con `await limiter(userId)`.
+- Los contadores se comparten en PostgreSQL (`rate_limit_counter`), con ventana fija y claves por operación/usuario. Un fallo de almacenamiento devuelve un error temporal; no se permite la operación mediante un fallback local.
 
 ## 📧 Sistema de Correos
 
@@ -305,7 +307,7 @@ if (!result.success) {
 ### Infraestructura y UI
 - **Proxy:** El proyecto usa `src/proxy.ts` (Next.js 16), NO `middleware.ts`. Permanece dentro de `src/` por buenas prácticas de App Router. Evitar redirecciones ciegas para prevenir loops con cookies caducas.
 - **Base de datos:** Neon PostgreSQL con Drizzle ORM.
-- **Rate limiting:** `createRateLimiter('MODERATE')` o `createRateLimiter('STRICT')` (función síncrona).
+- **Rate limiting:** `createRateLimiter('MODERATE', 'comments:create')` crea el limiter de forma síncrona; su comprobación es async y exige `await`. El namespace evita mezclar operaciones y PostgreSQL coordina instancias.
 - **Rendimiento (Vercel Best Practices):** El renderizado del dashboard está optimizado. Para nuevas integraciones se exige usar `Promise.all()` en queries simultáneas para abolir *waterfalls*. Reemplazar condicionales inestables (`&&`) con renderizados estrictos (`? : null`).
 - **Aspecto Premium:** Uso extendido de barras nativas con Tailwind (ej. `<MiniBar>`) y *Skeletons* de carga que emulan exactamente el diseño subyacente (ej. diseño *split-screen* del Login y 404 globales). Jamás usar componentes genéricos descuidados.
 

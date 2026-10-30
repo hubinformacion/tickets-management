@@ -13,13 +13,16 @@ import { UploadPersistenceError } from "@/lib/uploads/upload-attempt-types";
 
 export const maxDuration = 60;
 
-const uploadLimiter = createRateLimiter("RELAXED");
+const uploadLimiters = {
+  post: createRateLimiter("RELAXED", "uploads:post"),
+  delete: createRateLimiter("RELAXED", "uploads:delete"),
+};
 
-function rateLimitResponse(userId: string, operation: "post" | "delete") {
-  const result = uploadLimiter(`uploads:${operation}:${userId}`);
+async function rateLimitResponse(userId: string, operation: "post" | "delete") {
+  const result = await uploadLimiters[operation](userId);
   return result.success ? null : NextResponse.json(
-    { error: "Demasiadas solicitudes de archivos. Intenta de nuevo en un momento." },
-    { status: 429, headers: { "Retry-After": String(Math.max(1, Math.ceil((result.reset - Date.now()) / 1000))) } },
+    { error: result.error ?? "Demasiadas solicitudes de archivos. Intenta de nuevo en un momento." },
+    { status: result.reason === "unavailable" ? 503 : 429, headers: { "Retry-After": String(result.retryAfterSeconds) } },
   );
 }
 
@@ -39,7 +42,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const limited = rateLimitResponse(session.user.id, "post");
+    const limited = await rateLimitResponse(session.user.id, "post");
     if (limited) return limited;
     const contentType = request.headers.get("content-type");
     if (!contentType || contentType.length > 200 || !/^multipart\/form-data(?:\s*;|$)/i.test(contentType)) {
@@ -119,7 +122,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const limited = rateLimitResponse(session.user.id, "delete");
+    const limited = await rateLimitResponse(session.user.id, "delete");
     if (limited) return limited;
     const attachmentId = new TextDecoder().decode(await readLimitedBody(request, MAX_REVERT_BODY_BYTES));
 

@@ -1,102 +1,99 @@
-/**
- * Simple in-memory rate limiter
- * Para producción, considera usar Upstash Redis o similar
- */
+import { createHash } from "node:crypto";
+import { sql } from "drizzle-orm";
+import { db } from "@/db";
+import { rateLimitCounters } from "@/db/schema";
 
-interface RateLimitStore {
-  count: number;
-  resetTime: number;
-}
-
-const store = new Map<string, RateLimitStore>();
-
-// Cleanup old entries every 10 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, value] of store.entries()) {
-    if (value.resetTime < now) {
-      store.delete(key);
-    }
-  }
-}, 10 * 60 * 1000);
-
-interface RateLimitResult {
-  success: boolean;
+interface RateLimitWindow {
   remaining: number;
   reset: number;
   limit: number;
+  retryAfterSeconds: number;
 }
 
-/**
- * Rate limiter usando sliding window algorithm
- * @param identifier - Identificador único (ej: userId, IP)
- * @param limit - Número máximo de requests
- * @param window - Ventana de tiempo en milisegundos
- */
-function rateLimit(
-  identifier: string,
-  limit: number,
-  window: number
-): RateLimitResult {
-  const now = Date.now();
-  const key = identifier;
+export type RateLimitResult = RateLimitWindow & (
+  | { success: true }
+  | { success: false; reason: "limited" | "unavailable"; error?: string }
+);
 
-  const record = store.get(key);
+type RateLimitNamespace =
+  | "tickets:create"
+  | "comments:create"
+  | "derivations:create"
+  | "surveys:submit"
+  | "watchers:update"
+  | "providers:create"
+  | "priorities:admin:update"
+  | "priorities:agent:update"
+  | "uploads:post"
+  | "uploads:delete";
 
-  // Si no existe o expiró, crear nuevo
-  if (!record || record.resetTime < now) {
-    store.set(key, {
-      count: 1,
-      resetTime: now + window,
-    });
+const RateLimitPresets = {
+  STRICT: { limit: 5, window: 60_000 },
+  MODERATE: { limit: 10, window: 60_000 },
+  RELAXED: { limit: 30, window: 60_000 },
+  CRITICAL: { limit: 3, window: 10_000 },
+} as const;
 
-    return {
-      success: true,
-      remaining: limit - 1,
-      reset: now + window,
-      limit,
-    };
-  }
-
-  // Si alcanzó el límite
-  if (record.count >= limit) {
-    return {
-      success: false,
-      remaining: 0,
-      reset: record.resetTime,
-      limit,
-    };
-  }
-
-  // Incrementar contador
-  record.count += 1;
-
+function unavailable(limit: number): RateLimitResult {
   return {
-    success: true,
-    remaining: limit - record.count,
-    reset: record.resetTime,
+    success: false,
+    reason: "unavailable",
+    error: "No se pudo verificar el límite de solicitudes. Intenta nuevamente en un momento.",
+    remaining: 0,
+    reset: Date.now() + 30_000,
     limit,
+    retryAfterSeconds: 30,
   };
 }
 
-/**
- * Presets de rate limiting comunes
- */
-const RateLimitPresets = {
-  /** 5 requests por minuto */
-  STRICT: { limit: 5, window: 60 * 1000 },
-  /** 10 requests por minuto */
-  MODERATE: { limit: 10, window: 60 * 1000 },
-  /** 30 requests por minuto */
-  RELAXED: { limit: 30, window: 60 * 1000 },
-  /** 3 requests por 10 segundos (para operaciones críticas) */
-  CRITICAL: { limit: 3, window: 10 * 1000 },
-} as const;
+/** Fábrica síncrona; el consumidor debe esperar la comprobación compartida. */
+export function createRateLimiter(preset: keyof typeof RateLimitPresets, namespace: RateLimitNamespace) {
+  const { limit, window } = RateLimitPresets[preset];
 
-/**
- * Helper para crear rate limiters específicos
- */
-export function createRateLimiter(preset: keyof typeof RateLimitPresets) {
-  const config = RateLimitPresets[preset];
-  return (identifier: string) => rateLimit(identifier, config.limit, config.window);
+  return async (identifier: string): Promise<RateLimitResult> => {
+    if (!identifier || identifier.length > 512) return unavailable(limit);
+    const identifierHash = createHash("sha256").update(identifier).digest("hex");
+
+    try {
+      // La sentencia usa un solo instante de PostgreSQL, independiente del reloj de Vercel.
+      const nextReset = sql`statement_timestamp() + ${window}::double precision * interval '1 millisecond'`;
+      const expired = sql`${rateLimitCounters.resetAt} <= statement_timestamp()`;
+      const counter = await db.transaction(async tx => {
+        await tx.execute(sql`SET LOCAL lock_timeout = '1s'`);
+        await tx.execute(sql`SET LOCAL statement_timeout = '2s'`);
+        const [row] = await tx.insert(rateLimitCounters).values({
+          namespace,
+          identifierHash,
+          requestCount: 1,
+          resetAt: nextReset,
+        }).onConflictDoUpdate({
+          target: [rateLimitCounters.namespace, rateLimitCounters.identifierHash],
+          set: {
+            requestCount: sql`CASE WHEN ${expired} THEN 1 ELSE least(${rateLimitCounters.requestCount}, ${limit}) + 1 END`,
+            resetAt: sql`CASE WHEN ${expired} THEN ${nextReset} ELSE ${rateLimitCounters.resetAt} END`,
+          },
+        }).returning({
+          count: rateLimitCounters.requestCount,
+          resetAt: rateLimitCounters.resetAt,
+          retryAfterSeconds: sql<number>`greatest(0, ceil(extract(epoch FROM (${rateLimitCounters.resetAt} - statement_timestamp()))))::integer`,
+        });
+        if (!row) throw new Error("El contador no confirmó la solicitud");
+        return row;
+      });
+
+      const reset = counter.resetAt.getTime();
+      if (!Number.isFinite(reset) || !Number.isInteger(counter.count) || counter.count < 1 ||
+          counter.count > limit + 1 || !Number.isInteger(counter.retryAfterSeconds)) {
+        return unavailable(limit);
+      }
+      const result = { remaining: Math.max(0, limit - counter.count), reset, limit };
+      return counter.count <= limit
+        ? { ...result, success: true, retryAfterSeconds: 0 }
+        : { ...result, success: false, reason: "limited", retryAfterSeconds: Math.max(1, counter.retryAfterSeconds) };
+    } catch {
+      // No exponer errores del driver: pueden contener parámetros o credenciales.
+      console.error("No se pudo verificar el contador compartido de solicitudes.");
+      return unavailable(limit);
+    }
+  };
 }

@@ -1,6 +1,6 @@
 # Plan de ejecución de la estabilización
 
-> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos, validación de adjuntos, encuestas, recordatorios recuperables de 48 horas y coordinación de adjuntos pendientes y registro de cargas están desplegados en `e2e1596`. La revisión de permisos y carpeta de Drive quedó cerrada por decisión del usuario; se conserva la carga mediante el refresh token institucional y no se certificó una carga real. Las tablas adicionales fueron aplicadas con autorización del usuario y snapshot confirmado, sin modificar datos históricos. La entrega más reciente usó validación local y un único Production, sin Preview. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
+> Estado actual: los bloques de dependencias, permisos, integridad, scripts, sesión, fechas, proveedores, catálogos, validación de adjuntos, encuestas, recordatorios recuperables de 48 horas y coordinación de adjuntos pendientes y registro de cargas están desplegados en `84961c7`, junto con la corrección de las tres advertencias de ESLint. El rate limiting compartido está implementado y validado en una rama local, pendiente de integrar; su tabla aditiva se creó vacía con la autorización vigente. La revisión de permisos y carpeta de Drive quedó cerrada por decisión del usuario; se conserva la carga mediante el refresh token institucional y no se certificó una carga real. Las tablas adicionales fueron aplicadas con autorización del usuario y snapshot confirmado, sin modificar datos históricos. La entrega más reciente usó validación local y un único Production, sin Preview. El [estado de estabilización](README.md) recoge los pendientes por prioridad; el punto de partida siguiente conserva el contexto original.
 
 ## Punto de partida
 
@@ -48,7 +48,7 @@ La propuesta de sandbox de demos está cancelada. Las comprobaciones locales usa
 - Registrar intentos antes de subir contenido y persistir el ID remoto antes de Drive. Reutilizar el mismo ID al reintentar, conservar referencias ante confirmaciones inciertas y evitar borrados compensatorios ciegos. La reconciliación de huérfanos se prepara por separado sin borrar historia.
 - Decisión actual del usuario: cantidad ilimitada de archivos y máximo de 4 MB por carga. No incorporar cuotas propias de cantidad o almacenamiento.
 - Sustituir el Map local de rate limiting por almacenamiento compartido en PostgreSQL, aprovechando la infraestructura existente sin contratar otro servicio. Usar claves por operación/usuario, conservar límites actuales y adaptar consumidores a una API async.
-- Preparar migraciones aditivas para claims, recuperación y rate limiting; no aplicarlas a producción durante implementación.
+- Preparar migraciones aditivas para claims, recuperación y rate limiting. La autorización expresa posterior del usuario permite crear estas tablas compatibles con snapshot confirmado; no autoriza borrados, backfills ni cambios históricos.
 
 **Cierre:** fallos de Gmail/Drive no se registran como éxito; reintentos y ejecuciones concurrentes conservan estado recuperable. Migraciones y rollback revisables por separado.
 

@@ -11,7 +11,7 @@ import {
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 import type { ProviderTicket } from "@/types";
 
-const rateLimiter = createRateLimiter("MODERATE");
+const rateLimiter = createRateLimiter("MODERATE", "providers:create");
 const conflictMessage = "El ticket cambió durante la operación. Actualiza la página e intenta de nuevo.";
 
 class ExistingProviderSurveyError extends Error {}
@@ -59,8 +59,8 @@ export async function createProviderTicketAction(formData: FormData) {
   const areaId = session.user.attentionAreaId;
   if (!areaId) return { error: "No tienes un área asignada" };
 
-  const limit = rateLimiter(`providers:create:${session.user.id}`);
-  if (!limit.success) return { error: "Demasiadas solicitudes. Intenta de nuevo en un momento." };
+  const limit = await rateLimiter(session.user.id);
+  if (!limit.success) return { error: limit.error ?? "Demasiadas solicitudes. Intenta de nuevo en un momento." };
 
   const result = createProviderTicketSchema.safeParse({
     externalCode: formData.get("externalCode"),

@@ -15,15 +15,15 @@ import { canManageTicket } from "@/lib/auth/ticket-permissions";
 import { ticketDerivationSchema } from "@/lib/validation/schemas";
 
 // Rate limiter para derivaciones: 10 por minuto
-const derivationRateLimiter = createRateLimiter('MODERATE');
+const derivationRateLimiter = createRateLimiter("MODERATE", "derivations:create");
 
 export async function addDerivationAction(formData: FormData) {
   const session = await requireAgent();
 
   // Aplicar rate limiting
-  const rateLimitResult = derivationRateLimiter(`derivation-${session.user.id}`);
+  const rateLimitResult = await derivationRateLimiter(session.user.id);
   if (!rateLimitResult.success) {
-    return { error: "Estás registrando derivaciones muy rápido. Por favor, espera un momento." };
+    return { error: rateLimitResult.error ?? "Estás registrando derivaciones muy rápido. Por favor, espera un momento." };
   }
 
   const parsed = ticketDerivationSchema.safeParse({

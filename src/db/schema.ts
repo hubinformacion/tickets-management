@@ -1,7 +1,20 @@
 
 
-import { pgTable, text, timestamp, boolean, uuid, serial, integer, jsonb, unique, type AnyPgColumn, smallint, date, index, uniqueIndex, check } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, uuid, serial, integer, jsonb, unique, type AnyPgColumn, smallint, date, index, uniqueIndex, check, primaryKey } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
+
+// Contadores operativos compartidos; no modifican registros de negocio.
+export const rateLimitCounters = pgTable("rate_limit_counter", {
+  namespace: text("namespace").notNull(),
+  identifierHash: text("identifier_hash").notNull(),
+  requestCount: integer("request_count").notNull(),
+  resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
+}, (table) => [
+  primaryKey({ name: "rate_limit_counter_pkey", columns: [table.namespace, table.identifierHash] }),
+  check("rate_limit_counter_namespace_check", sql`${table.namespace} ~ '^[a-z][a-z0-9:-]{0,79}$'`),
+  check("rate_limit_counter_hash_check", sql`${table.identifierHash} ~ '^[a-f0-9]{64}$'`),
+  check("rate_limit_counter_count_check", sql`${table.requestCount} > 0`),
+]);
 
 // --- AUTH SCHEMA (Better-Auth Compatible) ---
 

@@ -12,15 +12,18 @@ import { eq, inArray, and } from "drizzle-orm";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 import { getFedFieldConfig } from "@/lib/constants/fed-fields";
 
-// Rate limiter: 5 tickets por minuto por usuario
-const ticketRateLimiter = createRateLimiter('MODERATE');
+// Rate limiter: 10 tickets por minuto por usuario
+const ticketRateLimiter = createRateLimiter("MODERATE", "tickets:create");
 
 export async function createTicketAction(formData: FormData) {
   const session = await requireAuth();
 
   // Aplicar rate limiting
-  const rateLimitResult = ticketRateLimiter(session.user.id);
+  const rateLimitResult = await ticketRateLimiter(session.user.id);
   if (!rateLimitResult.success) {
+    if (rateLimitResult.reason === "unavailable") {
+      return { error: rateLimitResult.error ?? "No se pudo verificar el límite de solicitudes. Intenta nuevamente." };
+    }
     const resetDate = new Date(rateLimitResult.reset);
     const resetTime = resetDate.toLocaleTimeString('es-ES', {
       hour: '2-digit',
