@@ -1,6 +1,8 @@
 import { db } from "@/db";
 import { tickets, ticketCategories, attentionAreas, users, priorityConfig, satisfactionSurveys, ticketStatusHistory } from "@/db/schema";
 import { eq, and, sql, count as drizzleCount, gte, lte, desc } from "drizzle-orm";
+import { summarizeResolutionCycles } from "@/lib/analytics/resolution-cycles";
+import type { ResolutionCycle } from "@/lib/analytics/resolution-cycles";
 
 // ============================================
 // Types
@@ -222,111 +224,58 @@ export async function getResolutionTrend(areaId?: number, weeks = 8) {
   return Array.from(weekMap.values()).sort((a, b) => a.week.localeCompare(b.week));
 }
 
-/**
- * Tiempo promedio de resolución por área (en horas).
- * Usa ticket_status_history para calcular el tiempo entre in_progress y resolved.
- */
-export async function getAvgResolutionTime(areaId?: number) {
-  const conditions = [
-    eq(ticketStatusHistory.toStatus, 'resolved'),
-    sql`${ticketStatusHistory.fromStatus} IS NOT NULL`,
-    buildAreaCondition(areaId),
-  ].filter(Boolean);
-
-  const result = await db
-    .select({
-      areaName: attentionAreas.name,
-      avgHours: sql<number>`AVG(EXTRACT(EPOCH FROM (${ticketStatusHistory.changedAt} - (
-        SELECT h2.changed_at FROM ticket_status_history h2
-        WHERE h2.ticket_id = ${ticketStatusHistory.ticketId}
-          AND h2.to_status = 'in_progress'
-        ORDER BY h2.changed_at DESC LIMIT 1
-      ))) / 3600)`,
-    })
-    .from(ticketStatusHistory)
-    .innerJoin(tickets, eq(ticketStatusHistory.ticketId, tickets.id))
-    .innerJoin(attentionAreas, eq(tickets.attentionAreaId, attentionAreas.id))
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .groupBy(attentionAreas.name);
-
-  return result;
+/** Consulta en lote: los terminales separan ciclos y no cortamos el historial por periodo. */
+async function getResolutionCycles(areaId?: number, range?: string): Promise<ResolutionCycle[]> {
+  const dates = range && range !== "all" ? getDateRange(range) : undefined;
+  const result = await db.execute<ResolutionCycle & Record<string, unknown>>(sql`
+    WITH history AS (
+      SELECT h.*,
+        COUNT(*) FILTER (WHERE h.to_status IN ('resolved', 'voided')) OVER (
+          PARTITION BY h.ticket_id ORDER BY h.changed_at, h.id
+          ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+        ) AS cycle
+      FROM ${ticketStatusHistory} h
+      INNER JOIN ${tickets} ON ${tickets.id} = h.ticket_id
+      ${areaId ? sql`WHERE ${tickets.attentionAreaId} = ${areaId}` : sql``}
+    ), paired AS (
+      SELECT history.*,
+        MIN(changed_at) FILTER (WHERE to_status = 'in_progress') OVER (
+          PARTITION BY ticket_id, cycle
+        ) AS started_at
+      FROM history
+    )
+    SELECT ${attentionAreas.id} AS "areaId", ${attentionAreas.name} AS "areaName",
+      to_char(c.started_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "startedAt",
+      to_char(c.changed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "resolvedAt",
+      ${attentionAreas.businessStartTime} AS "businessStart", ${attentionAreas.businessEndTime} AS "businessEnd",
+      ${attentionAreas.businessDays} AS "businessDays", ${priorityConfig.slaHours} AS "slaHours"
+    FROM paired c INNER JOIN ${tickets} ON ${tickets.id} = c.ticket_id
+      INNER JOIN ${attentionAreas} ON ${attentionAreas.id} = ${tickets.attentionAreaId}
+      LEFT JOIN ${priorityConfig} ON ${priorityConfig.attentionAreaId} = ${tickets.attentionAreaId}
+        AND ${priorityConfig.priority} = ${tickets.priority}
+    WHERE c.to_status = 'resolved' AND c.from_status IS NOT NULL AND c.from_status <> 'resolved'
+      AND c.started_at IS NOT NULL AND c.started_at <= c.changed_at
+      ${dates ? sql`AND c.changed_at >= ${dates.from.toISOString()}::timestamp
+        AND c.changed_at <= ${dates.to.toISOString()}::timestamp` : sql``}
+    ORDER BY ${attentionAreas.id}, c.changed_at, c.id
+  `);
+  return result.rows;
 }
 
-/**
- * SLA compliance por área: % de tickets resueltos dentro del SLA configurado.
- */
-export async function getSLACompliance(areaId?: number) {
-  // Obtener configs de SLA por área
-  const slaConfigs = await db
-    .select({
-      areaId: priorityConfig.attentionAreaId,
-      priority: priorityConfig.priority,
-      slaHours: priorityConfig.slaHours,
-    })
-    .from(priorityConfig);
+/** Promedio en horas hábiles de ciclos con inicio y cierre válidos. */
+export async function getAvgResolutionTime(areaId?: number, range?: string) {
+  const stats = summarizeResolutionCycles(await getResolutionCycles(areaId, range));
+  return stats.map(area => ({ areaName: area.areaName, avgHours: area.totalHours / area.measuredCycles }));
+}
 
-  const slaMap = new Map<string, number>();
-  for (const config of slaConfigs) {
-    slaMap.set(`${config.areaId}-${config.priority}`, config.slaHours);
-  }
-
-  // Obtener tickets resueltos con su tiempo de resolución
-  const conditions = [
-    eq(ticketStatusHistory.toStatus, 'resolved'),
-    sql`${ticketStatusHistory.fromStatus} IS NOT NULL`,
-    buildAreaCondition(areaId),
-  ].filter(Boolean);
-
-  const resolvedTickets = await db
-    .select({
-      ticketId: ticketStatusHistory.ticketId,
-      areaId: tickets.attentionAreaId,
-      priority: tickets.priority,
-      resolvedAt: ticketStatusHistory.changedAt,
-    })
-    .from(ticketStatusHistory)
-    .innerJoin(tickets, eq(ticketStatusHistory.ticketId, tickets.id))
-    .where(conditions.length > 0 ? and(...conditions) : undefined);
-
-  // Calcular compliance
-  const areaStats = new Map<number, { total: number; withinSLA: number; areaName: string }>();
-
-  for (const ticket of resolvedTickets) {
-    if (!ticket.areaId || !ticket.priority) continue;
-
-    const areaConfig = slaMap.get(`${ticket.areaId}-${ticket.priority}`);
-    if (!areaConfig) continue;
-
-    // Obtener tiempo cuando entró en in_progress
-    const historyEntry = await db.query.ticketStatusHistory.findFirst({
-      where: and(
-        eq(ticketStatusHistory.ticketId, ticket.ticketId),
-        eq(ticketStatusHistory.toStatus, 'in_progress'),
-      ),
-      orderBy: desc(ticketStatusHistory.changedAt),
-    });
-
-    if (!historyEntry) continue;
-
-    const hoursToResolve = (ticket.resolvedAt.getTime() - historyEntry.changedAt.getTime()) / (1000 * 60 * 60);
-
-    const stats = areaStats.get(ticket.areaId) || { total: 0, withinSLA: 0, areaName: '' };
-    stats.total++;
-    if (hoursToResolve <= areaConfig) {
-      stats.withinSLA++;
-    }
-    areaStats.set(ticket.areaId, stats);
-  }
-
-  // Obtener nombres de área
-  const areas = await db.select().from(attentionAreas);
-  const areaNameMap = new Map(areas.map(a => [a.id, a.name]));
-
-  return Array.from(areaStats.entries()).map(([areaId, stats]) => ({
-    areaName: areaNameMap.get(areaId) || `Área ${areaId}`,
-    totalResolved: stats.total,
-    withinSLA: stats.withinSLA,
-    compliancePercent: stats.total > 0 ? Math.round((stats.withinSLA / stats.total) * 100) : 0,
+/** Cumplimiento de ciclos cerrados en el periodo, con el SLA y horario vigentes. */
+export async function getSLACompliance(areaId?: number, range?: string): Promise<SLACompliance[]> {
+  const stats = summarizeResolutionCycles(await getResolutionCycles(areaId, range));
+  return stats.filter(area => area.totalResolved > 0).map(area => ({
+    areaName: area.areaName,
+    totalResolved: area.totalResolved,
+    withinSLA: area.withinSLA,
+    compliancePercent: Math.round(area.withinSLA / area.totalResolved * 100),
   }));
 }
 

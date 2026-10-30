@@ -2,7 +2,7 @@
 
 ## Estado y alcance
 
-Implementado en la rama local `fix/purga-administrativa-completa`, apilada sobre `fix/eliminacion-adjuntos-recuperable` (`28753bd`). Ambos bloques están pendientes de merge y despliegue. El último main/Production verificado sigue siendo `87d1930`. No se generó Preview ni se ejecutaron borrados reales.
+Implementado en la rama local `fix/purga-administrativa-completa`, apilada sobre `fix/eliminacion-adjuntos-recuperable` (`28753bd`). Ambos bloques se integraron y desplegaron después como `00d9490`, con Production `7444425019` aprobada y SHA confirmado. Las dos ramas locales se eliminaron tras verificar su contenido/dependencia. No se generó Preview ni se ejecutaron borrados reales.
 
 Se aplica la corrección expresa del usuario: «Eliminar ticket permanentemente» destruye el ticket y sus datos asociados, incluido su historial. No lo convierte en anulación ni conserva un archivo histórico del ticket. El diseño está en [Purga administrativa](../plans/2026-10-30-purga-administrativa-design.md). No requiere migración, tablas ni columnas nuevas.
 
@@ -37,4 +37,4 @@ Drive y PostgreSQL no comparten una transacción: un fallo puede dejar archivos 
 
 Los clientes antiguos que aún no envían destino y las cargas no registradas/no asociadas no pueden atribuirse después de borrar todas sus relaciones. No se eliminan huérfanos globales para cubrir ese caso. La reconciliación sigue separada. Un ticket ya ausente permite retirar restos que aún puedan atribuirse con seguridad; no reconstruye referencias ni inventa pertenencia.
 
-Pendientes: merge/despliegue aprobado, recorrido autenticado y concurrencia real con datos autorizados, observación de Gmail/Drive/colas, reconciliación y bloques restantes de métricas, esquema y calidad.
+Pendientes: recorrido autenticado y concurrencia real con datos autorizados, observación de Gmail/Drive/colas, reconciliación y bloques restantes de métricas, esquema y calidad.

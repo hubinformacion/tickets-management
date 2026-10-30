@@ -254,6 +254,7 @@ if (!result.success) {
   - Derivaciones: 10 por minuto por agente
   - Edición de prioridades de admin/agente: 10 por minuto por usuario y operación
   - Cargas y cancelaciones de adjuntos: 30 por minuto por usuario, con contadores separados
+  - Purga administrativa confirmada: 30 por minuto por administrador, en un contador propio
 - Rate limiter ubicado en: `src/lib/utils/rate-limit.ts`
 - Crear limiters con namespace obligatorio: `createRateLimiter('MODERATE', 'comments:create')`. La fábrica es síncrona y la función retornada se espera con `await limiter(userId)`.
 - Los contadores se comparten en PostgreSQL (`rate_limit_counter`), con ventana fija y claves por operación/usuario. Un fallo de almacenamiento devuelve un error temporal; no se permite la operación mediante un fallback local.

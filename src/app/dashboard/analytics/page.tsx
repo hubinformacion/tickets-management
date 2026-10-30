@@ -40,7 +40,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
       getTicketsByArea(range),
       getTicketsByPriority(undefined, range),
       getResolutionTrend(undefined, 8),
-      getSLACompliance(),
+      getSLACompliance(undefined, range),
       getSatisfactionTrend(undefined, 6),
       getTopCategories(undefined, 5, range),
       getAgentWorkload(),
@@ -82,7 +82,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
       getSatisfactionTrend(areaId, 6),
       getTopCategories(areaId, 5, range),
       getAgentWorkload(areaId),
-      getSLACompliance(areaId),
+      getSLACompliance(areaId, range),
     ]);
 
     return (

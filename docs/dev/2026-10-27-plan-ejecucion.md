@@ -74,3 +74,7 @@ Después de un despliegue autorizado: comprobar los flujos acordados y observar 
 ## Avance del 30 de octubre: purga administrativa
 
 La [purga administrativa completa](2026-10-30-purga-administrativa.md) y la eliminación individual recuperable están preparadas en ramas locales apiladas, pendientes de merge/despliegue. La excepción administrativa elimina todo el historial y registros operativos atribuibles, según corrección del usuario, sin permitir borrados reales como verificación. No requiere migración. El último main/Production verificado sigue siendo `87d1930`.
+
+## Avance del 30 de octubre: despliegue y ciclos SLA
+
+La purga administrativa y el borrado individual se integraron y desplegaron como `00d9490`; Production y SHA público confirmados, sin Preview ni operaciones destructivas de validación. Las ramas integradas se eliminaron. La [corrección SLA por ciclo](2026-10-30-metricas-sla-ciclos.md) está preparada en una rama local independiente y pendiente de aprobación de merge/despliegue. El resto de periodos, tendencias, paginación y calidad continúa pendiente.

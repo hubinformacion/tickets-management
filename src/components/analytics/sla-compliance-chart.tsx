@@ -11,7 +11,7 @@ interface SLAComplianceChartProps {
 export function SLAComplianceChart({ data }: SLAComplianceChartProps) {
   if (data.length === 0) {
     return (
-      <ChartCard title="Cumplimiento de SLA" description="% de tickets resueltos dentro del SLA">
+      <ChartCard title="Cumplimiento de SLA" description="Ciclos cerrados en el periodo · horas hábiles">
         <div className="flex flex-col items-center justify-center h-[200px] text-sm text-muted-foreground gap-2">
           <ShieldCheck className="h-8 w-8 text-muted-foreground/30" />
           <span>Sin datos de SLA disponibles</span>
@@ -21,7 +21,7 @@ export function SLAComplianceChart({ data }: SLAComplianceChartProps) {
   }
 
   return (
-    <ChartCard title="Cumplimiento de SLA" description="% de tickets resueltos dentro del SLA configurado">
+    <ChartCard title="Cumplimiento de SLA" description="Ciclos cerrados en el periodo · horas hábiles">
       <div className="space-y-5">
         {data.map((item) => {
           const color = item.compliancePercent >= 80
@@ -51,7 +51,7 @@ export function SLAComplianceChart({ data }: SLAComplianceChartProps) {
                   />
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  {item.withinSLA} de {item.totalResolved} tickets dentro del SLA
+                  {item.withinSLA} de {item.totalResolved} ciclos dentro del SLA
                 </p>
               </div>
             </div>

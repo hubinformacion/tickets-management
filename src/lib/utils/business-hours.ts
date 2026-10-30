@@ -110,6 +110,7 @@ export function formatBusinessHoursRange(startTime: string, endTime: string): st
  * @param businessStart - Hora de inicio del horario hábil en formato "HH:MM"
  * @param businessEnd - Hora de fin del horario hábil en formato "HH:MM"
  * @param businessDays - Días hábiles como CSV (ej. "1,2,3,4,5"). Default: L-V
+ * @param roundResult - Redondear a dos decimales; desactivar para comparar umbrales de SLA
  * @returns Total de horas hábiles (number con decimales)
  */
 export function calculateBusinessHours(
@@ -118,6 +119,7 @@ export function calculateBusinessHours(
   businessStart: string,
   businessEnd: string,
   businessDays: string = DEFAULT_BUSINESS_DAYS,
+  roundResult = true,
 ): number {
   if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime()) || endDate <= startDate) return 0;
 
@@ -155,5 +157,6 @@ export function calculateBusinessHours(
     current = current.add(1, "day");
   }
 
-  return Math.round((totalMinutes / 60) * 100) / 100;
+  const hours = totalMinutes / 60;
+  return roundResult ? Math.round(hours * 100) / 100 : hours;
 }

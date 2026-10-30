@@ -9,6 +9,7 @@ import { SLAComplianceChart } from "@/components/analytics/sla-compliance-chart"
 import { SatisfactionTrendChart } from "@/components/analytics/satisfaction-trend-chart";
 import { TopCategoriesChart } from "@/components/analytics/top-categories-chart";
 import { AgentWorkloadTable } from "@/components/analytics/agent-workload-table";
+import { getSLACompliancePercent } from "@/lib/analytics/sla-summary";
 import { DashboardFilters } from "@/components/analytics/dashboard-filters";
 import { Ticket, Clock, CheckCircle, TrendingUp, ShieldCheck, Star, UserX, BarChart3 } from "lucide-react";
 import type { StatusCount, AreaCount, PriorityCount, WeeklyResolution, SLACompliance, SatisfactionTrend, CategoryCount, AgentWorkload } from "@/db/queries/analytics";
@@ -42,6 +43,7 @@ export function AdminAnalyticsDashboard({
   agentWorkload,
   currentRange,
 }: AdminDashboardProps) {
+  const slaPercent = getSLACompliancePercent(slaData);
   const openCount = kpis.statusCounts.find((s) => s.status === "open")?.count ?? 0;
   const inProgressCount = kpis.statusCounts.find((s) => s.status === "in_progress")?.count ?? 0;
   const resolvedCount = kpis.statusCounts.find((s) => s.status === "resolved")?.count ?? 0;
@@ -96,8 +98,9 @@ export function AdminAnalyticsDashboard({
           iconClassName="text-emerald-500 bg-emerald-500/10"
         />
         <KpiCard
-          title="SLA compliance"
-          value={slaData.length > 0 ? `${Math.round(slaData.reduce((a, b) => a + b.compliancePercent, 0) / slaData.length)}%` : "-"}
+          title="Cumplimiento de SLA"
+          value={slaPercent !== null ? `${slaPercent}%` : "-"}
+          description="Ciclos cerrados en el periodo · horas hábiles"
           icon={<ShieldCheck className="h-5 w-5" />}
           iconClassName="text-blue-500 bg-blue-500/10"
         />

@@ -2,7 +2,7 @@
 
 ## Estado y política
 
-Implementado en la rama local `fix/eliminacion-adjuntos-recuperable`, según el [diseño](../plans/2026-10-30-eliminacion-adjuntos-design.md). Código pendiente de merge y despliegue. Se reutiliza attachment_revert: no se añade tabla, columna, FK física ni migración.
+Implementado en la rama local `fix/eliminacion-adjuntos-recuperable`, según el [diseño](../plans/2026-10-30-eliminacion-adjuntos-design.md). Integrado y desplegado después en `00d9490`, junto a la purga administrativa; Production `7444425019` aprobada, SHA confirmado y rama local eliminada. Se reutiliza attachment_revert: no se añade tabla, columna, FK física ni migración.
 
 El usuario corrigió su elección sobre tickets completos: «Eliminar ticket definitivamente» debe seguir siendo destructiva y eliminar también su historial. No se convirtió en anulación ni se deshabilitó; la acción y el control administrativos no se modificaron en este bloque. La excepción de producto quedó registrada en AGENTS.md y no autoriza ejecutar borrados reales de producción como prueba.
 
@@ -36,4 +36,4 @@ Un 404 de Drive no se transforma en éxito: puede significar ausencia o falta de
 
 Los timeouts SQL locales y los de la petición a Drive no son un límite global de adquisición de conexión o refresh OAuth. Las reservas evitan carreras ordinarias; no garantizan una única llamada externa ante toda confirmación perdida. Falta la validación real de permisos, doble clic/concurrencia, lease vencido y recuperación en navegador.
 
-La [purga administrativa completa](2026-10-30-purga-administrativa.md) se preparó después en una rama apilada, pendiente de merge/despliegue. Cubre las tablas operativas nuevas y los fallos de Drive, según el comportamiento destructivo solicitado expresamente. No se ejecutaron purgas reales. Reconciliación de huérfanos y observación de servicios reales siguen pendientes.
+La [purga administrativa completa](2026-10-30-purga-administrativa.md) se integró y desplegó después junto a este bloque en `00d9490`. Cubre las tablas operativas nuevas y los fallos de Drive, según el comportamiento destructivo solicitado expresamente. No se ejecutaron purgas reales. Reconciliación de huérfanos y observación de servicios reales siguen pendientes.
