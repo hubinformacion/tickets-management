@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { FilePond, registerPlugin } from "react-filepond";
+import { useState, useRef, useEffect } from "react";
+import { FilePond, registerPlugin, FileStatus } from "react-filepond";
 import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 
@@ -11,16 +11,35 @@ import "filepond/dist/filepond.min.css";
 
 // Registrar plugins
 registerPlugin(FilePondPluginFileValidateSize, FilePondPluginFileValidateType);
+const EMPTY_CONFIRMED_IDS: readonly string[] = [];
 
 interface FileUploadProps {
   uploadToken: string;
   onFilesChange?: (attachmentIds: string[]) => void;
-  onUploadComplete?: () => void;
+  confirmedAttachmentIds?: readonly string[];
 }
 
-export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: FileUploadProps) {
+export function FileUpload({ uploadToken, onFilesChange, confirmedAttachmentIds = EMPTY_CONFIRMED_IDS }: FileUploadProps) {
   const [files, setFiles] = useState<File[]>([]);
+  const [processingRevision, setProcessingRevision] = useState(0);
+  const pondRef = useRef<FilePond>(null);
   const attachmentIdsRef = useRef(new Set<string>());
+
+  useEffect(() => {
+    if (!confirmedAttachmentIds.length) return;
+    const confirmed = new Set(confirmedAttachmentIds);
+    const timer = setTimeout(() => {
+      const pond = pondRef.current;
+      if (!pond) return;
+      for (const item of pond.getFiles()) {
+        if (item.status === FileStatus.PROCESSING_COMPLETE && confirmed.has(item.serverId)) {
+          // Solo se limpia la lista; nunca ejecutar revert/remove contra el servidor.
+          pond.removeFile(item.id, { revert: false, remove: false });
+        }
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [confirmedAttachmentIds, processingRevision]);
 
   const updateParent = () => {
     onFilesChange?.(Array.from(attachmentIdsRef.current ?? []));
@@ -29,11 +48,13 @@ export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: Fil
   return (
     <div className="filepond-wrapper">
       <FilePond
+        ref={pondRef}
         files={files}
         onupdatefiles={(fileItems) => {
           setFiles(fileItems.map((fi) => fi.file as File));
         }}
         allowMultiple={true}
+        chunkUploads={false}
         beforeAddFile={(item) => {
           if (!item.getMetadata("uploadId")) item.setMetadata("uploadId", crypto.randomUUID(), true);
           return true;
@@ -66,7 +87,8 @@ export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: Fil
             method: "DELETE",
           },
         }}
-        onremovefile={(_error, file) => {
+        onremovefile={(error, file) => {
+          if (error) return;
           if (file.serverId) {
             attachmentIdsRef.current?.delete(file.serverId);
             updateParent();
@@ -87,8 +109,8 @@ export function FileUpload({ uploadToken, onFilesChange, onUploadComplete }: Fil
         labelMaxFileSize="El tamaño máximo es {filesize}"
         labelFileTypeNotAllowed="Tipo de archivo no permitido"
         fileValidateTypeLabelExpectedTypes="Usa PDF, Office, imágenes, texto/CSV o ZIP"
-        onprocessfiles={() => {
-          onUploadComplete?.();
+        onprocessfile={(error) => {
+          if (!error) setProcessingRevision(value => value + 1);
         }}
       />
       <p className="text-xs text-muted-foreground">PDF, Office, JPG, PNG, GIF, WebP, texto/CSV y ZIP. Máximo {MAX_ATTACHMENT_SIZE_LABEL} por archivo.</p>

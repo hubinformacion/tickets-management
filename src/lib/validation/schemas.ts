@@ -42,6 +42,7 @@ export const uploadAttemptMetadataSchema = z.object({
 export const ticketAttachmentSchema = z.object({
   ticketId: ticketIdSchema,
   uploadToken: uploadTokenSchema,
+  attachmentIds: z.array(attachmentIdSchema).optional(),
 });
 
 export const deleteTicketAttachmentSchema = z.object({

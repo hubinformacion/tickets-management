@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El último despliegue verificado es `9838afd`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
+El último despliegue verificado es `bb0b870`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
 
 La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones, intentos de carga, contadores de frecuencia y formularios de archivos. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
@@ -40,14 +40,16 @@ El [bloque de calidad de ESLint](2026-10-28-calidad-eslint.md) elimina las tres 
 
 El [rate limiting compartido](2026-10-30-rate-limiting.md) está integrado y desplegado en `9838afd`, con Production aprobada y SHA confirmado en el dominio público. Los diez namespaces conservan sus límites y todos los consumidores usan await.
 
-La [vinculación de cargas tardías](2026-10-30-vinculacion-cargas-tardias.md), elegida por el usuario, está implementada y validada en la rama local `fix/vinculacion-cargas-tardias`, pendiente de merge/despliegue. Se creó únicamente la tabla aditiva vacía autorizada de formularios, sin cambios históricos.
+La [vinculación de cargas tardías](2026-10-30-vinculacion-cargas-tardias.md), elegida por el usuario, está integrada y desplegada en `bb0b870`. Production aprobada, SHA confirmado en el dominio público y rama de trabajo eliminada.
+
+La [conservación de la cola de adjuntos](2026-10-30-cola-adjuntos-confirmados.md) está implementada y validada en la rama local `fix/cola-adjuntos-confirmados`, pendiente de merge/despliegue. Limpia solo IDs confirmados, conserva cargas nuevas/fallidas y permite reintentar la vinculación. No requiere cambios de esquema.
 
 ## Pendientes
 
 | Prioridad | Bloque | Trabajo restante |
 |---|---|---|
 | Alta | Recordatorios | Cola, reservas, reintentos y corte de 48 h desplegados. Pendientes observación de ejecuciones reales e integración Gmail/OAuth/PG; límite de duplicados ante confirmación incierta documentado. |
-| Alta | Archivos | Coordinación vinculación/revert desplegada; registro previo y reintentos de altas desplegados; revisión de carpeta/permisos cerrada por el usuario; vinculación de cargas tardías preparada en rama local; pendientes integración/despliegue, concurrencia real, reconciliación y revisión del borrado de vinculados/huérfanos. Cantidad ilimitada, 4 MB por carga. |
+| Alta | Archivos | Coordinación vinculación/revert desplegada; registro previo y reintentos de altas desplegados; revisión de carpeta/permisos cerrada por el usuario; vinculación de cargas tardías desplegada; cola del widget corregida en rama local. Pendientes integración del widget, recorrido real/concurrencia, reconciliación y revisión del borrado de vinculados/huérfanos. Cantidad ilimitada, 4 MB por carga. |
 | Alta | Rate limiting | Integrado y desplegado en 9838afd. Pendientes concurrencia real y observación entre instancias. |
 | Alta | Validación real | Drive/Gmail (sin nuevas gestiones de carpeta o consentimiento por decisión del usuario), permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
 | Media | Métricas y consultas | SLA por ciclo de cierre/reapertura, periodos del dashboard, métricas restantes y paginación/agregación de listados grandes. |

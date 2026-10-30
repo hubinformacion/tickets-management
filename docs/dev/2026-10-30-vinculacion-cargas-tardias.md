@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado en la rama local `fix/vinculacion-cargas-tardias`, según el [diseño elegido por el usuario](../plans/2026-10-30-vinculacion-cargas-tardias-design.md). Código pendiente de merge y despliegue. Se conserva la creación inmediata del ticket y se vinculan las cargas que llegan a confirmarse después, sin bloquear el formulario.
+Integrado y desplegado en `bb0b870`, según el [diseño elegido por el usuario](../plans/2026-10-30-vinculacion-cargas-tardias-design.md). Production `7441161433` aprobada y SHA completo confirmado en el dominio público. No se generó Preview y la rama integrada se eliminó tras verificar igualdad con main. Se conserva la creación inmediata del ticket y se vinculan las cargas que llegan a confirmarse después, sin bloquear el formulario.
 
 El rate limiting anterior se integró en `9838afd`; Production `7440258138` aprobó el despliegue. El estado autenticado de recordatorios confirmó SHA completo, queue activa y corte fijo `2026-10-28T17:00:00.000Z`. No se ejecutó el worker ni se enviaron correos como prueba. Su rama se eliminó tras verificar igualdad de contenido con main.
 
@@ -34,4 +34,4 @@ EXPLAIN y build no prueban carreras reales entre conexiones ni conflictos con ca
 
 Una desconexión puede interrumpir una transferencia; el intento conserva su recuperación anterior, sin reanudación automática o reconciliador de Drive. Solicitudes con código anterior durante el despliegue no participan del bloqueo nuevo. Timeouts locales limitan las esperas SQL, no el tiempo global de conexión/transporte.
 
-No se deducen ni reasignan destinos históricos. Quedan separados el reconciliador, recuperación de borrados vinculados y el reset por temporizador del widget de adjuntos de tickets existentes. No cambian permisos/carpetas de Google ni cantidad ilimitada/4 MB.
+No se deducen ni reasignan destinos históricos. Quedan separados el reconciliador, recuperación de borrados vinculados y la [corrección del reset del widget](2026-10-30-cola-adjuntos-confirmados.md), preparada en una rama local. No cambian permisos/carpetas de Google ni cantidad ilimitada/4 MB.

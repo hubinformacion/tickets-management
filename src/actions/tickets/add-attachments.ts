@@ -1,10 +1,10 @@
 "use server";
 
-import { db } from "@/db";
-import { tickets } from "@/db/schema";
-import { requireAuth } from "@/lib/auth/helpers";
 import { revalidatePath } from "next/cache";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
+import { db } from "@/db";
+import { tickets, ticketAttachments } from "@/db/schema";
+import { requireAuth } from "@/lib/auth/helpers";
 import { areTicketAttachmentsAllowed, canReadTicket } from "@/lib/auth/ticket-permissions";
 import { ticketAttachmentSchema } from "@/lib/validation/schemas";
 import { linkPendingAttachments } from "@/lib/uploads/pending-attachments";
@@ -14,9 +14,10 @@ import { lockUploadBatch, bindUploadBatch, UploadBatchConflictError } from "@/li
  * Links pending attachments (uploaded via FilePond with an uploadToken)
  * to an existing ticket. Only the uploader can link their own files.
  */
-export async function addTicketAttachmentsAction(ticketId: number, uploadToken: string) {
+export async function addTicketAttachmentsAction(ticketId: number, uploadToken: string, attachmentIds?: string[]) {
   const session = await requireAuth();
-  if (!ticketAttachmentSchema.safeParse({ ticketId, uploadToken }).success) {
+  const parsed = ticketAttachmentSchema.safeParse({ ticketId, uploadToken, attachmentIds });
+  if (!parsed.success) {
     return { error: "Parámetros inválidos" };
   }
 
@@ -40,11 +41,18 @@ export async function addTicketAttachmentsAction(ticketId: number, uploadToken: 
       }
       await bindUploadBatch(tx, batch, session.user.id, uploadToken, ticketId);
       await linkPendingAttachments(tx, ticketId, session.user.id, uploadToken);
-      return { ticketCode: ticket.ticketCode };
+      const requestedIds = parsed.data.attachmentIds;
+      const confirmed = requestedIds?.length ? await tx.select({ id: ticketAttachments.id }).from(ticketAttachments)
+        .where(and(
+          eq(ticketAttachments.ticketId, ticketId),
+          eq(ticketAttachments.uploadedById, session.user.id),
+          inArray(ticketAttachments.id, requestedIds),
+        )).orderBy(ticketAttachments.id).for("update") : [];
+      return { ticketCode: ticket.ticketCode, confirmedAttachmentIds: confirmed.map(file => file.id) };
     }, { isolationLevel: "read committed" });
     if ("error" in result) return { error: result.error };
     revalidatePath(`/dashboard/tickets/${result.ticketCode}`);
-    return { success: true };
+    return { success: true, confirmedAttachmentIds: result.confirmedAttachmentIds };
   } catch (error) {
     if (error instanceof UploadBatchConflictError) return { error: error.message };
     console.error("No se pudieron vincular los adjuntos al ticket");
