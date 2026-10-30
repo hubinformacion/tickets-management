@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth/helpers";
 import { uploadTokenSchema, attachmentIdSchema } from "@/lib/validation/schemas";
 import { MAX_UPLOAD_BODY_BYTES, MAX_REVERT_BODY_BYTES } from "@/lib/constants/attachments";
@@ -10,6 +11,7 @@ import { revertPendingAttachment } from "@/lib/uploads/pending-attachments";
 import { persistUpload } from "@/lib/uploads/persist-upload";
 import { parseUploadAttemptId } from "@/lib/uploads/upload-attempt-input";
 import { UploadPersistenceError } from "@/lib/uploads/upload-attempt-types";
+import { getUploadBatchTicketCode } from "@/lib/uploads/upload-batches";
 
 export const maxDuration = 60;
 
@@ -87,6 +89,15 @@ export async function POST(request: NextRequest) {
       // Solo para contrastar el checksum binario que expone Drive; no sustituye SHA-256.
       md5: createHash("md5").update(buffer).digest("hex"),
     }, buffer, request.signal);
+
+    after(async () => {
+      try {
+        const ticketCode = await getUploadBatchTicketCode(session.user.id, uploadToken);
+        if (ticketCode) revalidatePath(`/dashboard/tickets/${ticketCode}`);
+      } catch {
+        console.error("No se pudo actualizar la caché del ticket después de confirmar el archivo");
+      }
+    });
 
     // FilePond espera un ID de texto plano como respuesta al proceso
     return new NextResponse(attachmentId, { status: 200 });

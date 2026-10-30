@@ -16,6 +16,22 @@ export const rateLimitCounters = pgTable("rate_limit_counter", {
   check("rate_limit_counter_count_check", sql`${table.requestCount} > 0`),
 ]);
 
+// Relación operativa entre formulario y ticket; el destino se fija una sola vez.
+export const uploadBatches = pgTable("upload_batch", {
+  uploadedById: text("uploaded_by_id").notNull(),
+  uploadToken: text("upload_token").notNull(),
+  ticketId: integer("ticket_id"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  boundAt: timestamp("bound_at", { withTimezone: true }),
+  lastErrorCode: text("last_error_code"),
+}, (table) => [
+  primaryKey({ name: "upload_batch_pkey", columns: [table.uploadedById, table.uploadToken] }),
+  check("upload_batch_token_check", sql`${table.uploadToken} ~* '^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$'`),
+  check("upload_batch_ticket_check", sql`${table.ticketId} IS NULL OR ${table.ticketId} > 0`),
+  check("upload_batch_binding_check", sql`(${table.ticketId} IS NULL) = (${table.boundAt} IS NULL)`),
+  check("upload_batch_error_check", sql`${table.lastErrorCode} IS NULL OR ${table.lastErrorCode} = 'ticket_unavailable'`),
+]);
+
 // --- AUTH SCHEMA (Better-Auth Compatible) ---
 
 export const users = pgTable("user", {

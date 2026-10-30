@@ -277,6 +277,7 @@ if (!result.success) {
 - **Campos de Difusión:** Columnas nullable en tabla `tickets` (no JSON): `activityStartDate`, `desiredDiffusionDate`, `targetAudience`
 - **Archivos adjuntos:** No disponibles para Difusión (ni en formulario ni en detalle)
 - **Política de cargas:** Cantidad ilimitada de adjuntos; máximo 4 MB decimales (4.000.000 bytes) por archivo/carga. No introducir cuotas por ticket, usuario, lote ni almacenamiento global (decisión expresa del usuario). Se conservan los controles existentes contra abuso por frecuencia.
+- **Cargas tardías:** `upload_batch` fija un destino por usuario/token de formulario. La creación del ticket y la confirmación de la carga se coordinan con los helpers de `src/lib/uploads/upload-batches.ts`, dentro de transacciones y antes de bloquear tickets existentes/intentos/adjuntos. No reasignar un lote a otro ticket ni borrar referencias si su vinculación queda bloqueada.
 
 ### Formulario de Tickets
 - Flujo **classification-first** — el usuario primero elige área/categoría/subcategoría, luego aparece el resto del formulario con animación

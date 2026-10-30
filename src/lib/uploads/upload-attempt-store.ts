@@ -4,10 +4,12 @@ import { db } from "@/db";
 import { attachmentReverts, ticketAttachments, uploadAttempts } from "@/db/schema";
 import { UploadPersistenceError } from "@/lib/uploads/upload-attempt-types";
 import type { UploadAttemptStore } from "@/lib/uploads/upload-attempt-types";
+import { lockUploadBatch, getUploadBatchTarget, linkConfirmedUploadBatch } from "@/lib/uploads/upload-batches";
 
 export async function isUploadAttemptStoreReady(): Promise<boolean> {
   const result = await db.execute<{ ready: boolean }>(sql`
-    SELECT to_regclass('public.upload_attempt') IS NOT NULL AS ready
+    SELECT to_regclass('public.upload_attempt') IS NOT NULL
+      AND to_regclass('public.upload_batch') IS NOT NULL AS ready
   `);
   return result.rows[0]?.ready === true;
 }
@@ -16,6 +18,8 @@ export const uploadAttemptStore: UploadAttemptStore = {
   async claim(input) {
     const token = randomUUID();
     return db.transaction(async tx => {
+      const batch = await lockUploadBatch(tx, input.userId, input.uploadToken);
+      const target = await getUploadBatchTarget(tx, batch, input.userId);
       await tx.execute(sql`
         INSERT INTO ${uploadAttempts}
           (id, attachment_id, uploaded_by_id, upload_token, file_name, file_size, mime_type, sha256, md5)
@@ -40,8 +44,8 @@ export const uploadAttemptStore: UploadAttemptStore = {
       }
       if (row.state === "stored") {
         // Coordina la consulta con una cancelación: nunca reconstruye referencias eliminadas.
-        const stored = await tx.execute<{ id: string }>(sql`
-          SELECT id FROM ${ticketAttachments}
+        const stored = await tx.execute<{ id: string; ticketId: number | null; uploadToken: string | null }>(sql`
+          SELECT id, ticket_id AS "ticketId", upload_token AS "uploadToken" FROM ${ticketAttachments}
           WHERE id = ${row.attachmentId}::uuid AND uploaded_by_id = ${input.userId} FOR UPDATE
         `);
         const reverted = await tx.execute<{ id: string }>(sql`
@@ -50,7 +54,21 @@ export const uploadAttemptStore: UploadAttemptStore = {
         if (!stored.rows.length || reverted.rows.length) {
           throw new UploadPersistenceError("La carga fue cancelada o el archivo ya no está disponible", 410);
         }
+        const attachment = stored.rows[0];
+        if (attachment.ticketId !== null) {
+          if (batch.ticketId !== null && attachment.ticketId !== batch.ticketId) {
+            throw new UploadPersistenceError("El archivo ya pertenece a otro ticket", 409);
+          }
+          return { kind: "stored", attachmentId: row.attachmentId };
+        }
+        if (attachment.uploadToken !== input.uploadToken || target.kind === "blocked") {
+          throw new UploadPersistenceError("El archivo está conservado, pero el ticket no admite su vinculación. Reintenta cuando esté disponible.", 409);
+        }
+        await linkConfirmedUploadBatch(tx, target, input.userId, input.uploadToken);
         return { kind: "stored", attachmentId: row.attachmentId };
+      }
+      if (target.kind === "blocked") {
+        throw new UploadPersistenceError("El ticket del formulario no admite nuevas cargas", 409);
       }
       if (row.state === "uploading" && row.leaseActive) {
         throw new UploadPersistenceError("La carga ya está en curso. Intenta nuevamente en un momento.", 409, 30);
@@ -77,7 +95,9 @@ export const uploadAttemptStore: UploadAttemptStore = {
   },
 
   async complete(claim, input, file) {
-    return db.transaction(async tx => {
+    const outcome = await db.transaction(async tx => {
+      const batch = await lockUploadBatch(tx, input.userId, input.uploadToken);
+      const target = await getUploadBatchTarget(tx, batch, input.userId);
       const reserved = await tx.execute<{ driveFileId: string }>(sql`
         SELECT drive_file_id AS "driveFileId" FROM ${uploadAttempts}
         WHERE id = ${claim.id}::uuid AND lease_token = ${claim.token}::uuid
@@ -99,8 +119,14 @@ export const uploadAttemptStore: UploadAttemptStore = {
         RETURNING id
       `);
       if (!completed.rows.length) throw new UploadPersistenceError("No se pudo confirmar el registro del archivo", 503);
-      return claim.attachmentId;
+      await linkConfirmedUploadBatch(tx, target, input.userId, input.uploadToken);
+      return { attachmentId: claim.attachmentId, blocked: target.kind === "blocked" };
     }, { isolationLevel: "read committed" });
+    // La referencia y el intento stored ya están confirmados; no provocar su rollback.
+    if (outcome.blocked) {
+      throw new UploadPersistenceError("El archivo quedó conservado, pero el ticket no admite su vinculación. Reintenta cuando esté disponible.", 409);
+    }
+    return outcome.attachmentId;
   },
 
   async uncertain(claim) {

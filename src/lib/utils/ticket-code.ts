@@ -3,6 +3,7 @@ import { tickets, attentionAreas } from "@/db/schema";
 import { sql, eq } from "drizzle-orm";
 import { recordStatusChange } from "@/lib/utils/status-history";
 import { linkPendingAttachments } from "@/lib/uploads/pending-attachments";
+import { lockUploadBatch, bindUploadBatch } from "@/lib/uploads/upload-batches";
 import type { TicketStatus } from "@/types";
 
 interface TicketCreationOptions {
@@ -76,6 +77,8 @@ export async function insertTicketWithCode(
         if (!created) throw new Error("No se pudo crear el ticket");
         await recordStatusChange(created.id, null, values.status ?? "open", values.createdById, undefined, tx);
         if (options.uploadToken) {
+          const batch = await lockUploadBatch(tx, values.createdById, options.uploadToken);
+          await bindUploadBatch(tx, batch, values.createdById, options.uploadToken, created.id);
           await linkPendingAttachments(tx, created.id, values.createdById, options.uploadToken);
         }
         return created;

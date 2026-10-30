@@ -2,9 +2,9 @@
 
 ## Integrado y desplegado
 
-El último despliegue verificado es `84961c7`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
+El último despliegue verificado es `9838afd`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
 
-La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones, intentos de carga y contadores de frecuencia. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
+La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones, intentos de carga, contadores de frecuencia y formularios de archivos. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
 Las ramas de limpieza y autorización se eliminaron después de integrarlas. El alcance de permisos y sus verificaciones están en [Autorización y validación](2026-10-27-autorizacion.md).
 
@@ -38,21 +38,23 @@ La carpeta temporal `.codex-validation-tickets` se eliminó el 28 de octubre. Co
 
 El [bloque de calidad de ESLint](2026-10-28-calidad-eslint.md) elimina las tres advertencias conocidas mediante `useWatch` y enlaces internos de Next.js. TypeScript, ESLint completo con cero advertencias y build local aprobados. Se integró y desplegó con el cierre de cargas en `84961c7`, Production aprobada y versión confirmada por la ruta de estado. No requirió migraciones ni cambios de Google.
 
-El [rate limiting compartido](2026-10-30-rate-limiting.md) está implementado y validado en la rama local `fix/rate-limiting-compartido`. Se creó únicamente la tabla aditiva vacía autorizada; código pendiente de merge y despliegue. Los diez namespaces conservan sus límites actuales y todos los consumidores usan await.
+El [rate limiting compartido](2026-10-30-rate-limiting.md) está integrado y desplegado en `9838afd`, con Production aprobada y SHA confirmado en el dominio público. Los diez namespaces conservan sus límites y todos los consumidores usan await.
+
+La [vinculación de cargas tardías](2026-10-30-vinculacion-cargas-tardias.md), elegida por el usuario, está implementada y validada en la rama local `fix/vinculacion-cargas-tardias`, pendiente de merge/despliegue. Se creó únicamente la tabla aditiva vacía autorizada de formularios, sin cambios históricos.
 
 ## Pendientes
 
 | Prioridad | Bloque | Trabajo restante |
 |---|---|---|
 | Alta | Recordatorios | Cola, reservas, reintentos y corte de 48 h desplegados. Pendientes observación de ejecuciones reales e integración Gmail/OAuth/PG; límite de duplicados ante confirmación incierta documentado. |
-| Alta | Archivos | Coordinación vinculación/revert desplegada; registro previo y reintentos de altas desplegados; revisión de carpeta/permisos cerrada por el usuario; pendientes reconciliación, uploads que terminan después de enviar el formulario y revisión del borrado de vinculados/huérfanos. Cantidad ilimitada, 4 MB por carga. |
-| Alta | Rate limiting | Implementado y validado localmente; tabla aditiva creada vacía. Pendientes merge/despliegue, concurrencia real y observación entre instancias. |
+| Alta | Archivos | Coordinación vinculación/revert desplegada; registro previo y reintentos de altas desplegados; revisión de carpeta/permisos cerrada por el usuario; vinculación de cargas tardías preparada en rama local; pendientes integración/despliegue, concurrencia real, reconciliación y revisión del borrado de vinculados/huérfanos. Cantidad ilimitada, 4 MB por carga. |
+| Alta | Rate limiting | Integrado y desplegado en 9838afd. Pendientes concurrencia real y observación entre instancias. |
 | Alta | Validación real | Drive/Gmail (sin nuevas gestiones de carpeta o consentimiento por decisión del usuario), permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
 | Media | Métricas y consultas | SLA por ciclo de cierre/reapertura, periodos del dashboard, métricas restantes y paginación/agregación de listados grandes. |
 | Media | Esquema y operación | Revisar índices/constraints con datos/planes reales y preparar migraciones compatibles; respaldo y restauración verificables antes de operar sobre producción. |
 | Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, React Doctor y avisos transitivos registrados. |
 
-Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. Se crearon únicamente las tablas aditivas autorizadas de recordatorios, cancelaciones pendientes, intentos de carga y contadores de frecuencia; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.
+Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. Se crearon únicamente las tablas aditivas autorizadas de recordatorios, cancelaciones pendientes, intentos de carga, contadores de frecuencia y formularios de archivos; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.
 
 La secuencia general está en el [Plan de ejecución](2026-10-27-plan-ejecucion.md). Las siguientes funcionalidades se incorporarán después de estabilizar los riesgos aplicables.
 

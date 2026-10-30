@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado en la rama local `fix/rate-limiting-compartido`, según el [diseño del bloque aprobado](../plans/2026-10-30-rate-limiting-design.md). Código pendiente de merge y despliegue; no se publicó la rama ni se generó Preview. La tabla aditiva ya se creó bajo la autorización vigente del usuario. El código de producción anterior conserva su Map hasta integrar esta entrega.
+Integrado y desplegado en `9838afd`, según el [diseño aprobado](../plans/2026-10-30-rate-limiting-design.md). Production `7440258138` aprobó el despliegue y el dominio público confirmó el SHA completo. Se publicó un único commit desde main, sin Preview; la rama se eliminó tras verificar igualdad de contenido. No se ejecutaron solicitudes de negocio repetidas como prueba.
 
 ## Comportamiento
 
@@ -51,4 +51,4 @@ Cada comprobación añade una transacción corta sobre PostgreSQL. Lock timeout 
 
 La tabla conserva una fila por usuario/operación, renovada por ventana; no crece por solicitud. Las solicitudes rechazadas todavía consultan y actualizan el contador saturado: este control no reemplaza protección de infraestructura frente a volumen externo. No se agrega limpieza automática de registros.
 
-No se modificaron Google, Gmail, OAuth, permisos de carpeta ni datos de adjuntos. La integración y el despliegue de código quedan para el siguiente paso autorizado desde main, con una única entrega y sin Preview.
+No se modificaron Google, Gmail, OAuth, permisos de carpeta ni datos de adjuntos. La integración y el despliegue autorizados se completaron desde main, en una única entrega sin Preview.

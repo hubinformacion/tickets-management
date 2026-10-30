@@ -11,6 +11,7 @@ import { sendTicketCreatedEmail } from "@/lib/email/send-emails";
 import { eq, inArray, and } from "drizzle-orm";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 import { getFedFieldConfig } from "@/lib/constants/fed-fields";
+import { UploadBatchConflictError } from "@/lib/uploads/upload-batches";
 
 // Rate limiter: 10 tickets por minuto por usuario
 const ticketRateLimiter = createRateLimiter("MODERATE", "tickets:create");
@@ -299,6 +300,7 @@ export async function createTicketAction(formData: FormData) {
     });
 
   } catch (error) {
+    if (error instanceof UploadBatchConflictError) return { error: error.message };
     console.error("Error creating ticket:", error);
     return { error: "Error interno del servidor al crear el ticket" };
   }
