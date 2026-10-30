@@ -16,6 +16,8 @@ import {
 } from "@/db/queries/analytics";
 import { AdminAnalyticsDashboard } from "@/components/analytics/admin-dashboard";
 import { AgentAnalyticsDashboard } from "@/components/analytics/agent-dashboard";
+import { getAnalyticsPeriod } from "@/lib/analytics/period";
+import { normalizeAnalyticsRange } from "@/lib/analytics/range";
 import { UserAnalyticsDashboard } from "@/components/analytics/user-dashboard";
 
 export const metadata: Metadata = {
@@ -32,17 +34,18 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
 
   const role = session.user.role;
   const params = await searchParams;
-  const range = typeof params.range === "string" ? params.range : "month";
+  const range = normalizeAnalyticsRange(params.range);
+  const period = getAnalyticsPeriod(range);
 
   if (role === "admin") {
     const [kpis, areaData, priorityData, weeklyTrend, slaData, satisfactionData, topCategories, agentWorkload] = await Promise.all([
-      getDashboardKPIs(undefined, undefined, range),
-      getTicketsByArea(range),
-      getTicketsByPriority(undefined, range),
-      getResolutionTrend(undefined, 8),
-      getSLACompliance(undefined, range),
-      getSatisfactionTrend(undefined, 6),
-      getTopCategories(undefined, 5, range),
+      getDashboardKPIs(undefined, undefined, period),
+      getTicketsByArea(period),
+      getTicketsByPriority(undefined, period),
+      getResolutionTrend(undefined, period),
+      getSLACompliance(undefined, period),
+      getSatisfactionTrend(undefined, period),
+      getTopCategories(undefined, 5, period),
       getAgentWorkload(),
     ]);
 
@@ -77,12 +80,12 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
     if (!areaId) redirect("/dashboard");
 
     const [kpis, priorityData, satisfactionData, topCategories, agentWorkload, slaData] = await Promise.all([
-      getDashboardKPIs(areaId, undefined, range),
-      getTicketsByPriority(areaId, range),
-      getSatisfactionTrend(areaId, 6),
-      getTopCategories(areaId, 5, range),
+      getDashboardKPIs(areaId, undefined, period),
+      getTicketsByPriority(areaId, period),
+      getSatisfactionTrend(areaId, period),
+      getTopCategories(areaId, 5, period),
       getAgentWorkload(areaId),
-      getSLACompliance(areaId, range),
+      getSLACompliance(areaId, period),
     ]);
 
     return (

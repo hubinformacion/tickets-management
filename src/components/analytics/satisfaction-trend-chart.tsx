@@ -15,7 +15,7 @@ export function SatisfactionTrendChart({ data }: SatisfactionTrendChartProps) {
   }));
 
   return (
-    <ChartCard title="Tendencia de satisfacción" description="Calificación promedio por mes">
+    <ChartCard title="Tendencia de satisfacción" description="Encuestas respondidas en el periodo · meses en Lima">
       <LineChart
         data={chartData}
         lines={[

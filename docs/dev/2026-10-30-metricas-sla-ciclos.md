@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado en la rama local `fix/metricas-sla-ciclos`, pendiente de merge/despliegue. Continúa D07 y la parte de periodo de SLA de D08 del plan aprobado. El [diseño](../plans/2026-10-30-metricas-sla-ciclos-design.md) delimita el alcance. No requiere migraciones ni escrituras en BD.
+Implementado originalmente en `fix/metricas-sla-ciclos` e integrado/desplegado después como `5453fd1`. Production `7444876029` aprobada, SHA confirmado en el dominio público y rama integrada eliminada. Continúa D07 y la parte de periodo de SLA de D08 del plan aprobado. El [diseño](../plans/2026-10-30-metricas-sla-ciclos-design.md) delimita el alcance. No requiere migraciones ni escrituras en BD.
 
 Antes de este bloque se integraron borrado individual y purga administrativa como `00d949078be1f3e4b1acb320a9183f09d4664200`. GitHub/Vercel Production `7444425019` aprobó el despliegue; el dominio público confirmó ese SHA, queueReady=true y corte fijo `2026-10-28T17:00:00.000Z`. Login y sesión anónima devolvieron 200, dashboard 307. No se invocó el worker ni se ejecutaron borrados reales. Se verificó igualdad entre el contenido integrado y la rama aprobada, así como la dependencia del borrado individual, antes de eliminar ambas ramas locales. Sin Preview.
 
@@ -32,3 +32,5 @@ La prioridad, SLA, área y horario son los vigentes; el modelo no conserva versi
 La lectura se agrupó en una consulta, pero no se afirma una mejora de latencia con datos reales. Quedan pendientes planes con volumen representativo, posibles índices compatibles y navegación autenticada. Los relojes del selector existente siguen usando el helper de rango actual; su revisión general y validación de parámetros continúan en el siguiente bloque.
 
 Este bloque no resuelve periodos de satisfacción y otras tarjetas, tendencias (incluido el uso de updatedAt en resoluciones), KPI personales, paginación ni carga de agentes. Tampoco certifica las integraciones Drive/Gmail, concurrencia de las colas o reconciliación de huérfanos. Esos pendientes siguen en el estado general.
+
+La [corrección posterior de periodos y tendencias](2026-10-30-periodos-analytics.md), preparada en una rama local independiente, comparte el intervalo del render y retira el corte artificial de Todo en el conjunto del dashboard. Sus límites y pendientes se documentan por separado.

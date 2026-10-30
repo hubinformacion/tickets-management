@@ -78,3 +78,7 @@ La [purga administrativa completa](2026-10-30-purga-administrativa.md) y la elim
 ## Avance del 30 de octubre: despliegue y ciclos SLA
 
 La purga administrativa y el borrado individual se integraron y desplegaron como `00d9490`; Production y SHA público confirmados, sin Preview ni operaciones destructivas de validación. Las ramas integradas se eliminaron. La [corrección SLA por ciclo](2026-10-30-metricas-sla-ciclos.md) está preparada en una rama local independiente y pendiente de aprobación de merge/despliegue. El resto de periodos, tendencias, paginación y calidad continúa pendiente.
+
+## Avance del 30 de octubre: periodos de analytics
+
+SLA por ciclo integrado/desplegado en `5453fd1`, Production y SHA público confirmados. La rama integrada se eliminó. La [corrección de periodos y tendencias](2026-10-30-periodos-analytics.md) está preparada en `fix/periodos-analytics`, pendiente de aprobación de merge/despliegue. No requiere migraciones ni escrituras en BD. Continúan métricas personales restantes, paginación, validación real y calidad.

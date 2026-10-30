@@ -1,6 +1,8 @@
 import { db } from "@/db";
 import { tickets, ticketCategories, attentionAreas, users, priorityConfig, satisfactionSurveys, ticketStatusHistory } from "@/db/schema";
 import { eq, and, sql, count as drizzleCount, gte, lte, desc } from "drizzle-orm";
+import { getAnalyticsPeriod } from "@/lib/analytics/period";
+import type { AnalyticsPeriod, AnalyticsPeriodInput } from "@/lib/analytics/period";
 import { summarizeResolutionCycles } from "@/lib/analytics/resolution-cycles";
 import type { ResolutionCycle } from "@/lib/analytics/resolution-cycles";
 
@@ -8,10 +10,7 @@ import type { ResolutionCycle } from "@/lib/analytics/resolution-cycles";
 // Types
 // ============================================
 
-export interface DateRange {
-  from: Date;
-  to: Date;
-}
+export type DateRange = AnalyticsPeriod;
 
 export interface StatusCount {
   status: string;
@@ -65,30 +64,6 @@ export interface SatisfactionTrend {
 // Date range helpers
 // ============================================
 
-function getDateRange(range?: string): DateRange {
-  const now = new Date();
-  const start = new Date();
-
-  switch (range) {
-    case "week":
-      start.setDate(now.getDate() - 7);
-      break;
-    case "month":
-      start.setMonth(now.getMonth() - 1);
-      break;
-    case "quarter":
-      start.setMonth(now.getMonth() - 3);
-      break;
-    case "year":
-      start.setFullYear(now.getFullYear() - 1);
-      break;
-    default:
-      start.setFullYear(2020, 0, 1);
-  }
-
-  return { from: start, to: now };
-}
-
 function buildAreaCondition(areaId?: number) {
   return areaId ? eq(tickets.attentionAreaId, areaId) : undefined;
 }
@@ -96,7 +71,7 @@ function buildAreaCondition(areaId?: number) {
 function buildDateCondition(dateRange?: DateRange) {
   if (!dateRange) return undefined;
   return and(
-    gte(tickets.createdAt, dateRange.from),
+    dateRange.from ? gte(tickets.createdAt, dateRange.from) : undefined,
     lte(tickets.createdAt, dateRange.to),
   );
 }
@@ -108,8 +83,8 @@ function buildDateCondition(dateRange?: DateRange) {
 /**
  * Tickets agrupados por estado.
  */
-export async function getTicketVolumeByStatus(areaId?: number, range?: string) {
-  const dateRange = getDateRange(range);
+export async function getTicketVolumeByStatus(areaId?: number, range?: AnalyticsPeriodInput) {
+  const dateRange = getAnalyticsPeriod(range);
   const conditions = [buildDateCondition(dateRange), buildAreaCondition(areaId)].filter(Boolean);
 
   const result = await db
@@ -127,8 +102,8 @@ export async function getTicketVolumeByStatus(areaId?: number, range?: string) {
 /**
  * Tickets agrupados por área de atención.
  */
-export async function getTicketsByArea(range?: string) {
-  const dateRange = getDateRange(range);
+export async function getTicketsByArea(range?: AnalyticsPeriodInput) {
+  const dateRange = getAnalyticsPeriod(range);
   const conditions = [buildDateCondition(dateRange)].filter(Boolean);
 
   const result = await db
@@ -148,8 +123,8 @@ export async function getTicketsByArea(range?: string) {
 /**
  * Tickets agrupados por prioridad.
  */
-export async function getTicketsByPriority(areaId?: number, range?: string) {
-  const dateRange = getDateRange(range);
+export async function getTicketsByPriority(areaId?: number, range?: AnalyticsPeriodInput) {
+  const dateRange = getAnalyticsPeriod(range);
   const conditions = [
     buildDateCondition(dateRange),
     buildAreaCondition(areaId),
@@ -171,62 +146,41 @@ export async function getTicketsByPriority(areaId?: number, range?: string) {
 /**
  * Tendencia semanal de tickets creados vs resueltos.
  */
-export async function getResolutionTrend(areaId?: number, weeks = 8) {
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - weeks * 7);
-
-  const conditions = [
-    gte(tickets.createdAt, startDate),
-    buildAreaCondition(areaId),
-  ].filter(Boolean);
-
-  const result = await db
-    .select({
-      week: sql<string>`to_char(date_trunc('week', ${tickets.createdAt}), 'YYYY-MM-DD')`,
+export async function getResolutionTrend(areaId?: number, range?: AnalyticsPeriodInput) {
+  const period = getAnalyticsPeriod(range);
+  // Los timestamps sin zona almacenan UTC; agrupamos el calendario explícitamente en Lima.
+  const createdWeek = sql`date_trunc('week', (${tickets.createdAt} AT TIME ZONE 'UTC') AT TIME ZONE 'America/Lima')`;
+  const closedWeek = sql`date_trunc('week', (${ticketStatusHistory.changedAt} AT TIME ZONE 'UTC') AT TIME ZONE 'America/Lima')`;
+  const [created, resolved] = await Promise.all([
+    db.select({
+      week: sql<string>`to_char(${createdWeek}, 'YYYY-MM-DD')`,
       created: drizzleCount(),
-    })
-    .from(tickets)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .groupBy(sql`date_trunc('week', ${tickets.createdAt})`)
-    .orderBy(sql`date_trunc('week', ${tickets.createdAt})`);
-
-  // Query separada para tickets resueltos
-  const resolvedConditions = [
-    gte(tickets.updatedAt, startDate),
-    eq(tickets.status, 'resolved'),
-    buildAreaCondition(areaId),
-  ].filter(Boolean);
-
-  const resolvedResult = await db
-    .select({
-      week: sql<string>`to_char(date_trunc('week', ${tickets.updatedAt}), 'YYYY-MM-DD')`,
+    }).from(tickets).where(and(buildDateCondition(period), buildAreaCondition(areaId)))
+      .groupBy(createdWeek),
+    db.select({
+      week: sql<string>`to_char(${closedWeek}, 'YYYY-MM-DD')`,
       resolved: drizzleCount(),
-    })
-    .from(tickets)
-    .where(resolvedConditions.length > 0 ? and(...resolvedConditions) : undefined)
-    .groupBy(sql`date_trunc('week', ${tickets.updatedAt})`)
-    .orderBy(sql`date_trunc('week', ${tickets.updatedAt})`);
-
-  // Merge results
-  const weekMap = new Map<string, WeeklyResolution>();
-  for (const row of result) {
-    weekMap.set(row.week, { week: row.week, created: row.created, resolved: 0 });
+    }).from(ticketStatusHistory).innerJoin(tickets, eq(ticketStatusHistory.ticketId, tickets.id))
+      .where(and(
+        eq(ticketStatusHistory.toStatus, "resolved"),
+        sql`${ticketStatusHistory.fromStatus} IS NOT NULL AND ${ticketStatusHistory.fromStatus} <> 'resolved'`,
+        period.from ? gte(ticketStatusHistory.changedAt, period.from) : undefined,
+        lte(ticketStatusHistory.changedAt, period.to), buildAreaCondition(areaId),
+      )).groupBy(closedWeek),
+  ]);
+  const weeks = new Map<string, WeeklyResolution>();
+  for (const row of created) weeks.set(row.week, { ...row, resolved: 0 });
+  for (const row of resolved) {
+    const entry = weeks.get(row.week) ?? { week: row.week, created: 0, resolved: 0 };
+    entry.resolved = row.resolved;
+    weeks.set(row.week, entry);
   }
-  for (const row of resolvedResult) {
-    const existing = weekMap.get(row.week);
-    if (existing) {
-      existing.resolved = row.resolved;
-    } else {
-      weekMap.set(row.week, { week: row.week, created: 0, resolved: row.resolved });
-    }
-  }
-
-  return Array.from(weekMap.values()).sort((a, b) => a.week.localeCompare(b.week));
+  return Array.from(weeks.values()).sort((a, b) => a.week.localeCompare(b.week));
 }
 
 /** Consulta en lote: los terminales separan ciclos y no cortamos el historial por periodo. */
-async function getResolutionCycles(areaId?: number, range?: string): Promise<ResolutionCycle[]> {
-  const dates = range && range !== "all" ? getDateRange(range) : undefined;
+async function getResolutionCycles(areaId?: number, range?: AnalyticsPeriodInput): Promise<ResolutionCycle[]> {
+  const dates = getAnalyticsPeriod(range);
   const result = await db.execute<ResolutionCycle & Record<string, unknown>>(sql`
     WITH history AS (
       SELECT h.*,
@@ -255,21 +209,21 @@ async function getResolutionCycles(areaId?: number, range?: string): Promise<Res
         AND ${priorityConfig.priority} = ${tickets.priority}
     WHERE c.to_status = 'resolved' AND c.from_status IS NOT NULL AND c.from_status <> 'resolved'
       AND c.started_at IS NOT NULL AND c.started_at <= c.changed_at
-      ${dates ? sql`AND c.changed_at >= ${dates.from.toISOString()}::timestamp
-        AND c.changed_at <= ${dates.to.toISOString()}::timestamp` : sql``}
+      ${dates.from ? sql`AND c.changed_at >= ${dates.from.toISOString()}::timestamp` : sql``}
+      AND c.changed_at <= ${dates.to.toISOString()}::timestamp
     ORDER BY ${attentionAreas.id}, c.changed_at, c.id
   `);
   return result.rows;
 }
 
 /** Promedio en horas hábiles de ciclos con inicio y cierre válidos. */
-export async function getAvgResolutionTime(areaId?: number, range?: string) {
+export async function getAvgResolutionTime(areaId?: number, range?: AnalyticsPeriodInput) {
   const stats = summarizeResolutionCycles(await getResolutionCycles(areaId, range));
   return stats.map(area => ({ areaName: area.areaName, avgHours: area.totalHours / area.measuredCycles }));
 }
 
 /** Cumplimiento de ciclos cerrados en el periodo, con el SLA y horario vigentes. */
-export async function getSLACompliance(areaId?: number, range?: string): Promise<SLACompliance[]> {
+export async function getSLACompliance(areaId?: number, range?: AnalyticsPeriodInput): Promise<SLACompliance[]> {
   const stats = summarizeResolutionCycles(await getResolutionCycles(areaId, range));
   return stats.filter(area => area.totalResolved > 0).map(area => ({
     areaName: area.areaName,
@@ -282,26 +236,18 @@ export async function getSLACompliance(areaId?: number, range?: string): Promise
 /**
  * Tendencia de satisfacción del usuario por mes.
  */
-export async function getSatisfactionTrend(areaId?: number, months = 6) {
-  const startDate = new Date();
-  startDate.setMonth(startDate.getMonth() - months);
-
-  const conditions = [
-    gte(satisfactionSurveys.createdAt, startDate),
+export async function getSatisfactionTrend(areaId?: number, range?: AnalyticsPeriodInput) {
+  const period = getAnalyticsPeriod(range);
+  const month = sql`date_trunc('month', (${satisfactionSurveys.createdAt} AT TIME ZONE 'UTC') AT TIME ZONE 'America/Lima')`;
+  const result = await db.select({
+    month: sql<string>`to_char(${month}, 'YYYY-MM')`,
+    avgRating: sql<number>`AVG(${satisfactionSurveys.overallRating})::double precision`,
+    count: drizzleCount(),
+  }).from(satisfactionSurveys).where(and(
+    period.from ? gte(satisfactionSurveys.createdAt, period.from) : undefined,
+    lte(satisfactionSurveys.createdAt, period.to),
     areaId ? eq(satisfactionSurveys.attentionAreaId, areaId) : undefined,
-  ].filter(Boolean);
-
-  const result = await db
-    .select({
-      month: sql<string>`to_char(date_trunc('month', ${satisfactionSurveys.createdAt}), 'YYYY-MM')`,
-      avgRating: sql<number>`AVG(${satisfactionSurveys.overallRating})`,
-      count: drizzleCount(),
-    })
-    .from(satisfactionSurveys)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .groupBy(sql`date_trunc('month', ${satisfactionSurveys.createdAt})`)
-    .orderBy(sql`date_trunc('month', ${satisfactionSurveys.createdAt})`);
-
+  )).groupBy(month).orderBy(month);
   return result as SatisfactionTrend[];
 }
 
@@ -350,8 +296,8 @@ export async function getAgentWorkload(areaId?: number) {
 /**
  * Top N categorías con más tickets.
  */
-export async function getTopCategories(areaId?: number, limit = 5, range?: string) {
-  const dateRange = getDateRange(range);
+export async function getTopCategories(areaId?: number, limit = 5, range?: AnalyticsPeriodInput) {
+  const dateRange = getAnalyticsPeriod(range);
   const conditions = [
     buildDateCondition(dateRange),
     buildAreaCondition(areaId),
@@ -375,52 +321,29 @@ export async function getTopCategories(areaId?: number, limit = 5, range?: strin
 /**
  * KPIs resumen para el dashboard.
  */
-export async function getDashboardKPIs(areaId?: number, userId?: string, range?: string) {
-  const dateRange = getDateRange(range);
-  const conditions = [buildDateCondition(dateRange), buildAreaCondition(areaId)].filter(Boolean);
-  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-  // Totales por estado
-  const statusCounts = await getTicketVolumeByStatus(areaId, range);
-
-  // Total de tickets
-  const totalResult = await db
-    .select({ count: drizzleCount() })
-    .from(tickets)
-    .where(whereClause);
-  const totalTickets = totalResult[0]?.count ?? 0;
-
-  // Tickets abiertos (sin asignar)
-  const unassignedResult = await db
-    .select({ count: drizzleCount() })
-    .from(tickets)
-    .where(and(
-      whereClause,
-      sql`${tickets.assignedToId} IS NULL`,
-      eq(tickets.status, 'open'),
-    ));
-  const unassignedCount = unassignedResult[0]?.count ?? 0;
-
-  // Satisfacción promedio
-  const satisfactionConditions = [
-    areaId ? eq(satisfactionSurveys.attentionAreaId, areaId) : undefined,
-  ].filter(Boolean);
-  const satisfactionResult = await db
-    .select({ avg: sql<number>`AVG(${satisfactionSurveys.overallRating})` })
-    .from(satisfactionSurveys)
-    .where(satisfactionConditions.length > 0 ? and(...satisfactionConditions) : undefined);
-  const avgSatisfaction = satisfactionResult[0]?.avg ?? 0;
-
-  // Tasa de resolución
-  const resolvedCount = statusCounts.find(s => s.status === 'resolved')?.count ?? 0;
-  const resolutionRate = totalTickets > 0 ? Math.round((resolvedCount / totalTickets) * 100) : 0;
-
+export async function getDashboardKPIs(areaId?: number, userId?: string, range?: AnalyticsPeriodInput) {
+  const period = getAnalyticsPeriod(range);
+  const [statusCounts, unassigned, satisfaction] = await Promise.all([
+    getTicketVolumeByStatus(areaId, period),
+    db.select({ count: drizzleCount() }).from(tickets).where(and(
+      buildDateCondition(period), buildAreaCondition(areaId),
+      sql`${tickets.assignedToId} IS NULL`, eq(tickets.status, "open"),
+    )),
+    db.select({ avg: sql<number>`AVG(${satisfactionSurveys.overallRating})::double precision` })
+      .from(satisfactionSurveys).where(and(
+        areaId ? eq(satisfactionSurveys.attentionAreaId, areaId) : undefined,
+        period.from ? gte(satisfactionSurveys.createdAt, period.from) : undefined,
+        lte(satisfactionSurveys.createdAt, period.to),
+      )),
+  ]);
+  const totalTickets = statusCounts.reduce((total, row) => total + row.count, 0);
+  const resolvedCount = statusCounts.find(row => row.status === "resolved")?.count ?? 0;
   return {
     totalTickets,
     statusCounts,
-    unassignedCount,
-    avgSatisfaction: Math.round(avgSatisfaction * 10) / 10,
-    resolutionRate,
+    unassignedCount: unassigned[0]?.count ?? 0,
+    avgSatisfaction: Math.round((satisfaction[0]?.avg ?? 0) * 10) / 10,
+    resolutionRate: totalTickets > 0 ? Math.round(resolvedCount / totalTickets * 100) : 0,
   };
 }
 

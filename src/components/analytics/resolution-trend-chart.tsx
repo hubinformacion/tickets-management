@@ -12,16 +12,16 @@ export function ResolutionTrendChart({ data }: ResolutionTrendChartProps) {
   const chartData = data.map((item) => ({
     name: item.week,
     Creados: item.created,
-    Resueltos: item.resolved,
+    Cierres: item.resolved,
   }));
 
   return (
-    <ChartCard title="Tendencia semanal" description="Tickets creados vs resueltos">
+    <ChartCard title="Tendencia semanal" description="Altas y cierres registrados en el periodo · Lima">
       <LineChart
         data={chartData}
         lines={[
           { key: "Creados", color: "#3b82f6", label: "Creados" },
-          { key: "Resueltos", color: "#22c55e", label: "Resueltos" },
+          { key: "Cierres", color: "#22c55e", label: "Cierres" },
         ]}
         height={250}
       />

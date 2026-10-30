@@ -13,6 +13,7 @@ import type { StatusCount, PriorityCount, SatisfactionTrend, CategoryCount, Agen
 interface AgentDashboardProps {
   kpis: {
     totalTickets: number;
+    unassignedCount: number;
     statusCounts: StatusCount[];
     avgSatisfaction: number;
     resolutionRate: number;
@@ -34,14 +35,13 @@ export function AgentAnalyticsDashboard({
   currentRange,
 }: AgentDashboardProps) {
   const inProgressCount = kpis.statusCounts.find((s) => s.status === "in_progress")?.count ?? 0;
-  const openCount = kpis.statusCounts.find((s) => s.status === "open")?.count ?? 0;
 
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Vista de mi área</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Métricas de tu área de atención</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Tickets creados en el periodo y su estado actual</p>
         </div>
         <DashboardFilters currentRange={currentRange} />
       </div>
@@ -56,7 +56,7 @@ export function AgentAnalyticsDashboard({
         />
         <KpiCard
           title="Sin asignar"
-          value={openCount}
+          value={kpis.unassignedCount}
           icon={<UserCheck className="h-5 w-5" />}
           iconClassName="text-amber-500 bg-amber-500/10"
         />
@@ -68,6 +68,7 @@ export function AgentAnalyticsDashboard({
         />
         <KpiCard
           title="Satisfacción"
+          description="Encuestas respondidas en el periodo"
           value={kpis.avgSatisfaction > 0 ? `${kpis.avgSatisfaction}/5` : "-"}
           icon={<Star className="h-5 w-5" />}
           iconClassName="text-yellow-500 bg-yellow-500/10"
@@ -102,7 +103,7 @@ export function AgentAnalyticsDashboard({
       <div>
         <div className="mb-4">
           <h3 className="text-sm font-semibold text-foreground">Rendimiento</h3>
-          <p className="text-xs text-muted-foreground">Productividad del equipo</p>
+          <p className="text-xs text-muted-foreground">Carga actual del equipo, independiente del periodo</p>
         </div>
         <AgentWorkloadTable data={agentWorkload} />
       </div>

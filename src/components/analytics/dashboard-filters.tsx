@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DATE_RANGE_OPTIONS } from "@/lib/constants/analytics";
+import { buildAnalyticsRangeQuery } from "@/lib/analytics/range";
 import { Calendar } from "lucide-react";
 
 interface DashboardFiltersProps {
@@ -14,13 +15,7 @@ export function DashboardFilters({ currentRange }: DashboardFiltersProps) {
   const searchParams = useSearchParams();
 
   function handleRangeChange(value: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value === "all") {
-      params.delete("range");
-    } else {
-      params.set("range", value);
-    }
-    router.push(`?${params.toString()}`);
+    router.push(buildAnalyticsRangeQuery(searchParams.toString(), value));
   }
 
   return (

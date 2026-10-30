@@ -56,7 +56,7 @@ export function AdminAnalyticsDashboard({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Vista general</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Resumen del rendimiento del sistema</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Tickets creados en el periodo y su estado actual</p>
         </div>
         <DashboardFilters currentRange={currentRange} />
       </div>
@@ -93,6 +93,7 @@ export function AdminAnalyticsDashboard({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           title="Tasa de resolución"
+          description="Tickets creados en el periodo"
           value={`${kpis.resolutionRate}%`}
           icon={<TrendingUp className="h-5 w-5" />}
           iconClassName="text-emerald-500 bg-emerald-500/10"
@@ -106,6 +107,7 @@ export function AdminAnalyticsDashboard({
         />
         <KpiCard
           title="Satisfacción promedio"
+          description="Encuestas respondidas en el periodo"
           value={kpis.avgSatisfaction > 0 ? `${kpis.avgSatisfaction}/5` : "-"}
           icon={<Star className="h-5 w-5" />}
           iconClassName="text-yellow-500 bg-yellow-500/10"
@@ -148,7 +150,7 @@ export function AdminAnalyticsDashboard({
       <div>
         <div className="mb-4">
           <h3 className="text-sm font-semibold text-foreground">Rendimiento</h3>
-          <p className="text-xs text-muted-foreground">Cumplimiento y productividad</p>
+          <p className="text-xs text-muted-foreground">SLA del periodo y carga actual del equipo</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <SLAComplianceChart data={slaData} />
