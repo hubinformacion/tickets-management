@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El último despliegue verificado es `d214f41`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
+La última verificación de producción registrada al preparar esta entrega corresponde a `a7bdd2e`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
 
 La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones, intentos de carga, contadores de frecuencia y formularios de archivos. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
@@ -58,7 +58,9 @@ La [paginación de encuestas de usuarios](2026-10-30-paginacion-encuestas-usuari
 
 La [paginación de tickets de proveedores](2026-10-30-paginacion-proveedores.md) está integrada/desplegada en `d214f41`, Production `7450399708` aprobada y SHA público confirmado. La rama integrada se eliminó. Filtros y orden se resuelven en servidor, con 25 detalles por página y opciones de todo el área. La [revisión paralela de índices](2026-10-30-revision-indices.md) identificó tres candidatos. Después el usuario autorizó su [aplicación aditiva](2026-10-30-aplicacion-indices.md): los tres índices quedaron válidos/listos, sin tocar datos históricos, y su declaración de Drizzle se sincronizó.
 
-La [búsqueda remota de tickets vinculados](2026-10-30-busqueda-tickets-proveedores.md) está preparada en `perf/busqueda-tickets-proveedores`, pendiente de merge/despliegue. Retira la carga completa del selector y conserva el ticket existente; hasta 25 resultados por área y contador independiente. Sin DDL nuevo.
+La [búsqueda remota de tickets vinculados](2026-10-30-busqueda-tickets-proveedores.md) está integrada/desplegada en `a7bdd2e`, con Production `7450809609` aprobada y SHA público confirmado. La rama integrada se eliminó. Retira la carga completa del selector y conserva el ticket existente; hasta 25 resultados por área y contador independiente. Sin DDL nuevo.
+
+La [paginación de evaluaciones de proveedores](2026-10-30-paginacion-encuestas-proveedores.md) se incorpora en esta entrega, con publicación autorizada después de validar. Tabla de 25 filas, indicadores de toda la selección, fechas de Lima y reporte completo. La confirmación de Production se comprueba en GitHub/Vercel y en la ruta de estado autenticada; el build local no certifica el runtime.
 
 ## Pendientes
 
@@ -69,7 +71,7 @@ La [búsqueda remota de tickets vinculados](2026-10-30-busqueda-tickets-proveedo
 | Alta | Rate limiting | Integrado y desplegado en 9838afd. Pendientes concurrencia real y observación entre instancias. |
 | Alta | Purga administrativa | Integrada y desplegada en 00d9490. Incluye historial y registros operativos, conserva recursos compartidos y permite reintentar fallos de Drive. Pendientes recorrido autenticado y concurrencia real. |
 | Alta | Validación real | Drive/Gmail (sin nuevas gestiones de carpeta o consentimiento por decisión del usuario), permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
-| Media | Métricas y consultas | SLA por ciclo y periodos/tendencias desplegados (5453fd1 y 3c46c0b). Estadísticas personales desplegadas en 28fadb6. Paginación/agregados de encuestas de usuarios desplegados en e8c46e7. Tabla de tickets de proveedores desplegada en d214f41. Selector remoto preparado en rama local. Pendientes merge/despliegue, encuestas de proveedores/otros listados, otros indicadores y validación autenticada. |
+| Media | Métricas y consultas | SLA por ciclo y periodos/tendencias desplegados (5453fd1 y 3c46c0b). Estadísticas personales desplegadas en 28fadb6. Paginación/agregados de encuestas de usuarios desplegados en e8c46e7. Tabla de tickets de proveedores desplegada en d214f41. Selector remoto desplegado en a7bdd2e. Paginación de evaluaciones de proveedores incorporada en esta entrega. Pendientes otros listados/indicadores, exportaciones grandes y validación autenticada. |
 | Media | Esquema y operación | Catálogo y planes revisados: tres índices creados con autorización específica y verificados; 112 KiB observados. Pendientes observación/volumen, constraints compatibles y respaldo/restauración verificables. |
 | Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, React Doctor y avisos transitivos registrados. |
 

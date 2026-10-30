@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado en `perf/busqueda-tickets-proveedores`, pendiente de merge/despliegue. Continúa el selector remoto previsto tras la paginación. El [diseño](../plans/2026-10-30-busqueda-tickets-proveedores-design.md) delimita autorización, selección existente y límites. No requiere tablas, índices ni migraciones adicionales.
+Implementado originalmente en `perf/busqueda-tickets-proveedores` e integrado/desplegado como `a7bdd2e`. Production `7450809609` aprobada, SHA público confirmado y rama integrada eliminada. Continúa el selector remoto previsto tras la paginación. El [diseño](../plans/2026-10-30-busqueda-tickets-proveedores-design.md) delimita autorización, selección existente y límites. No requiere tablas, índices ni migraciones adicionales.
 
 La paginación y la sincronización de los [tres índices aplicados](2026-10-30-aplicacion-indices.md) se integraron/desplegaron como `d214f412474e8ae8888de38a6803d6dfe7202d37`. Production `7450399708` aprobada; el dominio público confirmó SHA, cola disponible y corte fijo `2026-10-28T17:00:00.000Z`. La rama `fix/paginacion-proveedores` se eliminó después de verificar igualdad con main. No hubo Preview ni invocación de worker/correo/Drive. Los índices se crearon por autorización específica, sin borrar o reescribir datos históricos.
 
@@ -32,4 +32,4 @@ La búsqueda con comodín inicial puede recorrer los tickets del área; no se a�
 
 Descartar una respuesta obsoleta no cancela la consulta que ya llegó al servidor. La selección histórica depende de la relación que ya devuelve la fila; no se reconstruyen vínculos ausentes o inválidos. Las opciones de proveedores y las exportaciones completas conservan su coste anterior.
 
-Pendientes: merge/despliegue de este bloque, navegación autenticada/teclado y errores/reintentos en navegador, paginación de encuestas de proveedores/otros listados, exports grandes, observación de índices con uso representativo y calidad/CI/Doctor. Reconciliación de huérfanos y servicios reales siguen separados; la revisión de carpeta/OAuth permanece cerrada.
+Pendientes: navegación autenticada/teclado y errores/reintentos en navegador, paginación de encuestas de proveedores/otros listados, exports grandes, observación de índices con uso representativo y calidad/CI/Doctor. Reconciliación de huérfanos y servicios reales siguen separados; la revisión de carpeta/OAuth permanece cerrada.

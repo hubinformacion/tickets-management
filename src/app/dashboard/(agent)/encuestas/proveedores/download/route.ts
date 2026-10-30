@@ -1,12 +1,13 @@
-import { getProviderSurveyResultsAction } from "@/actions/surveys/provider-surveys";
+import { readProviderSurveyResults } from "@/lib/surveys/provider-results";
 import type { NextRequest } from "next/server";
 import { requireAgent } from "@/lib/auth/helpers";
 import { escapeHtml } from "@/lib/email/escape-html";
 import { surveyFiltersSchema } from "@/lib/validation/schemas";
 
 export async function GET(request: NextRequest) {
+  let session: Awaited<ReturnType<typeof requireAgent>>;
   try {
-    const session = await requireAgent();
+    session = await requireAgent();
     if (session.user.role !== "admin" && !session.user.attentionAreaId) {
       return new Response("Debes tener un área asignada para exportar", { status: 403 });
     }
@@ -23,9 +24,12 @@ export async function GET(request: NextRequest) {
   if (!parsedFilters.success) return new Response("Filtros de encuesta inválidos", { status: 400 });
   const filters = parsedFilters.data;
 
-  const result = await getProviderSurveyResultsAction(filters);
-  if ("error" in result) {
-    return new Response(result.error, { status: 500 });
+  let result: Awaited<ReturnType<typeof readProviderSurveyResults>>;
+  try {
+    result = await readProviderSurveyResults(session.user.role === "admin" ? undefined : session.user.attentionAreaId!, filters);
+  } catch {
+    console.error("No se pudieron exportar las evaluaciones de proveedores");
+    return new Response("Error al obtener las evaluaciones de proveedores", { status: 500 });
   }
 
   const { surveys, kpis } = result;
@@ -49,6 +53,8 @@ export async function GET(request: NextRequest) {
       <td class="center">${escapeHtml(String(s.requirementUnderstandingRating))}</td>
       <td class="center">${escapeHtml(String(s.attentionRating))}</td>
     </tr>`).join("");
+
+  const invalidNotice = kpis.invalidRatingCount > 0 ? "<p>Algunas calificaciones históricas no son válidas y se excluyen de los promedios; se conservan en el detalle.</p>" : "";
 
   const html = `<!DOCTYPE html>
 <html lang="es">
@@ -81,6 +87,7 @@ export async function GET(request: NextRequest) {
   </style>
 </head>
 <body>
+  ${invalidNotice}
   <h1>Reporte: Evaluaciones de proveedores</h1>
   <p class="subtitle">Generado el ${new Date().toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" })}${filterLabel ? ` · ${escapeHtml(filterLabel)}` : ""}</p>
 

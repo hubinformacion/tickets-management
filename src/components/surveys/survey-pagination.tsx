@@ -6,14 +6,16 @@ import type { getSurveyPagination } from "@/lib/surveys/pagination";
 interface SurveyPaginationProps {
   pagination: ReturnType<typeof getSurveyPagination>;
   queryString: string;
+  itemLabel?: string;
+  ariaLabel?: string;
 }
 
-export function SurveyPagination({ pagination, queryString }: SurveyPaginationProps) {
+export function SurveyPagination({ pagination, queryString, itemLabel = "encuestas", ariaLabel = "Paginación de encuestas" }: SurveyPaginationProps) {
   if (!pagination.total) return null;
   const { page, pageCount, from, to, total } = pagination;
   return (
-    <nav aria-label="Paginación de encuestas" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-muted-foreground">Mostrando {from}–{to} de {total} encuestas</p>
+    <nav aria-label={ariaLabel} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-muted-foreground">Mostrando {from}–{to} de {total} {itemLabel}</p>
       <div className="flex items-center gap-3">
         {page > 1 ? (
           <Button variant="outline" size="sm" asChild>

@@ -102,3 +102,7 @@ Tras la revisión y explicación de costes, el usuario autorizó la [aplicación
 ## Avance: publicación e inicio del selector remoto
 
 Paginación de proveedores e índices declarados se integraron/desplegaron en `d214f41`, con Production/SHA públicos confirmados y rama integrada eliminada. La [búsqueda remota de tickets vinculados](2026-10-30-busqueda-tickets-proveedores.md) está preparada en una nueva rama local, pendiente de aprobación de merge/despliegue. Retira la carga completa por render sin truncar la selección existente. Continúan encuestas de proveedores/otros listados, exportaciones, validación real y calidad.
+
+## Avance: evaluaciones de proveedores
+
+Búsqueda remota integrada/desplegada en `a7bdd2e`, Production/SHA públicos confirmados y rama integrada eliminada. La [paginación de evaluaciones de proveedores](2026-10-30-paginacion-encuestas-proveedores.md) se incorpora con la autorización actual de todos los despliegues necesarios, tras tipos/lint/build y comprobaciones READ ONLY aprobadas. Conserva indicadores/reporte completos y corrige fechas a Lima, sin DDL/DML. Continúan validación real, otros listados, exports grandes y calidad.

@@ -25,6 +25,7 @@ interface ProviderSurveyData {
 
 interface ProviderKPIs {
   totalSurveys: number;
+  invalidRatingCount?: number;
   avgResponseTime: number;
   avgDeadline: number;
   avgQuality: number;
@@ -90,6 +91,7 @@ export function ProviderSurveyResultsView({ surveys, kpis }: ProviderSurveyResul
 
   return (
     <div className="space-y-8">
+      {(kpis.invalidRatingCount ?? 0) > 0 ? <p role="status" className="text-sm text-muted-foreground">Algunas calificaciones históricas no son válidas y se excluyen de los promedios. Se conservan en el detalle.</p> : null}
       {/* Promedio general destacado */}
       <Card>
         <CardContent className="pt-4 pb-4">

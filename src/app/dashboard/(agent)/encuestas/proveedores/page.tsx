@@ -1,5 +1,7 @@
 import { getProviderSurveyResultsAction, getAgentsWithProviderSurveysAction } from "@/actions/surveys/provider-surveys";
 import { ProviderSurveyResultsView } from "@/components/surveys/provider-survey-results-view";
+import { SurveyPagination } from "@/components/surveys/survey-pagination";
+import { parsePage } from "@/lib/utils/pagination";
 import { SurveyFilters } from "@/components/surveys/survey-filters";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { requireAgent } from "@/lib/auth/helpers";
@@ -27,7 +29,7 @@ export default async function ProviderSurveysPage({ searchParams }: PageProps) {
   };
 
   const [results, agents] = await Promise.all([
-    getProviderSurveyResultsAction(filters),
+    getProviderSurveyResultsAction(filters, parsePage(params.page)),
     getAgentsWithProviderSurveysAction(),
   ]);
 
@@ -67,7 +69,10 @@ export default async function ProviderSurveysPage({ searchParams }: PageProps) {
 
       {/* Filters */}
       <Suspense fallback={<div className="h-12 animate-pulse bg-muted rounded-lg" />}>
-        <SurveyFilters agents={agents} />
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">Las fechas filtran el registro de la evaluación por días de Lima.</p>
+          <SurveyFilters agents={agents} />
+        </div>
       </Suspense>
 
       {/* Results */}
@@ -76,10 +81,11 @@ export default async function ProviderSurveysPage({ searchParams }: PageProps) {
           <p>{results.error}</p>
         </div>
       ) : (
-        <ProviderSurveyResultsView
-          surveys={results.surveys}
-          kpis={results.kpis}
-        />
+        <div className="space-y-6">
+          <p className="text-sm text-muted-foreground">Los indicadores incluyen todas las evaluaciones del filtro. La tabla muestra una página.</p>
+          <ProviderSurveyResultsView surveys={results.surveys} kpis={results.kpis} />
+          <SurveyPagination pagination={results.pagination} queryString={downloadParams.toString()} itemLabel="evaluaciones" ariaLabel="Paginación de evaluaciones de proveedores" />
+        </div>
       )}
     </div>
   );
