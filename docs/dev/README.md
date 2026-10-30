@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El último despliegue verificado es `28fadb6`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
+El último despliegue verificado es `e8c46e7`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
 
 La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones, intentos de carga, contadores de frecuencia y formularios de archivos. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
@@ -54,7 +54,9 @@ La [corrección de periodos y tendencias](2026-10-30-periodos-analytics.md) est�
 
 La [corrección de estadísticas personales](2026-10-30-estadisticas-personales.md) está integrada y desplegada en `28fadb6`, con Production `7449141858` aprobada y SHA público confirmado. La rama integrada se eliminó. El gráfico muestra los estados reales, conserva anulados y validación, y los KPIs usan dos consultas paralelas con alcance por usuario. Sin migraciones ni escrituras.
 
-La [paginación de encuestas de usuarios](2026-10-30-paginacion-encuestas-usuarios.md) está preparada en `fix/paginacion-encuestas-usuarios`, pendiente de merge/despliegue. La tabla carga 25 respuestas por página, los indicadores usan agregados de todo el filtro y la descarga conserva el reporte completo. Sin migraciones ni escrituras.
+La [paginación de encuestas de usuarios](2026-10-30-paginacion-encuestas-usuarios.md) está integrada y desplegada en `e8c46e7`, Production `7449414166` aprobada y SHA público confirmado. La rama integrada se eliminó. La tabla carga 25 respuestas por página, los indicadores usan agregados de todo el filtro y la descarga conserva el reporte completo. Sin migraciones ni escrituras.
+
+La [paginación de tickets de proveedores](2026-10-30-paginacion-proveedores.md) está preparada en `fix/paginacion-proveedores`, pendiente de merge/despliegue. Filtros y orden se resuelven en servidor, con 25 detalles por página y opciones de todo el área. La [revisión paralela de índices](2026-10-30-revision-indices.md) identificó tres candidatos. Después el usuario autorizó su [aplicación aditiva](2026-10-30-aplicacion-indices.md): los tres índices quedaron válidos/listos, sin tocar datos históricos, y su declaración de Drizzle se sincronizó.
 
 ## Pendientes
 
@@ -65,8 +67,8 @@ La [paginación de encuestas de usuarios](2026-10-30-paginacion-encuestas-usuari
 | Alta | Rate limiting | Integrado y desplegado en 9838afd. Pendientes concurrencia real y observación entre instancias. |
 | Alta | Purga administrativa | Integrada y desplegada en 00d9490. Incluye historial y registros operativos, conserva recursos compartidos y permite reintentar fallos de Drive. Pendientes recorrido autenticado y concurrencia real. |
 | Alta | Validación real | Drive/Gmail (sin nuevas gestiones de carpeta o consentimiento por decisión del usuario), permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
-| Media | Métricas y consultas | SLA por ciclo y periodos/tendencias desplegados (5453fd1 y 3c46c0b). Estadísticas personales desplegadas en 28fadb6. Paginación/agregados de encuestas de usuarios preparados en rama local. Pendientes merge/despliegue, otros indicadores, validación autenticada y paginación de proveedores/otros listados. |
-| Media | Esquema y operación | Revisar índices/constraints con datos/planes reales y preparar migraciones compatibles; respaldo y restauración verificables antes de operar sobre producción. |
+| Media | Métricas y consultas | SLA por ciclo y periodos/tendencias desplegados (5453fd1 y 3c46c0b). Estadísticas personales desplegadas en 28fadb6. Paginación/agregados de encuestas de usuarios desplegados en e8c46e7. Tabla de tickets de proveedores preparada en rama local. Pendientes merge/despliegue, selector remoto, encuestas de proveedores/otros listados, otros indicadores y validación autenticada. |
+| Media | Esquema y operación | Catálogo y planes revisados: tres índices creados con autorización específica y verificados; 112 KiB observados. Pendientes observación/volumen, constraints compatibles y respaldo/restauración verificables. |
 | Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, React Doctor y avisos transitivos registrados. |
 
 Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. Se crearon únicamente las tablas aditivas autorizadas de recordatorios, cancelaciones pendientes, intentos de carga, contadores de frecuencia y formularios de archivos; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.

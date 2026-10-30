@@ -90,3 +90,11 @@ Periodos/tendencias integrados y desplegados en `3c46c0b`, Production y SHA púb
 ## Avance del 30 de octubre: paginación de encuestas
 
 Estadísticas personales integradas y desplegadas en `28fadb6`, Production y SHA público confirmados, rama integrada eliminada. La [paginación de encuestas de usuarios](2026-10-30-paginacion-encuestas-usuarios.md) está preparada en una rama local independiente, pendiente de aprobación de merge/despliegue. Los indicadores consideran toda la cohorte y la descarga sigue completa. Sin migraciones o escrituras. Continúan proveedores/otros listados, volumen e índices, validación real y calidad.
+
+## Avance del 30 de octubre: proveedores e índices en paralelo
+
+Paginación de encuestas integrada/desplegada en `e8c46e7`, Production y SHA público confirmados, rama integrada eliminada. La [paginación de tickets de proveedores](2026-10-30-paginacion-proveedores.md) está preparada en rama local, pendiente de aprobación de merge/despliegue. La [revisión de índices](2026-10-30-revision-indices.md), realizada en paralelo por petición del usuario, deja tres candidatos sin aplicar y propuesta SQL comentada. No hubo DDL/DML. Continúan selector remoto, otros listados, volumen/constraints, validación real y calidad.
+
+## Aplicación autorizada de índices
+
+Tras la revisión y explicación de costes, el usuario autorizó la [aplicación aditiva de tres índices](2026-10-30-aplicacion-indices.md). Se crearon concurrentemente uno por vez, con catálogo validado antes/después y declaración Drizzle sincronizada; no hubo cambios de datos, DROP, REINDEX ni backfills. Se agrupa esta sincronización con la paginación aprobada para un único despliegue desde main.

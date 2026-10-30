@@ -170,7 +170,9 @@ export const tickets = pgTable("ticket", {
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("ticket_area_status_closed_idx").on(table.attentionAreaId, table.status, table.closedAt).concurrently(),
+]);
 
 export const comments = pgTable("comment", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -389,7 +391,13 @@ export const providerTickets = pgTable("provider_ticket", {
   createdById: text("created_by_id").notNull().references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("provider_ticket_area_order_idx").on(
+    table.attentionAreaId,
+    sql`(CASE WHEN ${table.status} = 'cerrado' THEN 1 ELSE 0 END)`,
+    table.createdAt.desc(), table.id.desc(),
+  ).concurrently(),
+]);
 
 // --- SATISFACTION SURVEYS ---
 
@@ -455,7 +463,9 @@ export const ticketStatusHistory = pgTable("ticket_status_history", {
   toStatus: text("to_status").notNull(),
   changedById: text("changed_by_id").notNull().references(() => users.id),
   changedAt: timestamp("changed_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("ticket_status_history_ticket_time_idx").on(table.ticketId, table.changedAt, table.id).concurrently(),
+]);
 
 export const ticketStatusHistoryRelations = relations(ticketStatusHistory, ({ one }) => ({
   ticket: one(tickets, {

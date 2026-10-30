@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado en `fix/paginacion-encuestas-usuarios`, pendiente de merge/despliegue. Continúa D08 del plan aprobado. El [diseño](../plans/2026-10-30-paginacion-encuestas-usuarios-design.md) delimita alcance, autorización y alternativas. No requiere migraciones ni escrituras en BD.
+Implementado originalmente en `fix/paginacion-encuestas-usuarios` e integrado/desplegado después como `e8c46e7`. Production `7449414166` aprobada, SHA público confirmado y rama integrada eliminada. Continúa D08 del plan aprobado. El [diseño](../plans/2026-10-30-paginacion-encuestas-usuarios-design.md) delimita alcance, autorización y alternativas. No requiere migraciones ni escrituras en BD.
 
 La entrega anterior de estadísticas personales se integró y desplegó como `28fadb64f18e41776e1fa7bcc81f7a4be5055140`. Production `7449141858` aprobada y SHA confirmado en el dominio público; cola disponible y corte fijo `2026-10-28T17:00:00.000Z`. Login/sesión anónima 200 y dashboard 307. Se verificó igualdad de contenido con main antes de eliminar `fix/estadisticas-personales`. Sin Preview ni ejecución del worker, correo o borrados reales.
 
@@ -34,4 +34,6 @@ La navegación React inspeccionada verifica props/enlaces; no sustituye el recor
 
 SQL sigue recorriendo el conjunto filtrado para los agregados, aunque el lector devuelve pocos buckets y solo 25 detalles. No se afirma una latencia con volumen real ni se añaden índices sin revisar sus planes. OFFSET profundo y exportación completa siguen teniendo coste; streaming y datos de volumen se revisan por separado. Esta entrega pagina únicamente encuestas de usuarios: proveedores, sus encuestas y otros listados continúan pendientes.
 
-Pendientes: merge/despliegue de este bloque, navegación/descarga autenticada, planes e índices con volumen representativo, paginación restante, CI/accesibilidad/Doctor y observación de Gmail/Drive/PG/colas. La reconciliación de huérfanos continúa separada y la revisión de carpeta/OAuth sigue cerrada por decisión del usuario.
+Pendientes: navegación/descarga autenticada, planes e índices con volumen representativo, paginación restante, CI/accesibilidad/Doctor y observación de Gmail/Drive/PG/colas. La reconciliación de huérfanos continúa separada y la revisión de carpeta/OAuth sigue cerrada por decisión del usuario.
+
+La [paginación posterior de tickets de proveedores](2026-10-30-paginacion-proveedores.md) comparte las primitivas de página/URL mediante wrappers compatibles de este módulo. Sigue preparada en rama local independiente.

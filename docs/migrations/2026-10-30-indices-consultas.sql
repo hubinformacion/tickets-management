@@ -1,0 +1,34 @@
+-- PROPUESTA NO APLICADA: revisión de índices del 30 de octubre de 2026.
+-- Todas las sentencias se dejan comentadas deliberadamente.
+-- Este archivo no debe ejecutarse como parte del merge/despliegue de paginación.
+-- Ver docs/dev/2026-10-30-revision-indices.md antes de una aplicación separada.
+--
+-- Precondiciones:
+-- 1. Verificar destino, catálogo actual, definición y carga antes de autorizar la operación.
+-- 2. Ejecutar cada CREATE por separado, fuera de BEGIN/COMMIT: CONCURRENTLY no admite un bloque transaccional.
+-- 3. IF NOT EXISTS no valida definición, indisvalid o indisready de un índice existente.
+-- 4. No ejecutar DROP/REINDEX automáticamente si una construcción falla; revisar primero el estado.
+-- 5. Tras una aplicación, sincronizar la declaración de Drizzle y registrar validez/planes/observación.
+--
+-- Candidato A: acceso por área con cerrados al final y orden estable de tabla.
+-- No sustituye necesariamente un índice selectivo por proveedor/estado si el volumen lo justifica.
+-- CREATE INDEX CONCURRENTLY IF NOT EXISTS provider_ticket_area_order_idx
+--   ON public.provider_ticket (
+--     attention_area_id,
+--     (CASE WHEN status = 'cerrado' THEN 1 ELSE 0 END),
+--     created_at DESC,
+--     id DESC
+--   );
+--
+-- Candidato B: cohorte de tickets por área, estado y rango de cierre.
+-- No se añaden índices extra por agente o una variante parcial por defecto.
+-- CREATE INDEX CONCURRENTLY IF NOT EXISTS ticket_area_status_closed_idx
+--   ON public.ticket (attention_area_id, status, closed_at);
+--
+-- Candidato C: historial por ticket, fecha e ID de desempate.
+-- Su prefijo cubre ticket_id; no añadir a la vez un índice simple duplicado sobre esa columna.
+-- CREATE INDEX CONCURRENTLY IF NOT EXISTS ticket_status_history_ticket_time_idx
+--   ON public.ticket_status_history (ticket_id, changed_at, id);
+--
+-- No se aplicó ni validó por creación ninguno de estos índices en esta revisión.
+-- Los costes actuales de EXPLAIN no son latencias ni estimaciones del plan con estos candidatos.

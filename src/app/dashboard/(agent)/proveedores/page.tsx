@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { providerTickets, tickets } from "@/db/schema";
-import { getSession } from "@/lib/auth/helpers";
+import { tickets } from "@/db/schema";
+import { requireAgent } from "@/lib/auth/helpers";
 import { getActiveProvidersByArea } from "@/actions/config/get-config";
 import { eq, desc } from "drizzle-orm";
 import { ProviderTicketsList } from "@/components/agent/provider-tickets-list";
@@ -8,15 +8,21 @@ import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
+import { readProviderTicketsPage } from "@/lib/providers/ticket-list";
+import { providerTicketListFiltersSchema } from "@/lib/validation/schemas";
+import { parsePage } from "@/lib/utils/pagination";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Tickets de proveedores",
 };
 
-export default async function ProviderTicketsPage() {
-  const session = await getSession();
-  if (!session?.user) return null;
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function ProviderTicketsPage({ searchParams }: PageProps) {
+  const [session, params] = await Promise.all([requireAgent(), searchParams]);
 
   if (!session.user.attentionAreaId) {
     return (
@@ -32,21 +38,11 @@ export default async function ProviderTicketsPage() {
 
   const { attentionAreaId } = session.user;
 
-  // Fetch provider tickets with relations + active providers + area tickets in parallel
-  const [ticketRows, activeProviders, areaTickets] = await Promise.all([
-    db.query.providerTickets.findMany({
-      where: eq(providerTickets.attentionAreaId, attentionAreaId),
-      with: {
-        provider: true,
-        requestedBy: {
-          columns: { id: true, name: true, email: true, image: true },
-        },
-        ticket: {
-          columns: { id: true, ticketCode: true, title: true },
-        },
-      },
-      orderBy: [desc(providerTickets.createdAt)],
-    }),
+  const parsed = providerTicketListFiltersSchema.safeParse({ providerId: params.providerId, status: params.status });
+  if (!parsed.success) return <p className="p-8 text-destructive">Filtros de proveedores inválidos</p>;
+  const filters = parsed.data;
+  const [result, activeProviders, areaTickets] = await Promise.all([
+    readProviderTicketsPage(attentionAreaId, filters, parsePage(params.page)),
     getActiveProvidersByArea(attentionAreaId),
     db.query.tickets.findMany({
       where: eq(tickets.attentionAreaId, attentionAreaId),
@@ -75,7 +71,10 @@ export default async function ProviderTicketsPage() {
       </div>
 
       <ProviderTicketsList
-        providerTickets={ticketRows}
+        providerTickets={result.rows}
+        providerOptions={result.providerOptions}
+        pagination={result.pagination}
+        filters={filters}
         providers={activeProviders}
         areaTickets={areaTickets}
       />

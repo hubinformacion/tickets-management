@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition, useMemo, useId } from "react";
+import { useState, useTransition, useId } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   createProviderTicketAction,
   updateProviderTicketAction,
@@ -80,6 +80,9 @@ import {
 } from "lucide-react";
 import { es } from "react-day-picker/locale";
 import { toast } from "sonner";
+import { buildPageHref } from "@/lib/utils/pagination";
+import type { getPagination } from "@/lib/utils/pagination";
+import type { ProviderTicketListFilters } from "@/lib/providers/ticket-list";
 
 const providerTicketSchema = z.object({
   externalCode: z.string().min(3, "El código debe tener al menos 3 caracteres"),
@@ -137,12 +140,16 @@ interface ProviderTicketsListProps {
   providerTickets: ProviderTicketRow[];
   providers: Provider[];
   areaTickets: AreaTicket[];
+  providerOptions: { id: number; name: string }[];
+  pagination: ReturnType<typeof getPagination>;
+  filters: ProviderTicketListFilters;
 }
 
 // --- Main Component ---
 
-export function ProviderTicketsList({ providerTickets, providers, areaTickets }: ProviderTicketsListProps) {
+export function ProviderTicketsList({ providerTickets, providers, areaTickets, providerOptions, pagination, filters }: ProviderTicketsListProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<ProviderTicketRow | null>(null);
@@ -153,35 +160,15 @@ export function ProviderTicketsList({ providerTickets, providers, areaTickets }:
   // Delete state
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  // Filters
-  const [filterProvider, setFilterProvider] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-
-  // Derive unique providers from existing tickets for filter
-  const providerOptions = useMemo(() => {
-    const map = new Map<number, string>();
-    for (const t of providerTickets) {
-      map.set(t.provider.id, t.provider.name);
-    }
-    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
-  }, [providerTickets]);
-
-  // Apply filters + sort (cerrados al final, más recientes primero)
-  const filteredTickets = useMemo(() => {
-    return providerTickets
-      .filter((t) => {
-        if (filterProvider !== "all" && t.providerId !== Number(filterProvider)) return false;
-        if (filterStatus !== "all" && t.status !== filterStatus) return false;
-        return true;
-      })
-      .sort((a, b) => {
-        // Cerrados al final
-        if (a.status === "cerrado" && b.status !== "cerrado") return 1;
-        if (a.status !== "cerrado" && b.status === "cerrado") return -1;
-        // Dentro del mismo grupo, más recientes primero
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
-  }, [providerTickets, filterProvider, filterStatus]);
+  const filterProvider = filters.providerId ?? "all";
+  const filterStatus = filters.status ?? "all";
+  const updateFilter = (key: "providerId" | "status", value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "all") params.delete(key);
+    else params.set(key, value);
+    params.delete("page");
+    startTransition(() => router.push(`?${params.toString()}`, { scroll: false }));
+  };
 
   // Delete handler
   const handleDelete = () => {
@@ -217,7 +204,7 @@ export function ProviderTicketsList({ providerTickets, providers, areaTickets }:
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {/* Provider filter */}
-          <Select value={filterProvider} onValueChange={setFilterProvider}>
+          <Select value={filterProvider} onValueChange={value => updateFilter("providerId", value)} disabled={isPending}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Todos los proveedores" />
             </SelectTrigger>
@@ -232,7 +219,7 @@ export function ProviderTicketsList({ providerTickets, providers, areaTickets }:
           </Select>
 
           {/* Status filter */}
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <Select value={filterStatus} onValueChange={value => updateFilter("status", value)} disabled={isPending}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Todos los estados" />
             </SelectTrigger>
@@ -275,16 +262,16 @@ export function ProviderTicketsList({ providerTickets, providers, areaTickets }:
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredTickets.length === 0 ? (
+            {providerTickets.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
-                  {providerTickets.length === 0
-                    ? "No hay tickets de proveedores registrados."
-                    : "No hay tickets que coincidan con los filtros."}
+                  {filters.providerId || filters.status
+                    ? "No hay tickets que coincidan con los filtros."
+                    : "No hay tickets de proveedores registrados."}
                 </TableCell>
               </TableRow>
             ) : (
-              filteredTickets.map((ticket) => (
+              providerTickets.map((ticket) => (
                 <TableRow key={ticket.id}>
                   <TableCell className="font-mono text-sm">{ticket.externalCode}</TableCell>
                   <TableCell className="font-medium max-w-[200px] truncate">
@@ -385,10 +372,22 @@ export function ProviderTicketsList({ providerTickets, providers, areaTickets }:
         </Table>
       </div>
 
-      {/* Count */}
-      <p className="text-sm text-muted-foreground">
-        {filteredTickets.length} de {providerTickets.length} ticket{providerTickets.length !== 1 ? "s" : ""} de proveedor{providerTickets.length !== 1 ? "es" : ""}
-      </p>
+      <nav aria-label="Paginación de tickets de proveedores" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">Mostrando {pagination.from}–{pagination.to} de {pagination.total} tickets de proveedores</p>
+        <div className="flex items-center gap-3">
+          {pagination.page > 1 ? (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={buildPageHref(searchParams.toString(), pagination.page - 1)} rel="prev">Anterior</Link>
+            </Button>
+          ) : <Button variant="outline" size="sm" disabled>Anterior</Button>}
+          <span className="text-sm" aria-live="polite">Página {pagination.page} de {pagination.pageCount}</span>
+          {pagination.page < pagination.pageCount ? (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={buildPageHref(searchParams.toString(), pagination.page + 1)} rel="next">Siguiente</Link>
+            </Button>
+          ) : <Button variant="outline" size="sm" disabled>Siguiente</Button>}
+        </div>
+      </nav>
 
       {/* Create/Edit Dialog — key forces re-mount so state resets properly */}
       <ProviderTicketDialog
