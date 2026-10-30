@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado en `fix/periodos-analytics`, pendiente de merge/despliegue. Continúa D08 y la paralelización de D07 del plan aprobado. El [diseño](../plans/2026-10-30-periodos-analytics-design.md) describe poblaciones, alternativas y verificación. No añade tablas/columnas ni modifica datos.
+Implementado originalmente en `fix/periodos-analytics` e integrado/desplegado después en `3c46c0b`. Production `7448888498` aprobada, SHA público confirmado y rama integrada eliminada. Continúa D08 y la paralelización de D07 del plan aprobado. El [diseño](../plans/2026-10-30-periodos-analytics-design.md) describe poblaciones, alternativas y verificación. No añade tablas/columnas ni modifica datos.
 
 El bloque SLA anterior se integró como `5453fd1669b29bdf1ea0e118a7c350078e03e9c8`. Production `7444876029` aprobó el despliegue y el dominio público confirmó ese SHA, queueReady=true y el corte fijo `2026-10-28T17:00:00.000Z`. No se invocó el worker ni se enviaron correos. Tras verificar igualdad de contenido con main se eliminó la rama `fix/metricas-sla-ciclos`. No se generó Preview.
 
@@ -35,4 +35,6 @@ Los límites del selector son móviles y no equivalen a meses/semanas completos.
 
 La tendencia cuenta cierres registrados aunque carezcan de inicio para medir SLA; SLA conserva su exclusión de ciclos incompletos. Sin historia no se inventan cierres ni se hace backfill. Las estadísticas personales siguen siendo históricas sin selector. La carga de agentes mantiene su población actual open/in_progress; no se rediseña esa definición.
 
-Pendientes: merge/despliegue de este bloque, navegación autenticada y revisión visual, métricas personales restantes, paginación/agregación de listados grandes, índices con volumen representativo, CI/accesibilidad/Doctor, observación Gmail/Drive/PG y reconciliación de huérfanos. La revisión de carpeta/OAuth continúa cerrada por decisión del usuario.
+Pendientes: navegación autenticada y revisión visual, paginación/agregación de listados grandes, índices con volumen representativo, CI/accesibilidad/Doctor, observación Gmail/Drive/PG y reconciliación de huérfanos. La revisión de carpeta/OAuth continúa cerrada por decisión del usuario.
+
+La [corrección posterior de estadísticas personales](2026-10-30-estadisticas-personales.md) está preparada en una rama local independiente, pendiente de merge/despliegue.

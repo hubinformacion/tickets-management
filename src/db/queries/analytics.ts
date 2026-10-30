@@ -351,36 +351,22 @@ export async function getDashboardKPIs(areaId?: number, userId?: string, range?:
  * KPIs personales del usuario.
  */
 export async function getUserKPIs(userId: string) {
-  const conditions = [eq(tickets.createdById, userId)];
-
-  const totalResult = await db
-    .select({ count: drizzleCount() })
-    .from(tickets)
-    .where(and(...conditions));
-  const totalTickets = totalResult[0]?.count ?? 0;
-
-  const pendingResult = await db
-    .select({ count: drizzleCount() })
-    .from(tickets)
-    .where(and(...conditions, sql`${tickets.status} NOT IN ('resolved', 'voided')`));
-  const pendingCount = pendingResult[0]?.count ?? 0;
-
-  const resolvedResult = await db
-    .select({ count: drizzleCount() })
-    .from(tickets)
-    .where(and(...conditions, eq(tickets.status, 'resolved')));
-  const resolvedCount = resolvedResult[0]?.count ?? 0;
-
-  const satisfactionResult = await db
-    .select({ avg: sql<number>`AVG(${satisfactionSurveys.overallRating})` })
-    .from(satisfactionSurveys)
-    .where(eq(satisfactionSurveys.userId, userId));
-  const avgSatisfaction = satisfactionResult[0]?.avg ?? 0;
+  const [statusCounts, satisfaction] = await Promise.all([
+    db.select({ status: tickets.status, count: drizzleCount() }).from(tickets)
+      .where(eq(tickets.createdById, userId)).groupBy(tickets.status).orderBy(tickets.status),
+    db.select({ avg: sql<number>`AVG(${satisfactionSurveys.overallRating})::double precision` })
+      .from(satisfactionSurveys).where(eq(satisfactionSurveys.userId, userId)),
+  ]);
+  const totalTickets = statusCounts.reduce((total, row) => total + row.count, 0);
+  const pendingCount = statusCounts.reduce((total, row) =>
+    ["open", "in_progress", "pending_validation"].includes(row.status) ? total + row.count : total, 0);
+  const resolvedCount = statusCounts.find(row => row.status === "resolved")?.count ?? 0;
 
   return {
     totalTickets,
     pendingCount,
     resolvedCount,
-    avgSatisfaction: Math.round(avgSatisfaction * 10) / 10,
+    statusCounts,
+    avgSatisfaction: Math.round((satisfaction[0]?.avg ?? 0) * 10) / 10,
   };
 }

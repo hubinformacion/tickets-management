@@ -82,3 +82,7 @@ La purga administrativa y el borrado individual se integraron y desplegaron como
 ## Avance del 30 de octubre: periodos de analytics
 
 SLA por ciclo integrado/desplegado en `5453fd1`, Production y SHA público confirmados. La rama integrada se eliminó. La [corrección de periodos y tendencias](2026-10-30-periodos-analytics.md) está preparada en `fix/periodos-analytics`, pendiente de aprobación de merge/despliegue. No requiere migraciones ni escrituras en BD. Continúan métricas personales restantes, paginación, validación real y calidad.
+
+## Avance del 30 de octubre: estadísticas personales
+
+Periodos/tendencias integrados y desplegados en `3c46c0b`, Production y SHA público confirmados, rama integrada eliminada. La [corrección de estadísticas personales](2026-10-30-estadisticas-personales.md) está preparada en `fix/estadisticas-personales`, pendiente de aprobación de merge/despliegue. Corrige la distribución por estado y sustituye cuatro consultas en serie por dos paralelas, sin migraciones o escrituras. Continúan paginación, otros indicadores, validación real y calidad.

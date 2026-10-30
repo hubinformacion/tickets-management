@@ -1,14 +1,16 @@
 "use client";
 
+import { Ticket, Clock, CheckCircle, Star, TrendingUp } from "lucide-react";
 import { KpiCard } from "@/components/analytics/kpi-card";
 import { PieChart } from "@/components/analytics/charts/pie-chart";
 import { ChartCard } from "@/components/analytics/chart-card";
-import { Ticket, Clock, CheckCircle, Star, TrendingUp } from "lucide-react";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/analytics";
+import type { StatusCount } from "@/db/queries/analytics";
 
 interface UserDashboardProps {
   kpis: {
     totalTickets: number;
+    statusCounts: StatusCount[];
     pendingCount: number;
     resolvedCount: number;
     avgSatisfaction: number;
@@ -16,14 +18,13 @@ interface UserDashboardProps {
 }
 
 export function UserAnalyticsDashboard({ kpis }: UserDashboardProps) {
-  const openCount = Math.max(0, kpis.totalTickets - kpis.pendingCount - kpis.resolvedCount);
   const resolutionRate = kpis.totalTickets > 0 ? Math.round((kpis.resolvedCount / kpis.totalTickets) * 100) : 0;
 
-  const pieData = [
-    { name: STATUS_LABELS.open, value: openCount, color: STATUS_COLORS.open },
-    { name: STATUS_LABELS.in_progress, value: kpis.pendingCount, color: STATUS_COLORS.in_progress },
-    { name: STATUS_LABELS.resolved, value: kpis.resolvedCount, color: STATUS_COLORS.resolved },
-  ].filter((item) => item.value > 0);
+  const pieData = kpis.statusCounts.map(item => ({
+    name: Object.hasOwn(STATUS_LABELS, item.status) ? STATUS_LABELS[item.status] : "Otro estado",
+    value: item.count,
+    color: Object.hasOwn(STATUS_COLORS, item.status) ? STATUS_COLORS[item.status] : "#64748b",
+  })).filter(item => item.value > 0);
 
   return (
     <div className="space-y-8">
@@ -37,6 +38,7 @@ export function UserAnalyticsDashboard({ kpis }: UserDashboardProps) {
         />
         <KpiCard
           title="Pendientes"
+          description="Abiertos, en progreso y en validación"
           value={kpis.pendingCount}
           icon={<Clock className="h-5 w-5" />}
           iconClassName="text-amber-500 bg-amber-500/10"
@@ -49,6 +51,7 @@ export function UserAnalyticsDashboard({ kpis }: UserDashboardProps) {
         />
         <KpiCard
           title="Mi satisfacción"
+          description="Tus respuestas de encuesta"
           value={kpis.avgSatisfaction > 0 ? `${kpis.avgSatisfaction}/5` : "-"}
           icon={<Star className="h-5 w-5" />}
           iconClassName="text-yellow-500 bg-yellow-500/10"
@@ -59,7 +62,7 @@ export function UserAnalyticsDashboard({ kpis }: UserDashboardProps) {
       <div>
         <div className="mb-4">
           <h3 className="text-sm font-semibold text-foreground">Resumen</h3>
-          <p className="text-xs text-muted-foreground">Distribución de tus tickets</p>
+          <p className="text-xs text-muted-foreground">Tickets creados por ti · histórico y estado actual</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard title="Mis tickets por estado">
