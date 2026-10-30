@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado en la rama local `fix/estadisticas-personales`, pendiente de merge/despliegue. Continúa las métricas personales y la paralelización de D07 del plan aprobado. El [diseño](../plans/2026-10-30-estadisticas-personales-design.md) describe el alcance. No requiere migraciones ni escrituras en BD.
+Implementado originalmente en `fix/estadisticas-personales` e integrado/desplegado después como `28fadb6`. Production `7449141858` aprobada, SHA público confirmado y rama integrada eliminada. Continúa las métricas personales y la paralelización de D07 del plan aprobado. El [diseño](../plans/2026-10-30-estadisticas-personales-design.md) describe el alcance. No requiere migraciones ni escrituras en BD.
 
 El bloque anterior de periodos/tendencias se integró y desplegó como `3c46c0be18d2a46e872226be64993eff6d28bbf2`. Production `7448888498` aprobó el despliegue y el dominio público confirmó ese SHA, cola disponible y corte fijo `2026-10-28T17:00:00.000Z`. Login/sesión anónima devolvieron 200 y dashboard 307. Se verificó igualdad de contenido con main antes de eliminar `fix/periodos-analytics`. Sin Preview, invocación del worker, correo ni borrados reales.
 

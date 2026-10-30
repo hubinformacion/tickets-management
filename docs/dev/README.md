@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El último despliegue verificado es `3c46c0b`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
+El último despliegue verificado es `28fadb6`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
 
 La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones, intentos de carga, contadores de frecuencia y formularios de archivos. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
@@ -52,7 +52,9 @@ La [corrección de SLA por ciclo](2026-10-30-metricas-sla-ciclos.md) está integ
 
 La [corrección de periodos y tendencias](2026-10-30-periodos-analytics.md) está integrada y desplegada en `3c46c0b`, con Production `7448888498` aprobada y SHA público confirmado. La rama integrada se eliminó. Corrige Todo, comparte el intervalo, filtra encuestas por respuesta, cuenta cierres del historial y agrupa en Lima; también paraleliza KPIs y corrige Sin asignar. Sin escrituras ni migraciones.
 
-La [corrección de estadísticas personales](2026-10-30-estadisticas-personales.md) está preparada en `fix/estadisticas-personales`, pendiente de merge/despliegue. El gráfico muestra los estados reales, conserva anulados y validación, y los KPIs usan dos consultas paralelas con alcance por usuario. Sin migraciones ni escrituras.
+La [corrección de estadísticas personales](2026-10-30-estadisticas-personales.md) está integrada y desplegada en `28fadb6`, con Production `7449141858` aprobada y SHA público confirmado. La rama integrada se eliminó. El gráfico muestra los estados reales, conserva anulados y validación, y los KPIs usan dos consultas paralelas con alcance por usuario. Sin migraciones ni escrituras.
+
+La [paginación de encuestas de usuarios](2026-10-30-paginacion-encuestas-usuarios.md) está preparada en `fix/paginacion-encuestas-usuarios`, pendiente de merge/despliegue. La tabla carga 25 respuestas por página, los indicadores usan agregados de todo el filtro y la descarga conserva el reporte completo. Sin migraciones ni escrituras.
 
 ## Pendientes
 
@@ -63,7 +65,7 @@ La [corrección de estadísticas personales](2026-10-30-estadisticas-personales.
 | Alta | Rate limiting | Integrado y desplegado en 9838afd. Pendientes concurrencia real y observación entre instancias. |
 | Alta | Purga administrativa | Integrada y desplegada en 00d9490. Incluye historial y registros operativos, conserva recursos compartidos y permite reintentar fallos de Drive. Pendientes recorrido autenticado y concurrencia real. |
 | Alta | Validación real | Drive/Gmail (sin nuevas gestiones de carpeta o consentimiento por decisión del usuario), permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
-| Media | Métricas y consultas | SLA por ciclo y periodos/tendencias desplegados (5453fd1 y 3c46c0b). Estadísticas personales preparadas en rama local. Pendientes merge/despliegue, otros indicadores, validación autenticada y paginación/agregación de listados grandes. |
+| Media | Métricas y consultas | SLA por ciclo y periodos/tendencias desplegados (5453fd1 y 3c46c0b). Estadísticas personales desplegadas en 28fadb6. Paginación/agregados de encuestas de usuarios preparados en rama local. Pendientes merge/despliegue, otros indicadores, validación autenticada y paginación de proveedores/otros listados. |
 | Media | Esquema y operación | Revisar índices/constraints con datos/planes reales y preparar migraciones compatibles; respaldo y restauración verificables antes de operar sobre producción. |
 | Media | Calidad | CI con entorno ficticio, accesibilidad/teclado y revisión visual, React Doctor y avisos transitivos registrados. |
 

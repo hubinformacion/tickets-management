@@ -1,4 +1,4 @@
-import { getSurveyResultsAction } from "@/actions/surveys";
+import { readUserSurveyResults } from "@/lib/surveys/results";
 import type { NextRequest } from "next/server";
 import { requireAgent } from "@/lib/auth/helpers";
 import { escapeHtml } from "@/lib/email/escape-html";
@@ -7,8 +7,9 @@ import { formatDateShort } from "@/lib/utils/format";
 import { PERU_TIMEZONE } from "@/lib/utils/date";
 
 export async function GET(request: NextRequest) {
+  let session: Awaited<ReturnType<typeof requireAgent>>;
   try {
-    const session = await requireAgent();
+    session = await requireAgent();
     if (session.user.role !== "admin" && !session.user.attentionAreaId) {
       return new Response("Debes tener un área asignada para exportar", { status: 403 });
     }
@@ -26,9 +27,14 @@ export async function GET(request: NextRequest) {
   if (!parsedFilters.success) return new Response("Filtros de encuesta inválidos", { status: 400 });
   const filters = parsedFilters.data;
 
-  const result = await getSurveyResultsAction(filters);
-  if ("error" in result) {
-    return new Response(result.error, { status: 500 });
+  const areaId = session.user.role === "admin"
+    ? filters.areaId ? Number(filters.areaId) : undefined : session.user.attentionAreaId!;
+  let result: Awaited<ReturnType<typeof readUserSurveyResults>>;
+  try {
+    result = await readUserSurveyResults(areaId, filters);
+  } catch {
+    console.error("No se pudieron obtener los resultados de encuestas para exportar");
+    return new Response("Error al obtener los resultados de encuestas", { status: 500 });
   }
 
   const { surveys, kpis } = result;

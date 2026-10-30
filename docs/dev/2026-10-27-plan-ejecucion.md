@@ -86,3 +86,7 @@ SLA por ciclo integrado/desplegado en `5453fd1`, Production y SHA público confi
 ## Avance del 30 de octubre: estadísticas personales
 
 Periodos/tendencias integrados y desplegados en `3c46c0b`, Production y SHA público confirmados, rama integrada eliminada. La [corrección de estadísticas personales](2026-10-30-estadisticas-personales.md) está preparada en `fix/estadisticas-personales`, pendiente de aprobación de merge/despliegue. Corrige la distribución por estado y sustituye cuatro consultas en serie por dos paralelas, sin migraciones o escrituras. Continúan paginación, otros indicadores, validación real y calidad.
+
+## Avance del 30 de octubre: paginación de encuestas
+
+Estadísticas personales integradas y desplegadas en `28fadb6`, Production y SHA público confirmados, rama integrada eliminada. La [paginación de encuestas de usuarios](2026-10-30-paginacion-encuestas-usuarios.md) está preparada en una rama local independiente, pendiente de aprobación de merge/despliegue. Los indicadores consideran toda la cohorte y la descarga sigue completa. Sin migraciones o escrituras. Continúan proveedores/otros listados, volumen e índices, validación real y calidad.

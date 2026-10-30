@@ -1,6 +1,6 @@
 "use server";
 
-import { and, count, desc, eq, inArray, asc } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { satisfactionSurveys, tickets, users } from "@/db/schema";
@@ -8,7 +8,8 @@ import { requireAuth, requireAgent } from "@/lib/auth/helpers";
 import { submitSurveySchema, surveyFiltersSchema } from "@/lib/validation/schemas";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 import { userSurveyCohort } from "@/lib/surveys/cohort";
-import { summarizeUserSurveys } from "@/lib/surveys/summary";
+import { readUserSurveyResults } from "@/lib/surveys/results";
+import { parseSurveyPage } from "@/lib/surveys/pagination";
 
 const surveyRateLimiter = createRateLimiter("MODERATE", "surveys:submit");
 
@@ -66,7 +67,7 @@ export interface SurveyFilterParams {
 }
 
 /** Respuestas y denominador del mismo conjunto de tickets resueltos, por fecha de cierre en Lima. */
-export async function getSurveyResultsAction(filters?: SurveyFilterParams) {
+export async function getSurveyResultsAction(filters?: SurveyFilterParams, page: unknown = 1) {
   const session = await requireAgent();
   if (session.user.role !== "admin" && !session.user.attentionAreaId) {
     return { error: "Debes tener un área asignada para consultar encuestas" };
@@ -78,27 +79,7 @@ export async function getSurveyResultsAction(filters?: SurveyFilterParams) {
     ? selected.areaId ? Number(selected.areaId) : undefined : session.user.attentionAreaId!;
 
   try {
-    const { surveys, resolvedCount } = await db.transaction(async tx => {
-      const cohort = userSurveyCohort(areaId, selected);
-      const cohortIds = tx.select({ id: tickets.id }).from(tickets).where(cohort);
-      const [surveys, totals] = await Promise.all([
-        tx.query.satisfactionSurveys.findMany({
-          where: and(
-            inArray(satisfactionSurveys.ticketId, cohortIds),
-            areaId === undefined ? undefined : eq(satisfactionSurveys.attentionAreaId, areaId),
-          ),
-          with: {
-            ticket: { columns: { ticketCode: true, title: true }, with: { assignedTo: { columns: { id: true, name: true } } } },
-            user: { columns: { name: true } },
-            attentionArea: { columns: { name: true, slug: true } },
-          },
-          orderBy: [desc(satisfactionSurveys.createdAt)],
-        }),
-        tx.select({ count: count() }).from(tickets).where(cohort),
-      ]);
-      return { surveys, resolvedCount: totals[0]?.count ?? 0 };
-    }, { isolationLevel: "repeatable read", accessMode: "read only" });
-    return { surveys, ...summarizeUserSurveys(surveys, resolvedCount) };
+    return await readUserSurveyResults(areaId, selected, parseSurveyPage(page));
   } catch {
     console.error("No se pudieron obtener los resultados de encuestas");
     return { error: "Error al obtener los resultados de encuestas" };

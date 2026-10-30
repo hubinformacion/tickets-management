@@ -10,6 +10,8 @@ export const ticketStatusSchema = z.enum(["open", "in_progress", "pending_valida
 
 export const ticketMessageSchema = z.string().trim().min(1).max(20000);
 
+export const surveyPageSchema = z.coerce.number().int().positive();
+
 export const surveyFiltersSchema = z.object({
   agentId: z.string().trim().min(1).max(256).optional(),
   areaId: z.string().regex(/^[1-9]\d*$/).refine(value => Number.isSafeInteger(Number(value))).optional(),

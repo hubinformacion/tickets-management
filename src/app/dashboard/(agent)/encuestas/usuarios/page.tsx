@@ -1,5 +1,7 @@
 import { getSurveyResultsAction, getAgentsWithSurveysAction } from "@/actions/surveys";
 import { SurveyResultsView } from "@/components/surveys/survey-results-view";
+import { SurveyPagination } from "@/components/surveys/survey-pagination";
+import { parseSurveyPage } from "@/lib/surveys/pagination";
 import { SurveyFilters } from "@/components/surveys/survey-filters";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { requireAgent } from "@/lib/auth/helpers";
@@ -32,7 +34,7 @@ export default async function UserSurveysPage({ searchParams }: PageProps) {
   };
 
   const [results, agents, allAreas] = await Promise.all([
-    getSurveyResultsAction(filters),
+    getSurveyResultsAction(filters, parseSurveyPage(params.page)),
     getAgentsWithSurveysAction(),
     isAdmin
       ? db.query.attentionAreas.findMany({
@@ -104,11 +106,17 @@ export default async function UserSurveysPage({ searchParams }: PageProps) {
           <p>{results.error}</p>
         </div>
       ) : (
-        <SurveyResultsView
-          surveys={results.surveys}
-          kpis={results.kpis}
-          distributions={results.distributions}
-        />
+        <div className="space-y-6">
+          <p className="text-sm text-muted-foreground">
+            Los indicadores incluyen todas las encuestas de los filtros actuales. La tabla muestra una página de respuestas.
+          </p>
+          <SurveyResultsView
+            surveys={results.surveys}
+            kpis={results.kpis}
+            distributions={results.distributions}
+          />
+          <SurveyPagination pagination={results.pagination} queryString={downloadParams.toString()} />
+        </div>
       )}
     </div>
   );
