@@ -10,6 +10,7 @@ export interface UploadAttemptInput {
   id: string;
   userId: string;
   uploadToken: string;
+  targetTicketId?: number;
   fileName: string;
   fileSize: number;
   mimeType: string;

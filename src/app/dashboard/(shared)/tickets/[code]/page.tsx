@@ -1,8 +1,8 @@
 import { db } from "@/db";
-import { tickets, comments, users, priorityConfig, providers, satisfactionSurveys, ticketStatusHistory } from "@/db/schema";
+import { tickets, comments, users, priorityConfig, providers, satisfactionSurveys, ticketStatusHistory, attachmentReverts } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/helpers";
 import { notFound } from "next/navigation";
-import { eq, desc, and, or, inArray, isNull } from "drizzle-orm";
+import { eq, desc, and, or, inArray, isNull, sql } from "drizzle-orm";
 import { formatDate } from "@/lib/utils/format";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { PriorityBadge } from "@/components/shared/priority-badge";
@@ -52,7 +52,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
       attentionArea: true,
       assignedTo: { columns: { name: true, image: true } },
       attachments: {
-        with: { uploadedBy: { columns: { name: true } } },
+        where: (attachment) => sql`NOT EXISTS (
+          SELECT 1 FROM ${attachmentReverts} ar WHERE ar.attachment_id = ${attachment.id} AND ar.state = 'removed'
+        )`,
+        with: { uploadedBy: { columns: { name: true } }, removal: { columns: { state: true } } },
         orderBy: (a, { asc }) => [asc(a.createdAt)],
       },
       comments: {

@@ -17,6 +17,7 @@ export type RateLimitResult = RateLimitWindow & (
 
 type RateLimitNamespace =
   | "tickets:create"
+  | "tickets:admin:delete"
   | "comments:create"
   | "derivations:create"
   | "surveys:submit"

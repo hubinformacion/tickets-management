@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { attachmentReverts, ticketAttachments, uploadAttempts } from "@/db/schema";
 import { UploadPersistenceError } from "@/lib/uploads/upload-attempt-types";
 import type { UploadAttemptStore } from "@/lib/uploads/upload-attempt-types";
-import { lockUploadBatch, getUploadBatchTarget, linkConfirmedUploadBatch } from "@/lib/uploads/upload-batches";
+import { lockUploadBatch, bindUploadBatch, getUploadBatchTarget, linkConfirmedUploadBatch } from "@/lib/uploads/upload-batches";
 
 export async function isUploadAttemptStoreReady(): Promise<boolean> {
   const result = await db.execute<{ ready: boolean }>(sql`
@@ -19,6 +19,17 @@ export const uploadAttemptStore: UploadAttemptStore = {
     const token = randomUUID();
     return db.transaction(async tx => {
       const batch = await lockUploadBatch(tx, input.userId, input.uploadToken);
+      if (input.targetTicketId !== undefined) {
+        if (batch.ticketId !== null && batch.ticketId !== input.targetTicketId) {
+          throw new UploadPersistenceError("El formulario pertenece a otro ticket", 409);
+        }
+        if (batch.ticketId === null) {
+          const requested = await getUploadBatchTarget(tx, { ticketId: input.targetTicketId }, input.userId);
+          if (requested.kind !== "ready") throw new UploadPersistenceError("El ticket no admite nuevas cargas", 409);
+          await bindUploadBatch(tx, batch, input.userId, input.uploadToken, input.targetTicketId);
+          batch.ticketId = input.targetTicketId;
+        }
+      }
       const target = await getUploadBatchTarget(tx, batch, input.userId);
       await tx.execute(sql`
         INSERT INTO ${uploadAttempts}

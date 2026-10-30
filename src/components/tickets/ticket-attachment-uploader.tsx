@@ -107,6 +107,7 @@ function TicketAttachmentUploadSession({ ticketId }: TicketAttachmentUploaderPro
       </label>
       <Suspense fallback={null}>
         <FileUpload
+          ticketId={ticketId}
           uploadToken={uploadToken}
           onFilesChange={handleFilesChange}
           confirmedAttachmentIds={confirmedAttachmentIds}

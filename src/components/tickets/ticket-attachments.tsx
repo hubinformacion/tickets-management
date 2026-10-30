@@ -24,6 +24,7 @@ interface Attachment {
   uploadedById: string | null;
   uploadedBy?: { name: string } | null;
   createdAt: Date;
+  removal?: { state: string } | null;
 }
 
 interface TicketAttachmentsProps {
@@ -54,6 +55,7 @@ export function TicketAttachments({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-3">
           {attachments.map((file) => {
             const canDelete = isAdmin || isAgentForArea || file.uploadedById === currentUserId;
+            const pendingRemoval = file.removal?.state === "removing" || file.removal?.state === "failed";
             return (
               <div
                 key={file.id}
@@ -80,6 +82,9 @@ export function TicketAttachments({
                         Por <span className="font-medium">{file.uploadedBy.name}</span>
                       </p>
                     ) : null}
+                    {pendingRemoval ? (
+                      <p className="mt-1 text-[10px] text-amber-700 dark:text-amber-400">Eliminación pendiente de confirmar</p>
+                    ) : null}
                   </div>
                 </a>
 
@@ -89,6 +94,7 @@ export function TicketAttachments({
                       attachmentId={file.id}
                       ticketId={ticketId}
                       fileName={file.fileName}
+                      isRetry={pendingRemoval}
                     />
                   ) : null}
                   <a

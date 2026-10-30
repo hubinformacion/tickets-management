@@ -15,11 +15,12 @@ const EMPTY_CONFIRMED_IDS: readonly string[] = [];
 
 interface FileUploadProps {
   uploadToken: string;
+  ticketId?: number;
   onFilesChange?: (attachmentIds: string[]) => void;
   confirmedAttachmentIds?: readonly string[];
 }
 
-export function FileUpload({ uploadToken, onFilesChange, confirmedAttachmentIds = EMPTY_CONFIRMED_IDS }: FileUploadProps) {
+export function FileUpload({ uploadToken, ticketId, onFilesChange, confirmedAttachmentIds = EMPTY_CONFIRMED_IDS }: FileUploadProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [processingRevision, setProcessingRevision] = useState(0);
   const pondRef = useRef<FilePond>(null);
@@ -72,6 +73,7 @@ export function FileUpload({ uploadToken, onFilesChange, confirmedAttachmentIds 
             method: "POST",
             ondata: (formData) => {
               formData.append("uploadToken", uploadToken);
+              if (ticketId !== undefined) formData.append("ticketId", String(ticketId));
               return formData;
             },
             onload: (response) => {

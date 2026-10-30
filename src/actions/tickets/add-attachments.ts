@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, notExists, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { tickets, ticketAttachments } from "@/db/schema";
+import { tickets, ticketAttachments, attachmentReverts } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/helpers";
 import { areTicketAttachmentsAllowed, canReadTicket } from "@/lib/auth/ticket-permissions";
 import { ticketAttachmentSchema } from "@/lib/validation/schemas";
@@ -47,6 +47,8 @@ export async function addTicketAttachmentsAction(ticketId: number, uploadToken: 
           eq(ticketAttachments.ticketId, ticketId),
           eq(ticketAttachments.uploadedById, session.user.id),
           inArray(ticketAttachments.id, requestedIds),
+          notExists(tx.select({ id: attachmentReverts.attachmentId }).from(attachmentReverts)
+            .where(eq(attachmentReverts.attachmentId, ticketAttachments.id))),
         )).orderBy(ticketAttachments.id).for("update") : [];
       return { ticketCode: ticket.ticketCode, confirmedAttachmentIds: confirmed.map(file => file.id) };
     }, { isolationLevel: "read committed" });

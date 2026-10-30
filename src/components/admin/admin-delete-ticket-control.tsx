@@ -17,13 +17,19 @@ export function AdminDeleteTicketControl({ ticketId, isAdmin }: { ticketId: numb
 
   const handleDelete = () => {
     startTransition(async () => {
-      const result = await deepDeleteTicketAction(ticketId);
-      if (result?.error) {
-        toast.error(result.error);
-      } else {
-        toast.success("Ticket eliminado permanentemente");
-        setOpen(false);
-        router.push("/dashboard/explorador");
+      try {
+        const result = await deepDeleteTicketAction(ticketId);
+        if (result.error) {
+          toast.error(result.error);
+        } else if (result.success === true) {
+          toast.success("Ticket eliminado permanentemente");
+          setOpen(false);
+          router.push("/dashboard/explorador");
+        } else {
+          toast.error("No se pudo confirmar la eliminación. Vuelve a intentar.");
+        }
+      } catch {
+        toast.error("No se pudo confirmar la eliminación. Vuelve a intentar.");
       }
     });
   };
@@ -45,7 +51,7 @@ export function AdminDeleteTicketControl({ ticketId, isAdmin }: { ticketId: numb
           <DialogDescription className="text-sm pt-2">
             Esta acción es completamente <span className="font-bold text-foreground">irreversible</span>.
             <br className="mt-2" />
-            Al confirmar, se eliminará el ticket junto a su historial de comentarios referenciados, las derivaciones de proveedor, las respuestas a sus encuestas, y todos sus documentos cargados desaparecerán tanto en la aplicación como en el propio Google Drive.
+            Al confirmar, se eliminarán el ticket, su actividad, historial, encuestas, atenciones de proveedores y registros de archivos y recordatorios. Sus archivos se eliminarán de Drive, salvo los que también use otro ticket.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-4">
@@ -53,7 +59,7 @@ export function AdminDeleteTicketControl({ ticketId, isAdmin }: { ticketId: numb
             Cancelar y volver
           </Button>
           <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Sí, eliminar íntegramente
           </Button>
         </DialogFooter>

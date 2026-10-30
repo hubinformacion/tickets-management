@@ -46,7 +46,7 @@ export const reminderStore: ReminderStore = {
         SELECT 1 FROM ${surveyReminderDeliveries} j
         WHERE j.ticket_id = t.id AND j.closed_at = t.closed_at AND j.state <> 'cancelled'
       )
-      ORDER BY t.closed_at, t.id LIMIT 100
+      ORDER BY t.closed_at, t.id LIMIT 100 FOR KEY SHARE OF t
       ON CONFLICT (ticket_id, closed_at) DO UPDATE SET state = 'pending',
         next_attempt_at = now(), updated_at = now(), last_error_code = NULL
       WHERE survey_reminder_delivery.state = 'cancelled'
@@ -66,7 +66,7 @@ export const reminderStore: ReminderStore = {
             SELECT 1 FROM ${surveyReminderDeliveries} other
             WHERE other.ticket_id = j.ticket_id AND other.state = 'leased' AND other.id <> j.id
           )
-        ORDER BY j.next_attempt_at, j.created_at, j.id LIMIT 1 FOR UPDATE OF j SKIP LOCKED
+        ORDER BY j.next_attempt_at, j.created_at, j.id LIMIT 1 FOR UPDATE OF j SKIP LOCKED FOR KEY SHARE OF t SKIP LOCKED
       )
       UPDATE ${surveyReminderDeliveries} j SET state = 'leased', lease_token = ${token}::uuid,
         lease_until = now() + interval '5 minutes', attempts = j.attempts + 1, updated_at = now()
@@ -115,6 +115,15 @@ export const reminderStore: ReminderStore = {
 
   async complete(claim, messageId) {
     await db.transaction(async (tx) => {
+      const delivery = await tx.execute<{ ticketId: number }>(sql`
+        SELECT ticket_id AS "ticketId" FROM ${surveyReminderDeliveries}
+        WHERE id = ${claim.id}::uuid AND state = 'leased' AND lease_token = ${claim.token}::uuid
+      `);
+      const ticketId = delivery.rows[0]?.ticketId;
+      if (!ticketId) throw new Error("Reserva de recordatorio perdida");
+      // Mismo orden que la purga: primero ticket, después entrega.
+      const ticket = await tx.execute<{ id: number }>(sql`SELECT id FROM ticket WHERE id = ${ticketId} FOR UPDATE`);
+      if (!ticket.rows.length) throw new Error("El ticket del recordatorio ya no está disponible");
       const result = await tx.execute<{ ticketId: number }>(sql`
         UPDATE ${surveyReminderDeliveries} SET state = 'sent', sent_at = now(),
           gmail_message_id = ${messageId ?? null}, lease_token = NULL, lease_until = NULL,

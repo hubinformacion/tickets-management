@@ -1,10 +1,10 @@
 "use server";
 
 import { db } from "@/db";
-import { tickets, users, comments, ticketAttachments, satisfactionSurveys, providerTickets, providerSatisfactionSurveys, ticketStatusHistory } from "@/db/schema";
+import { tickets, users } from "@/db/schema";
 import { requireAgent, requireAdmin } from "@/lib/auth/helpers";
 import { eq, inArray, and, isNull } from "drizzle-orm";
-import { deleteFileFromDrive } from "@/lib/drive/client";
+import { purgeTicketCompletely, TicketPurgeError } from "@/lib/tickets/purge-ticket";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { TICKET_STATUS, VALID_STATUS_TRANSITIONS, STATUS_LABELS } from "@/lib/constants/tickets";
@@ -14,6 +14,9 @@ import type { TicketStatus } from "@/types";
 import { canManageTicket } from "@/lib/auth/ticket-permissions";
 import { ticketIdSchema, ticketStatusSchema } from "@/lib/validation/schemas";
 import { transitionTicket } from "@/lib/utils/ticket-transition";
+import { createRateLimiter } from "@/lib/utils/rate-limit";
+
+const purgeRateLimiter = createRateLimiter("RELAXED", "tickets:admin:delete");
 
 export async function assignTicketToSelf(ticketId: number) {
   const session = await requireAgent();
@@ -186,62 +189,23 @@ export async function updateTicketStatus(ticketId: number, newStatus: TicketStat
 }
 
 export async function deepDeleteTicketAction(ticketId: number) {
-  await requireAdmin();
+  const session = await requireAdmin();
   if (!ticketIdSchema.safeParse(ticketId).success) return { error: "Ticket inválido" };
+  const limit = await purgeRateLimiter(session.user.id);
+  if (!limit.success) return { error: limit.error ?? "Demasiadas solicitudes. Intenta de nuevo en un momento." };
 
   try {
-    const targetTicket = await db.query.tickets.findFirst({
-      where: eq(tickets.id, ticketId),
-      with: { attachments: true }
-    });
-
-    if (!targetTicket) {
-      return { error: "Ticket no encontrado" };
-    }
-
-    // Eliminar archivos adjuntos de Google Drive en paralelo
-    if (targetTicket.attachments && targetTicket.attachments.length > 0) {
-      await Promise.allSettled(
-        targetTicket.attachments.map((file) =>
-          deleteFileFromDrive(file.driveFileId).catch((driveErr) => {
-            console.error("Failed to delete file from Drive:", driveErr);
-          })
-        )
-      );
-    }
-
-    // Operaciones en la BD usando transacción
-    await db.transaction(async (tx) => {
-      // 1. Encuestas de satisfacción a proveedores
-      const pTickets = await tx.select({ id: providerTickets.id }).from(providerTickets).where(eq(providerTickets.ticketId, ticketId));
-      if (pTickets.length > 0) {
-        await tx.delete(providerSatisfactionSurveys).where(inArray(providerSatisfactionSurveys.providerTicketId, pTickets.map(pt => pt.id)));
-      }
-
-      // 2. Tickets de proveedores
-      await tx.delete(providerTickets).where(eq(providerTickets.ticketId, ticketId));
-
-      // 3. Encuestas de satisfacción del usuario
-      await tx.delete(satisfactionSurveys).where(eq(satisfactionSurveys.ticketId, ticketId));
-
-      // 4. Historial de cambios de estado
-      await tx.delete(ticketStatusHistory).where(eq(ticketStatusHistory.ticketId, ticketId));
-
-      // 5. Comentarios e historial de actividad
-      await tx.delete(comments).where(eq(comments.ticketId, ticketId));
-
-      // 6. Archivos adjuntos (aunque tienen CASCADE, es seguro forzarlo)
-      await tx.delete(ticketAttachments).where(eq(ticketAttachments.ticketId, ticketId));
-
-      // 7. Eliminar el propio ticket
-      await tx.delete(tickets).where(eq(tickets.id, ticketId));
-    });
-
+    const result = await purgeTicketCompletely(session.user, ticketId);
+    if (result.ticketCode) revalidatePath(`/dashboard/tickets/${result.ticketCode}`);
     revalidatePath("/dashboard/explorador");
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
-    console.error("Error deeply deleting ticket:", error);
-    return { error: "Error al intentar eliminar el ticket permanentemente" };
+    if (error instanceof TicketPurgeError) {
+      if (error.ticketCode) revalidatePath(`/dashboard/tickets/${error.ticketCode}`);
+      return { error: error.message };
+    }
+    console.error("No se pudo confirmar la eliminación completa del ticket");
+    return { error: "No se pudo confirmar la eliminación completa. Vuelve a intentar." };
   }
 }

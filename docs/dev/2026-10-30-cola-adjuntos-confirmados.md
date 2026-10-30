@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado en la rama local `fix/cola-adjuntos-confirmados`, según el [diseño](../plans/2026-10-30-cola-adjuntos-confirmados-design.md). Código pendiente de merge y despliegue. No hay migraciones, operaciones de mantenimiento ni cambios de OAuth/Drive en este bloque.
+Integrado y desplegado en `87d1930`, según el [diseño](../plans/2026-10-30-cola-adjuntos-confirmados-design.md). Production `7441690946` aprobada y SHA completo confirmado en el dominio público. No se generó Preview y la rama integrada se eliminó tras verificar igualdad con main. No hay migraciones, operaciones de mantenimiento ni cambios de OAuth/Drive en este bloque.
 
 La vinculación tardía anterior se integró y desplegó como `bb0b870`. Production `7441161433` aprobó la entrega y el dominio público confirmó ese SHA completo mediante el estado de recordatorios: queue y tabla disponibles, corte fijo `2026-10-28T17:00:00.000Z`. Login 200, sesión anónima 200/null y dashboard 307 a login. No se ejecutó el cron ni uploads como prueba. La rama anterior se eliminó tras verificar igualdad con main.
 

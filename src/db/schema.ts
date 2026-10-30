@@ -242,6 +242,7 @@ export const commentsRelations = relations(comments, ({ one }) => ({
 }));
 
 export const ticketAttachmentsRelations = relations(ticketAttachments, ({ one }) => ({
+  removal: one(attachmentReverts),
   ticket: one(tickets, {
     fields: [ticketAttachments.ticketId],
     references: [tickets.id],
@@ -543,6 +544,14 @@ export const attachmentReverts = pgTable("attachment_revert", {
   check("attachment_revert_lease_check", sql`(${table.state} = 'removing' AND ${table.leaseToken} IS NOT NULL AND ${table.leaseUntil} IS NOT NULL) OR (${table.state} <> 'removing' AND ${table.leaseToken} IS NULL AND ${table.leaseUntil} IS NULL)`),
   check("attachment_revert_removed_check", sql`(${table.state} = 'removed') = (${table.driveDeletedAt} IS NOT NULL)`),
 ]);
+
+// Relación de lectura sobre la evidencia operativa ya existente, sin FK física.
+export const attachmentRevertsRelations = relations(attachmentReverts, ({ one }) => ({
+  attachment: one(ticketAttachments, {
+    fields: [attachmentReverts.attachmentId],
+    references: [ticketAttachments.id],
+  }),
+}));
 
 // Intentos de carga independientes: sin cuotas de cantidad ni cascadas sobre la historia.
 export const uploadAttempts = pgTable("upload_attempt", {

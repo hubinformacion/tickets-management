@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { NextRequest, NextResponse, after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth/helpers";
-import { uploadTokenSchema, attachmentIdSchema } from "@/lib/validation/schemas";
+import { uploadTokenSchema, attachmentIdSchema, ticketIdSchema } from "@/lib/validation/schemas";
 import { MAX_UPLOAD_BODY_BYTES, MAX_REVERT_BODY_BYTES } from "@/lib/constants/attachments";
 import { readLimitedBody, UploadRequestError } from "@/lib/uploads/request-body";
 import { validateAttachmentMetadata, validateAttachmentContent } from "@/lib/uploads/validate-attachment";
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     } catch {
       throw new UploadRequestError("El formulario de archivos no es válido", 400);
     }
-    if ([...formData.keys()].some(key => key !== "file" && key !== "uploadToken")) {
+    if ([...formData.keys()].some(key => key !== "file" && key !== "uploadToken" && key !== "ticketId")) {
       throw new UploadRequestError("El formulario contiene campos no permitidos", 400);
     }
 
@@ -71,6 +71,14 @@ export async function POST(request: NextRequest) {
     if (formData.getAll("uploadToken").length !== 1 || !parsedToken.success) {
       throw new UploadRequestError("Token de carga inválido", 400);
     }
+    const ticketIds = formData.getAll("ticketId");
+    let targetTicketId: number | undefined;
+    if (ticketIds.length) {
+      const value = ticketIds[0];
+      const parsed = ticketIdSchema.safeParse(typeof value === "string" && /^\d+$/.test(value) ? Number(value) : undefined);
+      if (ticketIds.length !== 1 || !parsed.success) throw new UploadRequestError("Ticket de carga inválido", 400);
+      targetTicketId = parsed.data;
+    }
     const uploadToken = parsedToken.data;
     const uploadId = parseUploadAttemptId(fileEntries.find((entry): entry is string => typeof entry === "string"));
     const file = files[0];
@@ -82,6 +90,7 @@ export async function POST(request: NextRequest) {
       id: uploadId,
       userId: session.user.id,
       uploadToken,
+      targetTicketId,
       fileName: file.name,
       fileSize: file.size,
       mimeType,

@@ -17,13 +17,18 @@ export class UploadBatchConflictError extends Error {
   }
 }
 
+/** Mutex compartido por cargas y purga; no crea ni modifica el formulario. */
+export async function lockUploadBatchContext(tx: BatchExecutor, userId: string, uploadToken: string): Promise<void> {
+  // La clave completa sigue en la PK: una colisión del hash solo serializa dos lotes.
+  const key = JSON.stringify(["upload-batch", userId, uploadToken]);
+  await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`);
+}
+
 /** Dentro de una transacción, antes de bloquear tickets, intentos o adjuntos. */
 export async function lockUploadBatch(tx: BatchExecutor, userId: string, uploadToken: string): Promise<UploadBatch> {
   await tx.execute(sql`SET LOCAL lock_timeout = '3s'`);
   await tx.execute(sql`SET LOCAL statement_timeout = '10s'`);
-  // La clave completa sigue en la PK: una colisión del hash solo serializa dos lotes.
-  const key = JSON.stringify(["upload-batch", userId, uploadToken]);
-  await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`);
+  await lockUploadBatchContext(tx, userId, uploadToken);
   await tx.execute(sql`
     INSERT INTO ${uploadBatches} (uploaded_by_id, upload_token)
     VALUES (${userId}, ${uploadToken}) ON CONFLICT (uploaded_by_id, upload_token) DO NOTHING

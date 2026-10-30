@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-El último despliegue verificado es `bb0b870`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
+El último despliegue verificado es `87d1930`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
 
 La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones, intentos de carga, contadores de frecuencia y formularios de archivos. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
@@ -42,15 +42,20 @@ El [rate limiting compartido](2026-10-30-rate-limiting.md) está integrado y des
 
 La [vinculación de cargas tardías](2026-10-30-vinculacion-cargas-tardias.md), elegida por el usuario, está integrada y desplegada en `bb0b870`. Production aprobada, SHA confirmado en el dominio público y rama de trabajo eliminada.
 
-La [conservación de la cola de adjuntos](2026-10-30-cola-adjuntos-confirmados.md) está implementada y validada en la rama local `fix/cola-adjuntos-confirmados`, pendiente de merge/despliegue. Limpia solo IDs confirmados, conserva cargas nuevas/fallidas y permite reintentar la vinculación. No requiere cambios de esquema.
+La [conservación de la cola de adjuntos](2026-10-30-cola-adjuntos-confirmados.md) está integrada y desplegada en `87d1930`, con Production aprobada y SHA confirmado.
+
+La [eliminación recuperable de adjuntos vinculados](2026-10-30-eliminacion-adjuntos.md) está implementada y validada en la rama local `fix/eliminacion-adjuntos-recuperable`, pendiente de merge/despliegue. Usa el registro operativo existente y conserva referencias ante fallos, sin migración. La eliminación administrativa del ticket completo debe seguir siendo destructiva, según la corrección del usuario; no se convirtió en anulación.
+
+La [purga administrativa completa](2026-10-30-purga-administrativa.md) está preparada en `fix/purga-administrativa-completa`, apilada sobre el borrado individual. Incluye registros operativos, progreso de Drive, coordinación con cargas/recordatorios y confirmación explícita de UI. Pendiente de merge/despliegue; sin migraciones ni borrados reales de validación.
 
 ## Pendientes
 
 | Prioridad | Bloque | Trabajo restante |
 |---|---|---|
 | Alta | Recordatorios | Cola, reservas, reintentos y corte de 48 h desplegados. Pendientes observación de ejecuciones reales e integración Gmail/OAuth/PG; límite de duplicados ante confirmación incierta documentado. |
-| Alta | Archivos | Coordinación vinculación/revert desplegada; registro previo y reintentos de altas desplegados; revisión de carpeta/permisos cerrada por el usuario; vinculación de cargas tardías desplegada; cola del widget corregida en rama local. Pendientes integración del widget, recorrido real/concurrencia, reconciliación y revisión del borrado de vinculados/huérfanos. Cantidad ilimitada, 4 MB por carga. |
+| Alta | Archivos | Coordinación vinculación/revert desplegada; registro previo y reintentos de altas desplegados; revisión de carpeta/permisos cerrada por el usuario; vinculación de cargas tardías desplegada; cola del widget desplegada; borrado individual recuperable preparado en rama local. Pendientes integración, recorrido real/concurrencia y reconciliación de huérfanos. Cantidad ilimitada, 4 MB por carga. |
 | Alta | Rate limiting | Integrado y desplegado en 9838afd. Pendientes concurrencia real y observación entre instancias. |
+| Alta | Purga administrativa | Implementada en rama local, pendiente de merge/despliegue. Incluye historial y registros operativos, conserva recursos compartidos y permite reintentar fallos de Drive. Pendientes recorrido autenticado y concurrencia real. |
 | Alta | Validación real | Drive/Gmail (sin nuevas gestiones de carpeta o consentimiento por decisión del usuario), permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
 | Media | Métricas y consultas | SLA por ciclo de cierre/reapertura, periodos del dashboard, métricas restantes y paginación/agregación de listados grandes. |
 | Media | Esquema y operación | Revisar índices/constraints con datos/planes reales y preparar migraciones compatibles; respaldo y restauración verificables antes de operar sobre producción. |
