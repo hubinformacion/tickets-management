@@ -106,3 +106,7 @@ Paginación de proveedores e índices declarados se integraron/desplegaron en `d
 ## Avance: evaluaciones de proveedores
 
 Búsqueda remota integrada/desplegada en `a7bdd2e`, Production/SHA públicos confirmados y rama integrada eliminada. La [paginación de evaluaciones de proveedores](2026-10-30-paginacion-encuestas-proveedores.md) se incorpora con la autorización actual de todos los despliegues necesarios, tras tipos/lint/build y comprobaciones READ ONLY aprobadas. Conserva indicadores/reporte completos y corrige fechas a Lima, sin DDL/DML. Continúan validación real, otros listados, exports grandes y calidad.
+
+## Avance del 31 de octubre: CI de calidad
+
+Al iniciar, main/origin estaban limpios en `6c3e631`: no había trabajo anterior pendiente de commit/merge. Se incorpora la [CI de calidad](2026-10-31-ci-calidad.md) con herramientas/acciones fijadas, instalación congelada sin lifecycle/hooks y tipos/lint/build con valores ficticios. Se valida instalación limpia y se distingue ese resultado de la ejecución real de GitHub después de publicar. Sin cambios de datos, entorno de producción o Preview. Continúan accesibilidad/Doctor, exportaciones grandes y validación real.

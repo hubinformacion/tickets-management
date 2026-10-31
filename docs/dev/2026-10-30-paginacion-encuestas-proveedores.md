@@ -2,7 +2,7 @@
 
 ## Entrega
 
-Implementado y validado en `fix/paginacion-encuestas-proveedores`. El usuario autorizó todos los despliegues necesarios y continuar pendientes; esta entrega se integra y publica tras las comprobaciones. El [diseño](../plans/2026-10-30-paginacion-encuestas-proveedores-design.md) delimita alcance y decisiones. No requiere DDL, índices ni escrituras de negocio.
+Implementado y validado originalmente en `fix/paginacion-encuestas-proveedores` e integrado/desplegado como `6c3e631`. Production `7450920773` aprobada, SHA público confirmado y rama integrada eliminada. El [diseño](../plans/2026-10-30-paginacion-encuestas-proveedores-design.md) delimita alcance y decisiones. No requiere DDL, índices ni escrituras de negocio.
 
 La búsqueda remota anterior se integró/desplegó en `a7bdd2e7273a8385bcb1b50310351bac50463b1c`. Production `7450809609` aprobada y SHA confirmado en el dominio público, cola disponible y corte fijo `2026-10-28T17:00:00.000Z`. La rama integrada se eliminó tras verificar igualdad con main. Sin Preview ni ejecución de worker/Gmail/Drive. Los tres índices de la entrega anterior permanecen aplicados; no se reconstruyeron ni añadieron más.
 
