@@ -110,3 +110,7 @@ Búsqueda remota integrada/desplegada en `a7bdd2e`, Production/SHA públicos con
 ## Avance del 31 de octubre: CI de calidad
 
 Al iniciar, main/origin estaban limpios en `6c3e631`: no había trabajo anterior pendiente de commit/merge. Se incorpora la [CI de calidad](2026-10-31-ci-calidad.md) con herramientas/acciones fijadas, instalación congelada sin lifecycle/hooks y tipos/lint/build con valores ficticios. Se valida instalación limpia y se distingue ese resultado de la ejecución real de GitHub después de publicar. Sin cambios de datos, entorno de producción o Preview. Continúan accesibilidad/Doctor, exportaciones grandes y validación real.
+
+## Avance: accesibilidad de menú y editor
+
+CI integrada y desplegada en `b6418ae`, con primera ejecución real aprobada, Production `7463300339` y SHA público confirmado. Se prepara la [corrección de accesibilidad](2026-10-31-accesibilidad-menu-editor.md) en rama local, pendiente de merge/despliegue. Tipos, ESLint, build y recorrido Chromium con datos ficticios aprobados; continúa la validación con sesión/lector real, contraste y React Doctor. Sin cambios de BD o dependencias.

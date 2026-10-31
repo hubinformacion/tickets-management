@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/shared/rich-text-editor";
@@ -34,6 +34,7 @@ interface UserValidationControlsProps {
 
 export function UserValidationControls({ ticketId }: UserValidationControlsProps) {
   const [isPending, startTransition] = useTransition();
+  const rejectionMessageId = useId();
   const [isExpanded, setIsExpanded] = useState(true);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [rejectionMessage, setRejectionMessage] = useState("");
@@ -174,10 +175,13 @@ export function UserValidationControls({ ticketId }: UserValidationControlsProps
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 py-2">
-            <Label htmlFor="rejection-message">
+            <Label id={`${rejectionMessageId}-label`} htmlFor={rejectionMessageId}>
               Motivo del rechazo <span className="text-destructive">*</span>
             </Label>
             <RichTextEditor
+              id={rejectionMessageId}
+              aria-labelledby={`${rejectionMessageId}-label`}
+              aria-required="true"
               value={rejectionMessage}
               onChange={(val) => setRejectionMessage(val)}
               disabled={isPending}

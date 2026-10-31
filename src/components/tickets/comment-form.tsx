@@ -39,6 +39,7 @@ export function CommentForm({ ticketId }: CommentFormProps) {
   return (
     <div className="flex flex-col h-full bg-transparent">
       <RichTextEditor
+        aria-label="Comentario o actualización del ticket"
         value={content}
         onChange={setContent}
         placeholder="Escribe un comentario o actualización sobre este ticket..."

@@ -195,6 +195,7 @@ export function TicketActivity({ ticketId, comments, statusHistory = [], canComm
                         </div>
                         <div className="bg-sidebar border border-border/50 rounded-xl px-4 py-2 text-sm text-foreground shadow-sm group-hover:border-border/80 transition-colors">
                           <RichTextEditor
+                            aria-label="Contenido de la actividad"
                             value={entry.content}
                             disabled={true}
                             className="border-0 px-0 bg-transparent min-h-0 p-0 shadow-none"

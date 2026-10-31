@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { assignTicketToSelf, updateTicketStatus, unassignTicket, requestValidation } from "@/actions/admin";
 import { toast } from "sonner";
-import { useTransition } from "react";
+import { useTransition, useId } from "react";
 import { UserPlus, UserMinus, CheckCircle, Clock } from "lucide-react";
 import { useState } from "react";
 import type { TicketStatus } from "@/types";
@@ -26,6 +26,7 @@ export function AdminTicketControls({
   derivationSlot?: React.ReactNode;
 }) {
   const [isPending, startTransition] = useTransition();
+  const validationMessageId = useId();
   const [isValidationDialogOpen, setIsValidationDialogOpen] = useState(false);
   const [validationMessage, setValidationMessage] = useState("");
 
@@ -185,8 +186,10 @@ export function AdminTicketControls({
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="message">Mensaje para el usuario</Label>
+              <Label id={`${validationMessageId}-label`} htmlFor={validationMessageId}>Mensaje para el usuario</Label>
               <RichTextEditor
+                id={validationMessageId}
+                aria-labelledby={`${validationMessageId}-label`}
                 value={validationMessage}
                 onChange={setValidationMessage}
                 placeholder="Escribe un mensaje explicando la solución..."

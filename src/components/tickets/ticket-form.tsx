@@ -6,11 +6,11 @@ import { createTicketFormSchema, type CreateTicketFormSchema } from "@/lib/valid
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription, FormMessage } from "@/components/ui/form";
 
 import { toast } from "sonner";
 import { createTicketAction } from "@/actions/tickets";
-import { useState, useTransition, useMemo, lazy, Suspense, useCallback } from "react";
+import { useState, useTransition, useMemo, lazy, Suspense, useCallback, useId } from "react";
 import {
   Loader2,
   ArrowLeft,
@@ -172,6 +172,7 @@ export function NewTicketForm({
   attentionAreas,
   disabledMessage,
 }: NewTicketFormProps) {
+  const descriptionLabelId = useId();
   const [isPending, startTransition] = useTransition();
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<number | null>(null);
@@ -659,19 +660,23 @@ export function NewTicketForm({
                           name="description"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium">
+                              <FormLabel id={descriptionLabelId} className="text-sm font-medium">
                                 Descripción <span className="text-muted-foreground">*</span>
                               </FormLabel>
-                              <p className="text-xs text-muted-foreground mb-1">
+                              <FormDescription className="text-xs text-muted-foreground mb-1">
                                 {isDiffusion
                                   ? "Recuerda que, para solicitar piezas gráficas u otros materiales, el texto debe estar previamente revisado y validado, cargado en Cendoc y compartido con todo el equipo del CIE en modo lector."
                                   : isFondoEditorial
                                     ? "Describe tu requerimiento con el mayor detalle posible (máximo 300 palabras)."
                                     : "Detalla el problema o solicitud. Incluye pasos para reproducirlo, contexto relevante y el resultado esperado."
                                 }
-                              </p>
+                              </FormDescription>
                               <FormControl>
                                 <RichTextEditor
+                                  ref={field.ref}
+                                  onBlur={field.onBlur}
+                                  aria-labelledby={descriptionLabelId}
+                                  aria-required="true"
                                   value={field.value}
                                   onChange={field.onChange}
                                   placeholder={isDiffusion

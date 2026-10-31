@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-La última verificación de producción registrada al preparar esta entrega corresponde a `6c3e631`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
+La última verificación de producción registrada al preparar esta entrega corresponde a `b6418ae`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
 
 La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones, intentos de carga, contadores de frecuencia y formularios de archivos. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
@@ -62,7 +62,9 @@ La [búsqueda remota de tickets vinculados](2026-10-30-busqueda-tickets-proveedo
 
 La [paginación de evaluaciones de proveedores](2026-10-30-paginacion-encuestas-proveedores.md) está integrada/desplegada en `6c3e631`, con Production `7450920773` aprobada y SHA público confirmado. Tabla de 25 filas, indicadores de toda la selección, fechas de Lima y reporte completo. La confirmación de Production se comprueba en GitHub/Vercel y en la ruta de estado autenticada; el build local no certifica el runtime.
 
-La [CI de calidad](2026-10-31-ci-calidad.md) se incorpora en esta entrega: instalación limpia congelada, tipos, ESLint y build con configuración ficticia, acciones fijadas y sin secretos de producción. La primera ejecución en GitHub se verifica después de publicar; la validación local no equivale a CI aprobada.
+La [CI de calidad](2026-10-31-ci-calidad.md) está integrada en `b6418ae`. Su [primera ejecución real](https://github.com/hubinformacion/tickets-management/actions/runs/41234157431) aprobó instalación, tipos, ESLint y build con configuración ficticia. Production `7463300339` aprobada y SHA público confirmado, sin Preview ni cambios de datos.
+
+La [corrección de accesibilidad del menú móvil y editor](2026-10-31-accesibilidad-menu-editor.md) está preparada en una rama local, pendiente de merge/despliegue. Incluye control de foco, geometría del panel y nombres/errores del editor, con tipos/lint/build y recorrido Chromium ficticio aprobados. No acredita navegación autenticada ni lector de pantalla real.
 
 ## Pendientes
 
@@ -75,7 +77,7 @@ La [CI de calidad](2026-10-31-ci-calidad.md) se incorpora en esta entrega: insta
 | Alta | Validación real | Drive/Gmail (sin nuevas gestiones de carpeta o consentimiento por decisión del usuario), permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
 | Media | Métricas y consultas | SLA por ciclo y periodos/tendencias desplegados (5453fd1 y 3c46c0b). Estadísticas personales desplegadas en 28fadb6. Paginación/agregados de encuestas de usuarios desplegados en e8c46e7. Tabla de tickets de proveedores desplegada en d214f41. Selector remoto desplegado en a7bdd2e. Paginación de evaluaciones de proveedores desplegada en 6c3e631. Pendientes otros listados/indicadores, exportaciones grandes y validación autenticada. |
 | Media | Esquema y operación | Catálogo y planes revisados: tres índices creados con autorización específica y verificados; 112 KiB observados. Pendientes observación/volumen, constraints compatibles y respaldo/restauración verificables. |
-| Media | Calidad | CI con configuración ficticia incorporada; confirmar ejecución real en GitHub. Pendientes accesibilidad/teclado, revisión visual, React Doctor y avisos transitivos registrados. |
+| Media | Calidad | CI real aprobada en b6418ae. Corrección local de accesibilidad/foco validada, pendiente de integración. Pendientes lector de pantalla y navegación real, revisión visual/contraste, React Doctor y avisos transitivos registrados. |
 
 Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. Se crearon únicamente las tablas aditivas autorizadas de recordatorios, cancelaciones pendientes, intentos de carga, contadores de frecuencia y formularios de archivos; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.
 

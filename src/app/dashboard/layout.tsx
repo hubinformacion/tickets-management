@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -51,21 +52,20 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const mainContentRef = useRef<HTMLElement>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isKnowledgeBaseOpen, setIsKnowledgeBaseOpen] = useState(() => pathname.startsWith("/dashboard/manual/"));
   const [isEncuestasOpen, setIsEncuestasOpen] = useState(() => pathname.startsWith("/dashboard/encuestas"));
   const [knowledgeBaseUrl, setKnowledgeBaseUrl] = useState(DEFAULT_KNOWLEDGE_BASE_URL);
 
-  const handleEscape = useCallback((e: KeyboardEvent) => {
-    if (e.key === "Escape") setIsSidebarOpen(false);
-  }, []);
-
   useEffect(() => {
-    if (isSidebarOpen) {
-      document.addEventListener("keydown", handleEscape);
-      return () => document.removeEventListener("keydown", handleEscape);
-    }
-  }, [isSidebarOpen, handleEscape]);
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setIsSidebarOpen(false);
+    };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
 
   useEffect(() => {
     getAppSettingAction("knowledge_base_url").then((url) => {
@@ -205,6 +205,7 @@ export default function DashboardLayout({
       <Link
         key={sub.href}
         href={sub.href}
+        aria-current={isActive ? "page" : undefined}
         target={sub.external ? "_blank" : undefined}
         rel={sub.external ? "noopener noreferrer" : undefined}
         onClick={mobile ? () => setIsSidebarOpen(false) : undefined}
@@ -280,261 +281,259 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-background">
-      {/* DESKTOP SIDEBAR */}
-      <aside
-        aria-label="Menú principal"
-        className={cn(
-          "hidden md:flex flex-col shrink-0 h-full overflow-hidden transition-all duration-300 ease-in-out z-20 border-r border-sidebar-border bg-sidebar text-sidebar-foreground",
-          isCollapsed ? "w-20" : "w-72"
-        )}
-      >
-        <div className={cn(
-          "relative flex border-b border-sidebar-border transition-all duration-300",
-          isCollapsed ? "flex-col items-center justify-center py-4 px-2 gap-4" : "flex-col items-start py-6 px-6 gap-3"
-        )}>
-          {!isCollapsed && (
-            <div className="absolute top-4 right-4 z-20">
-              <ModeToggle />
-            </div>
+    <Dialog open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+      <div className="flex h-dvh overflow-hidden bg-background">
+        {/* DESKTOP SIDEBAR */}
+        <aside
+          aria-label="Menú principal"
+          className={cn(
+            "hidden md:flex flex-col shrink-0 h-full overflow-hidden transition-all duration-300 ease-in-out z-20 border-r border-sidebar-border bg-sidebar text-sidebar-foreground",
+            isCollapsed ? "w-20" : "w-72"
           )}
+        >
+          <div className={cn(
+            "relative flex border-b border-sidebar-border transition-all duration-300",
+            isCollapsed ? "flex-col items-center justify-center py-4 px-2 gap-4" : "flex-col items-start py-6 px-6 gap-3"
+          )}>
+            {!isCollapsed && (
+              <div className="absolute top-4 right-4 z-20">
+                <ModeToggle />
+              </div>
+            )}
 
-          {isPending ? (
-            <>
-              <Skeleton className={cn("rounded-full shrink-0", isCollapsed ? "h-8 w-8" : "h-12 w-12")} />
-              {!isCollapsed && (
-                <div className="flex flex-col items-start w-full min-w-0 space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-40" />
-                  <Skeleton className="h-5 w-20 mt-1" />
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <Avatar className={cn("transition-all duration-300 ring-2 ring-sidebar-ring shrink-0", isCollapsed ? "h-8 w-8" : "h-12 w-12")}>
-                <AvatarImage src={session?.user?.image || undefined} referrerPolicy="no-referrer" />
-                <AvatarFallback className="bg-primary text-primary-foreground font-bold">
-                  {session?.user?.name?.charAt(0) || "U"}
-                </AvatarFallback>
-              </Avatar>
-
-              {!isCollapsed && (
-                <div className="flex flex-col items-start w-full min-w-0 space-y-1">
-                  <h2 className="font-semibold text-sm w-full wrap-break-word leading-tight" title={session?.user?.name || ""}>
-                    {session?.user?.name || "Usuario"}
-                  </h2>
-                  <p className="text-xs text-muted-foreground w-full break-all" title={session?.user?.email || ""}>
-                    {session?.user?.email || ""}
-                  </p>
-                  <div className="pt-2">
-                    <SidebarUserInfo role={userRole} />
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        <div className="flex-1 overflow-y-auto py-6 space-y-6">
-          {isPending ? (
-            <div className="px-3 space-y-3">
-              {!isCollapsed && <Skeleton className="h-3 w-16 mb-3" />}
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className={cn("flex items-center px-3 py-2 rounded-md", isCollapsed ? "justify-center" : "")}>
-                  <Skeleton className="h-5 w-5 shrink-0" />
-                  {!isCollapsed && <Skeleton className="h-4 w-24 ml-3" />}
-                </div>
-              ))}
-              <div className="mx-1 border-t border-sidebar-border my-4" />
-              {!isCollapsed && <Skeleton className="h-3 w-14 mb-3" />}
-              {Array.from({ length: 2 }).map((_, i) => (
-                <div key={i} className={cn("flex items-center px-3 py-2 rounded-md", isCollapsed ? "justify-center" : "")}>
-                  <Skeleton className="h-5 w-5 shrink-0" />
-                  {!isCollapsed && <Skeleton className="h-4 w-28 ml-3" />}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="px-3 space-y-1">
-              {navigationGroups.filter(g => g.items.length > 0).map((group, gi) => (
-                <div key={gi} className="mb-2 last:mb-0">
-                  {gi > 0 && group.groupLabel && (
-                    <div className={cn("pt-3 pb-1", !isCollapsed && "px-3")}>
-                      {!isCollapsed ? (
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider animate-in fade-in duration-300">
-                          {group.groupLabel}
-                        </h3>
-                      ) : (
-                        <div className="border-t border-sidebar-border" />
-                      )}
-                    </div>
-                  )}
-                  <div className="space-y-0.5">
-                    {group.items.map((item) => renderNavLink(item))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="p-4 border-t border-sidebar-border bg-sidebar mt-auto">
-          <div className={cn("flex items-center", isCollapsed ? "flex-col gap-6 justify-center" : "gap-2 flex-row")}>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsCollapsed(prev => !prev)}
-              className={cn(
-                "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-9 w-9 border border-sidebar-border transition-all order-2"
-              )}
-              aria-label={isCollapsed ? "Expandir menú" : "Colapsar menú"}
-            >
-              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </Button>
-
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className={cn(
-                "flex items-center text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-700 dark:hover:text-red-300 rounded-md transition-colors cursor-pointer",
-                isCollapsed ? "justify-center p-3 order-1" : "flex-1 px-3 py-2 order-1"
-              )}
-              aria-label="Cerrar sesión"
-            >
-              <LogOut className={cn("h-5 w-5", !isCollapsed && "mr-3")} aria-hidden="true" />
-              {!isCollapsed && <span className="text-sm font-medium">Cerrar sesión</span>}
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* MOBILE SIDEBAR OVERLAY */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* MOBILE SIDEBAR */}
-      <aside
-        aria-label="Menú principal"
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 h-full overflow-hidden transform bg-sidebar text-sidebar-foreground shadow-2xl transition-transform duration-300 ease-in-out md:hidden",
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
-        <div className="flex h-16 items-center justify-between px-6 border-b border-sidebar-border">
-          <span className="text-base font-semibold">Menú</span>
-          <button
-            type="button"
-            onClick={() => setIsSidebarOpen(false)}
-            className="text-muted-foreground hover:text-foreground"
-            aria-label="Cerrar menú"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        <div className="flex flex-col h-full overflow-y-auto">
-          <div className="p-6 border-b border-sidebar-border flex flex-col items-center relative">
-            <div className="absolute top-4 right-4">
-              <ModeToggle />
-            </div>
             {isPending ? (
               <>
-                <Skeleton className="h-16 w-16 mb-3 rounded-full" />
-                <Skeleton className="h-5 w-32 mb-2" />
-                <Skeleton className="h-4 w-40 mb-2" />
-                <Skeleton className="h-5 w-20" />
+                <Skeleton className={cn("rounded-full shrink-0", isCollapsed ? "h-8 w-8" : "h-12 w-12")} />
+                {!isCollapsed && (
+                  <div className="flex flex-col items-start w-full min-w-0 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-40" />
+                    <Skeleton className="h-5 w-20 mt-1" />
+                  </div>
+                )}
               </>
             ) : (
               <>
-                <Avatar className="h-16 w-16 mb-3 ring-2 ring-sidebar-ring">
+                <Avatar className={cn("transition-all duration-300 ring-2 ring-sidebar-ring shrink-0", isCollapsed ? "h-8 w-8" : "h-12 w-12")}>
                   <AvatarImage src={session?.user?.image || undefined} referrerPolicy="no-referrer" />
                   <AvatarFallback className="bg-primary text-primary-foreground font-bold">
                     {session?.user?.name?.charAt(0) || "U"}
                   </AvatarFallback>
                 </Avatar>
-                <h2 className="font-semibold text-lg">{session?.user?.name || "Usuario"}</h2>
-                <p className="text-sm text-muted-foreground mb-2">{session?.user?.email || ""}</p>
-                <SidebarUserInfo role={userRole} />
+
+                {!isCollapsed && (
+                  <div className="flex flex-col items-start w-full min-w-0 space-y-1">
+                    <h2 className="font-semibold text-sm w-full wrap-break-word leading-tight" title={session?.user?.name || ""}>
+                      {session?.user?.name || "Usuario"}
+                    </h2>
+                    <p className="text-xs text-muted-foreground w-full break-all" title={session?.user?.email || ""}>
+                      {session?.user?.email || ""}
+                    </p>
+                    <div className="pt-2">
+                      <SidebarUserInfo role={userRole} />
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>
 
-          <nav className="flex-1 px-4 py-6 space-y-6">
+          <div className="flex-1 overflow-y-auto py-6 space-y-6">
             {isPending ? (
-              <div className="space-y-3">
-                <Skeleton className="h-3 w-16 mb-3" />
+              <div className="px-3 space-y-3">
+                {!isCollapsed && <Skeleton className="h-3 w-16 mb-3" />}
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="flex items-center px-3 py-3 rounded-lg">
-                    <Skeleton className="h-6 w-6 mr-4 shrink-0" />
-                    <Skeleton className="h-4 w-28" />
+                  <div key={i} className={cn("flex items-center px-3 py-2 rounded-md", isCollapsed ? "justify-center" : "")}>
+                    <Skeleton className="h-5 w-5 shrink-0" />
+                    {!isCollapsed && <Skeleton className="h-4 w-24 ml-3" />}
+                  </div>
+                ))}
+                <div className="mx-1 border-t border-sidebar-border my-4" />
+                {!isCollapsed && <Skeleton className="h-3 w-14 mb-3" />}
+                {Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className={cn("flex items-center px-3 py-2 rounded-md", isCollapsed ? "justify-center" : "")}>
+                    <Skeleton className="h-5 w-5 shrink-0" />
+                    {!isCollapsed && <Skeleton className="h-4 w-28 ml-3" />}
                   </div>
                 ))}
               </div>
             ) : (
-              <div>
-                <h3 className="px-2 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Navegación
-                </h3>
-                <div className="space-y-2">
-                  {navigationGroups.filter(g => g.items.length > 0).map((group, gi) => (
-                    <div key={gi} className="mb-4 last:mb-0">
-                      {gi > 0 && group.groupLabel && (
-                        <div className="pt-2 pb-1 px-2">
-                          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <div className="px-3 space-y-1">
+                {navigationGroups.filter(g => g.items.length > 0).map((group, gi) => (
+                  <div key={gi} className="mb-2 last:mb-0">
+                    {gi > 0 && group.groupLabel && (
+                      <div className={cn("pt-3 pb-1", !isCollapsed && "px-3")}>
+                        {!isCollapsed ? (
+                          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider animate-in fade-in duration-300">
                             {group.groupLabel}
                           </h3>
-                        </div>
-                      )}
-                      <div className="space-y-0.5">
-                        {group.items.map((item) => renderNavLink(item, true))}
+                        ) : (
+                          <div className="border-t border-sidebar-border" />
+                        )}
                       </div>
+                    )}
+                    <div className="space-y-0.5">
+                      {group.items.map((item) => renderNavLink(item))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="p-4 border-t border-sidebar-border bg-sidebar mt-auto">
+            <div className={cn("flex items-center", isCollapsed ? "flex-col gap-6 justify-center" : "gap-2 flex-row")}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsCollapsed(prev => !prev)}
+                className={cn(
+                  "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-9 w-9 border border-sidebar-border transition-all order-2"
+                )}
+                aria-label={isCollapsed ? "Expandir menú" : "Colapsar menú"}
+              >
+                {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              </Button>
+
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className={cn(
+                  "flex items-center text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-700 dark:hover:text-red-300 rounded-md transition-colors cursor-pointer",
+                  isCollapsed ? "justify-center p-3 order-1" : "flex-1 px-3 py-2 order-1"
+                )}
+                aria-label="Cerrar sesión"
+              >
+                <LogOut className={cn("h-5 w-5", !isCollapsed && "mr-3")} aria-hidden="true" />
+                {!isCollapsed && <span className="text-sm font-medium">Cerrar sesión</span>}
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {/* Menú móvil modal: Radix gestiona foco, Escape y aislamiento del fondo. */}
+        <DialogContent
+          showCloseButton={false}
+          aria-describedby={undefined}
+          className="inset-y-0 left-0 flex h-dvh w-72 max-w-full translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-none border-0 bg-sidebar p-0 text-sidebar-foreground sm:max-w-72 data-[state=open]:zoom-in-100 data-[state=closed]:zoom-out-100 data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left"
+          onCloseAutoFocus={(event) => {
+            if (window.matchMedia("(min-width: 768px)").matches) {
+              event.preventDefault();
+              mainContentRef.current?.focus();
+            }
+          }}
+        >
+          <div className="flex h-16 shrink-0 items-center justify-between px-6 border-b border-sidebar-border">
+            <DialogTitle className="text-base font-semibold">Menú principal</DialogTitle>
+            <DialogClose asChild>
+              <button
+                type="button"
+                className="flex size-9 items-center justify-center rounded-md text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                aria-label="Cerrar menú"
+              >
+                <X className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </DialogClose>
+          </div>
+
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+            <div className="p-6 border-b border-sidebar-border flex flex-col items-center relative">
+              <div className="absolute top-4 right-4">
+                <ModeToggle />
+              </div>
+              {isPending ? (
+                <>
+                  <Skeleton className="h-16 w-16 mb-3 rounded-full" />
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-4 w-40 mb-2" />
+                  <Skeleton className="h-5 w-20" />
+                </>
+              ) : (
+                <>
+                  <Avatar className="h-16 w-16 mb-3 ring-2 ring-sidebar-ring">
+                    <AvatarImage src={session?.user?.image || undefined} referrerPolicy="no-referrer" />
+                    <AvatarFallback className="bg-primary text-primary-foreground font-bold">
+                      {session?.user?.name?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <h2 className="font-semibold text-lg">{session?.user?.name || "Usuario"}</h2>
+                  <p className="text-sm text-muted-foreground mb-2">{session?.user?.email || ""}</p>
+                  <SidebarUserInfo role={userRole} />
+                </>
+              )}
+            </div>
+
+            <nav className="flex-1 px-4 py-6 space-y-6">
+              {isPending ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-3 w-16 mb-3" />
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center px-3 py-3 rounded-lg">
+                      <Skeleton className="h-6 w-6 mr-4 shrink-0" />
+                      <Skeleton className="h-4 w-28" />
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-          </nav>
+              ) : (
+                <div>
+                  <h3 className="px-2 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Navegación
+                  </h3>
+                  <div className="space-y-2">
+                    {navigationGroups.filter(g => g.items.length > 0).map((group, gi) => (
+                      <div key={gi} className="mb-4 last:mb-0">
+                        {gi > 0 && group.groupLabel && (
+                          <div className="pt-2 pb-1 px-2">
+                            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                              {group.groupLabel}
+                            </h3>
+                          </div>
+                        )}
+                        <div className="space-y-0.5">
+                          {group.items.map((item) => renderNavLink(item, true))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </nav>
 
-          <div className="p-4 border-t border-sidebar-border">
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="flex w-full items-center justify-center px-4 py-3 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/40 hover:text-red-700 dark:hover:text-red-300 transition-colors"
-              aria-label="Cerrar sesión"
-            >
-              <LogOut className="mr-2 h-5 w-5" aria-hidden="true" />
-              Cerrar sesión
-            </button>
+            <div className="p-4 border-t border-sidebar-border">
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="flex w-full items-center justify-center px-4 py-3 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/40 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+                aria-label="Cerrar sesión"
+              >
+                <LogOut className="mr-2 h-5 w-5" aria-hidden="true" />
+                Cerrar sesión
+              </button>
+            </div>
           </div>
+        </DialogContent>
+
+        {/* MAIN CONTENT */}
+        <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+          <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4 shadow-sm md:hidden">
+            <DialogTrigger asChild>
+              <button
+                type="button"
+                className="flex size-9 items-center justify-center rounded-md text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                aria-label="Abrir menú"
+              >
+                <Menu className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </DialogTrigger>
+            <span className="text-base font-semibold">Gestión de tickets</span>
+            <div className="w-6" />
+          </header>
+
+          <main ref={mainContentRef} tabIndex={-1} className="flex-1 overflow-y-auto p-4 lg:p-8">
+            {children}
+          </main>
         </div>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4 shadow-sm md:hidden">
-          <button
-            type="button"
-            onClick={() => setIsSidebarOpen(true)}
-            className="text-muted-foreground focus:outline-none"
-            aria-label="Abrir menú"
-            aria-expanded={isSidebarOpen}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          <span className="text-base font-semibold">Gestión de tickets</span>
-          <div className="w-6" />
-        </header>
-
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
-          {children}
-        </main>
       </div>
-    </div>
+    </Dialog>
   );
 }
