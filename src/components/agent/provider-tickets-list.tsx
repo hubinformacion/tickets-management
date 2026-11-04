@@ -52,7 +52,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { UserAvatar } from "@/components/shared/user-avatar";
-import { PROVIDER_TICKET_STATUS_LABELS, PROVIDER_TICKET_PRIORITY_LABELS, PROVIDER_TICKET_PRIORITY_STYLES, PROVIDER_SURVEY_QUESTIONS, SURVEY_RATING_STYLES, SURVEY_RATING_SELECTED_STYLES } from "@/lib/constants/tickets";
+import { PROVIDER_TICKET_STATUS_LABELS, PROVIDER_TICKET_PRIORITY_LABELS, PROVIDER_TICKET_PRIORITY_STYLES, PROVIDER_SURVEY_QUESTIONS } from "@/lib/constants/tickets";
+import { SurveyRatingField } from "@/components/surveys/survey-rating-field";
 import type { SurveyRating } from "@/types";
 import { cn } from "@/lib/utils/cn";
 import { dayjs, formatCalendarDate } from "@/lib/utils/date";
@@ -452,7 +453,7 @@ function CloseProviderTicketDialog({
   const [isPending, startTransition] = useTransition();
   const [completionDate, setCompletionDate] = useState<string>("");
   const [includeSurvey, setIncludeSurvey] = useState(false);
-  const [ratings, setRatings] = useState<Partial<Record<ProviderSurveyKey, number>>>({});
+  const [ratings, setRatings] = useState<Partial<Record<ProviderSurveyKey, SurveyRating>>>({});
 
   function resetForm() {
     setCompletionDate("");
@@ -560,6 +561,7 @@ function CloseProviderTicketDialog({
           <div className="border rounded-lg overflow-hidden">
             <button
               type="button"
+              aria-expanded={includeSurvey}
               onClick={() => setIncludeSurvey((v) => !v)}
               className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-sm font-medium"
             >
@@ -585,37 +587,15 @@ function CloseProviderTicketDialog({
                 </p>
 
                 {PROVIDER_SURVEY_QUESTIONS.map((q) => (
-                  <div key={q.key} className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">{q.label}</label>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-muted-foreground w-16 text-right shrink-0">
-                        {q.lowLabel}
-                      </span>
-                      <div className="flex gap-1.5 flex-1 justify-center">
-                        {([1, 2, 3, 4, 5] as SurveyRating[]).map((val) => (
-                          <button
-                            key={val}
-                            type="button"
-                            disabled={isPending}
-                            onClick={() => setRatings((prev) => ({ ...prev, [q.key]: val }))}
-                            className={cn(
-                              "h-9 w-9 rounded-lg border text-sm font-bold transition-all duration-200 cursor-pointer",
-                              "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
-                              ratings[q.key] === val
-                                ? SURVEY_RATING_SELECTED_STYLES[val]
-                                : SURVEY_RATING_STYLES[val],
-                              isPending && "opacity-50 cursor-not-allowed"
-                            )}
-                          >
-                            {val}
-                          </button>
-                        ))}
-                      </div>
-                      <span className="text-[10px] text-muted-foreground w-16 shrink-0">
-                        {q.highLabel}
-                      </span>
-                    </div>
-                  </div>
+                  <SurveyRatingField
+                    key={q.key}
+                    question={q.label}
+                    lowLabel={q.lowLabel}
+                    highLabel={q.highLabel}
+                    value={ratings[q.key]}
+                    onValueChange={(value) => setRatings((prev) => ({ ...prev, [q.key]: value }))}
+                    disabled={isPending}
+                  />
                 ))}
               </div>
             )}

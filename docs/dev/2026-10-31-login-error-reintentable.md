@@ -2,7 +2,7 @@
 
 ## Entrega
 
-Corrección local en `fix/login-error-reintentable`, basada en `fix/accesibilidad-controles`; integra por tanto el registro de Doctor y las tres correcciones de controles al realizar el futuro merge de esta rama. Pendiente de aprobación de integración/despliegue. Producción permanece en `e47e29d`. El [diseño](../plans/2026-10-31-login-error-design.md) concreta el contrato y los límites.
+Corrección local en `fix/login-error-reintentable`, basada en `fix/accesibilidad-controles`; integra por tanto el registro de Doctor y las tres correcciones de controles al realizar el futuro merge de esta rama. Integrada/desplegada en `6c6a5fc`, Production `7550658075`, CI aprobada y SHA público confirmado. Las ramas integradas se eliminaron. El [diseño](../plans/2026-10-31-login-error-design.md) concreta el contrato y los límites.
 
 Better Auth 1.7.14 devuelve por defecto {data,error} en el cliente. El handleLogin anterior solo recuperaba isLoading cuando se lanzaba una excepción; ignoraba un error HTTP resuelto y dejaba el botón bloqueado en «Redirigiendo…». El defecto se reprodujo con LoginForm y cliente reales, sustituyendo únicamente el fetch por una respuesta HTTP 400 ficticia.
 

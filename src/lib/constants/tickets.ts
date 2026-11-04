@@ -84,19 +84,19 @@ export const SURVEY_QUESTIONS = [
 ] as const;
 
 export const SURVEY_RATING_STYLES: Record<SurveyRating, string> = {
-  1: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950/60",
-  2: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200 dark:bg-orange-950/40 dark:text-orange-400 dark:border-orange-800 dark:hover:bg-orange-950/60",
-  3: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-800 dark:hover:bg-yellow-950/60",
-  4: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200 dark:bg-green-950/40 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-950/60",
-  5: "bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800 dark:hover:bg-emerald-950/60",
+  1: "bg-red-100 text-red-800 border-red-300 hover:bg-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950/60",
+  2: "bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200 dark:bg-orange-950/40 dark:text-orange-400 dark:border-orange-800 dark:hover:bg-orange-950/60",
+  3: "bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-800 dark:hover:bg-yellow-950/60",
+  4: "bg-green-100 text-green-800 border-green-300 hover:bg-green-200 dark:bg-green-950/40 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-950/60",
+  5: "bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800 dark:hover:bg-emerald-950/60",
 };
 
 export const SURVEY_RATING_SELECTED_STYLES: Record<SurveyRating, string> = {
-  1: "bg-red-500 text-white border-red-600 hover:bg-red-500 dark:bg-red-600 dark:text-white dark:border-red-500 dark:hover:bg-red-600",
-  2: "bg-orange-500 text-white border-orange-600 hover:bg-orange-500 dark:bg-orange-600 dark:text-white dark:border-orange-500 dark:hover:bg-orange-600",
-  3: "bg-yellow-500 text-white border-yellow-600 hover:bg-yellow-500 dark:bg-yellow-600 dark:text-white dark:border-yellow-500 dark:hover:bg-yellow-600",
-  4: "bg-green-500 text-white border-green-600 hover:bg-green-500 dark:bg-green-600 dark:text-white dark:border-green-500 dark:hover:bg-green-600",
-  5: "bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-500 dark:bg-emerald-600 dark:text-white dark:border-emerald-500 dark:hover:bg-emerald-600",
+  1: "bg-red-700 text-white border-red-800 hover:bg-red-700 dark:border-red-600",
+  2: "bg-orange-700 text-white border-orange-800 hover:bg-orange-700 dark:border-orange-600",
+  3: "bg-yellow-700 text-white border-yellow-800 hover:bg-yellow-700 dark:border-yellow-600",
+  4: "bg-green-700 text-white border-green-800 hover:bg-green-700 dark:border-green-600",
+  5: "bg-emerald-700 text-white border-emerald-800 hover:bg-emerald-700 dark:border-emerald-600",
 };
 
 export const PROVIDER_SURVEY_QUESTIONS = [

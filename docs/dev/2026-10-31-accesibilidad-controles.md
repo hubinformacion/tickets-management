@@ -2,7 +2,7 @@
 
 ## Entrega
 
-El usuario pidió ejecutar los pendientes después del diagnóstico de Doctor. Se implementa el [diseño propuesto](../plans/2026-10-31-accesibilidad-controles-design.md) en `fix/accesibilidad-controles`, rama local basada en el registro del diagnóstico. Se agrupan documentación y código; pendiente de integración/publicación, sin Preview. Producción permanece en `e47e29d`.
+El usuario pidió ejecutar los pendientes después del diagnóstico de Doctor. Se implementa el [diseño propuesto](../plans/2026-10-31-accesibilidad-controles-design.md) en `fix/accesibilidad-controles`, rama local basada en el registro del diagnóstico. Documentación y código integrados/desplegados en `6c6a5fc`, Production `7550658075` y CI aprobadas, SHA público confirmado; rama integrada eliminada. Sin Preview.
 
 - Limpiar rango de fechas usa un botón hermano del disparador de calendario, con nombre e indicador de foco. Mantiene filtros ajenos al rango, reinicia página con el helper existente y devuelve foco al disparador. El rango visible se conserva como descripción accesible mediante ID por instancia.
 - Quitar una persona tiene nombre contextual, tamaño de 24 px, visibilidad permanente y foco visible. El foco vuelve al selector estable al desaparecer la fila. No cambia cómo se eligen o guardan destinatarios.

@@ -126,3 +126,7 @@ Se preparan [filtros, selector de personas y título accesibles](2026-10-31-acce
 ## Avance: recuperación del login confirmada
 
 La [corrección del login](2026-10-31-login-error-reintentable.md) está validada localmente sobre la rama de controles: devuelve estado reintentable ante error HTTP/transporte/excepción o respuesta sin redirección y conserva el éxito de Better Auth. Chromium con cliente real y fetch ficticio, tipos, ESLint y build aprobados. Doctor queda en 9 errores heurísticos de auth contrastados y 67 advertencias, sin supresiones. Las ramas locales agrupan documentación y código; pendientes de merge/despliegue. Continúan encuestas/ajuste móvil, etiqueta de adjuntos, validación real y exportaciones grandes.
+
+## Avance del 4 de noviembre: publicación y encuestas
+
+Controles/login y registro de Doctor integrados/publicados en `6c6a5fc`, con revisión independiente, CI real, Production `7550658075` y SHA público confirmados. Ramas integradas eliminadas, sin Preview ni cambios de BD. Se prepara la [corrección de encuestas](2026-11-04-encuestas-accesibles.md): selección nativa por pregunta, foco, contraste y ajuste móvil. Chromium con datos/payloads ficticios y revisión independiente aprobados, validación final del bloque documentada. Pendiente de merge/despliegue. Continúan adjuntos, exportaciones grandes y comprobaciones de servicios/lector reales.
