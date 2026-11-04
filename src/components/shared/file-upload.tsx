@@ -97,6 +97,21 @@ export function FileUpload({ uploadToken, ticketId, onFilesChange, confirmedAtta
           }
         }}
         labelIdle='<div class="text-[11px]">Arrastra archivos aquí o <span class="filepond--label-action">selecciona</span></div>'
+        labelInvalidField="Hay archivos inválidos"
+        labelFileLoading="Leyendo archivo..."
+        labelFileAdded="Archivo añadido"
+        labelFileRemoved="Archivo retirado"
+        labelFileCountSingular="archivo en la lista"
+        labelFileCountPlural="archivos en la lista"
+        labelFileRemoveError="No se pudo retirar el archivo"
+        labelFileProcessingRevertError="No se pudo deshacer la subida"
+        labelButtonRemoveItem="Quitar archivo"
+        labelButtonAbortItemLoad="Cancelar lectura del archivo"
+        labelButtonRetryItemLoad="Reintentar lectura del archivo"
+        labelButtonAbortItemProcessing="Cancelar subida"
+        labelButtonUndoItemProcessing="Retirar archivo subido"
+        labelButtonRetryItemProcessing="Reintentar subida"
+        labelButtonProcessItem="Subir archivo"
         labelFileProcessing="Subiendo..."
         labelFileProcessingComplete="Listo"
         labelFileProcessingAborted="Subida cancelada"

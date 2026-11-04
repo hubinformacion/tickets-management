@@ -4,7 +4,7 @@
 
 El push autorizado integró controles de tickets, registro de Doctor y login reintentable en `6c6a5fc7f2cf7506f9abc08e95d34485799b2e21`. Revisión independiente sin bloqueos; tipos y ESLint locales aprobados. [CI real](https://github.com/hubinformacion/tickets-management/actions/runs/41861157103) aprobada, Production `7550658075` aprobada y SHA confirmado en requerimientos-hub.vercel.app. Login 200, sesión anónima 200/null y dashboard 307 a login. Estado autenticado de recordatorios 200, queue disponible y corte fijo `2026-10-28T17:00:00.000Z`. No se ejecutaron workers ni operaciones reales de archivos, correo o datos. Las tres ramas locales integradas se eliminaron después de verificar contenido y ascendencia.
 
-Continúa el pendiente aprobado de encuestas en `fix/encuestas-accesibles`, rama local sin Preview, pendiente de integración/despliegue. [Diseño](../plans/2026-11-04-encuestas-accesibles-design.md) y [plan](../plans/2026-11-04-encuestas-accesibles-plan.md). Se aplicaron Impeccable, Ponytail y ejecución inline, respetando la regla del proyecto de no crear tests/frameworks.
+Encuestas integradas/desplegadas como `9e42b8f`, Production `7551116445` aprobada y SHA público confirmado. La rama `fix/encuestas-accesibles` se eliminó. CI 41864442479 estuvo en cola durante la incidencia de Actions; su resultado se registra por separado. Sin Preview. [Diseño](../plans/2026-11-04-encuestas-accesibles-design.md) y [plan](../plans/2026-11-04-encuestas-accesibles-plan.md). Se aplicaron Impeccable, Ponytail y ejecución inline, respetando la regla del proyecto de no crear tests/frameworks.
 
 ## Cambio
 

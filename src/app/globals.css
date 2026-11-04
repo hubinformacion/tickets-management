@@ -250,6 +250,29 @@
   text-decoration-color: var(--foreground) !important;
 }
 
+/* Mantener legibles los estados y detalles de archivo de FilePond. */
+.filepond-wrapper [data-filepond-item-state='processing-complete'] .filepond--item-panel {
+  background-color: var(--color-green-700);
+}
+
+.filepond-wrapper [data-filepond-item-state*='error'] .filepond--item-panel,
+.filepond-wrapper [data-filepond-item-state*='invalid'] .filepond--item-panel {
+  background-color: var(--color-red-700);
+}
+
+.filepond-wrapper .filepond--item:not([data-filepond-item-state='processing-complete']) .filepond--file-info-sub,
+.filepond-wrapper .filepond--item:not([data-filepond-item-state='processing']):not([data-filepond-item-state='processing-error']):not([data-filepond-item-state='processing-complete']) .filepond--file-status-sub,
+.filepond-wrapper [data-filepond-item-state='processing-complete'] .filepond--action-revert-item-processing ~ .filepond--file-info .filepond--file-info-sub,
+.filepond-wrapper [data-filepond-item-state='processing'] .filepond--action-abort-item-processing ~ .filepond--file-status .filepond--file-status-sub,
+.filepond-wrapper [data-filepond-item-state='processing-error'] .filepond--action-retry-item-processing ~ .filepond--file-status .filepond--file-status-sub,
+.filepond-wrapper [data-filepond-item-state='processing-complete'] .filepond--action-revert-item-processing ~ .filepond--file-status .filepond--file-status-sub {
+  opacity: 1;
+}
+
+.filepond-wrapper [data-filepond-item-state='processing-complete'] .filepond--processing-complete-indicator:not([style*='hidden']) ~ .filepond--file-status .filepond--file-status-sub {
+  opacity: 0;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -130,3 +130,7 @@ La [corrección del login](2026-10-31-login-error-reintentable.md) está validad
 ## Avance del 4 de noviembre: publicación y encuestas
 
 Controles/login y registro de Doctor integrados/publicados en `6c6a5fc`, con revisión independiente, CI real, Production `7550658075` y SHA público confirmados. Ramas integradas eliminadas, sin Preview ni cambios de BD. Se prepara la [corrección de encuestas](2026-11-04-encuestas-accesibles.md): selección nativa por pregunta, foco, contraste y ajuste móvil. Chromium con datos/payloads ficticios y revisión independiente aprobados, validación final del bloque documentada. Pendiente de merge/despliegue. Continúan adjuntos, exportaciones grandes y comprobaciones de servicios/lector reales.
+
+## Avance del 4 de noviembre: publicación de encuestas y accesibilidad de adjuntos
+
+Encuestas integradas/publicadas en `9e42b8f`, Production `7551116445` y SHA públicos confirmados; rama integrada eliminada. CI 41864442479: job y pasos aprobados tras la espera de runner durante la incidencia oficial de GitHub; estado agregado todavía en progreso. Se prepara la [accesibilidad de adjuntos](2026-11-04-adjuntos-accesibles.md): encabezado sin label huérfano, opciones nativas de idioma y contraste limitado al widget. Tipos, ESLint, build, Chromium con API ficticia y revisión independiente aprobados, Doctor en 9 errores ya contrastados y 64 advertencias. Pendiente de merge/despliegue; continúan integración real y exportaciones grandes.
