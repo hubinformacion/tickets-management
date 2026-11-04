@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,9 @@ interface TicketFiltersProps {
 const EMPTY_ARRAY: Array<never> = [];
 
 export function TicketFilters({ assignedUsers, categories = EMPTY_ARRAY, subcategories = EMPTY_ARRAY, attentionAreas = EMPTY_ARRAY }: TicketFiltersProps) {
+  const rangeDescriptionId = useId();
   const router = useRouter();
+  const calendarTriggerRef = useRef<HTMLButtonElement>(null);
   const searchParams = useSearchParams();
 
   const estado = searchParams.get("estado") ?? "";
@@ -102,6 +104,7 @@ export function TicketFilters({ assignedUsers, categories = EMPTY_ARRAY, subcate
   const clearDateRange = () => {
     setLocalRange(undefined);
     updateParams({ desde: "", hasta: "" });
+    calendarTriggerRef.current?.focus();
   };
 
   const handleCategoryChange = (value: string) => {
@@ -202,47 +205,57 @@ export function TicketFilters({ assignedUsers, categories = EMPTY_ARRAY, subcate
         </Select>
       )}
 
-      <Popover open={calendarOpen} onOpenChange={handleCalendarOpenChange}>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[280px] justify-start text-left font-normal bg-transparent">
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {displayRange?.from ? (
-              displayRange.to ? (
-                <>
-                  {dayjs(displayRange.from).format("DD MMM")} -{" "}
-                  {dayjs(displayRange.to).format("DD MMM YYYY")}
-                </>
-              ) : (
-                dayjs(displayRange.from).format("DD MMM YYYY")
-              )
-            ) : (
-              <span>Rango de fechas</span>
-            )}
-            {displayRange ? (
-              <button
-                type="button"
-                className="ml-auto rounded-sm opacity-50 hover:opacity-100"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  clearDateRange();
-                }}
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            ) : null}
+      <div className="flex w-[280px] max-w-full items-center gap-1">
+        <Popover open={calendarOpen} onOpenChange={handleCalendarOpenChange}>
+          <PopoverTrigger asChild>
+            <Button
+              ref={calendarTriggerRef}
+              type="button"
+              variant="outline"
+              aria-label="Seleccionar rango de fechas"
+              aria-describedby={rangeDescriptionId}
+              className="min-w-0 flex-1 justify-start text-left font-normal bg-transparent"
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" aria-hidden="true" />
+              <span id={rangeDescriptionId} className="truncate">
+                {displayRange?.from ? (
+                  displayRange.to ? (
+                    <>
+                      {dayjs(displayRange.from).format("DD MMM")} -{" "}
+                      {dayjs(displayRange.to).format("DD MMM YYYY")}
+                    </>
+                  ) : (
+                    dayjs(displayRange.from).format("DD MMM YYYY")
+                  )
+                ) : (
+                  <span>Rango de fechas</span>
+                )}
+              </span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              autoFocus
+              mode="range"
+              defaultMonth={localRange?.from}
+              selected={localRange}
+              onSelect={handleLocalRangeChange}
+              numberOfMonths={2}
+            />
+          </PopoverContent>
+        </Popover>
+        {displayRange ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Limpiar rango de fechas"
+            onClick={clearDateRange}
+          >
+            <X className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            autoFocus
-            mode="range"
-            defaultMonth={localRange?.from}
-            selected={localRange}
-            onSelect={handleLocalRangeChange}
-            numberOfMonths={2}
-          />
-        </PopoverContent>
-      </Popover>
+        ) : null}
+      </div>
       <YearFilter value={anio} onChange={handleYearChange} />
 
       {hasActiveFilters && (

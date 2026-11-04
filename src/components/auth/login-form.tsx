@@ -61,15 +61,22 @@ export function LoginForm({ accountInactive = false }: LoginFormProps) {
 
   const handleLogin = async () => {
     setIsLoading(true);
+    let isRedirecting = false;
     try {
-      await authClient.signIn.social({
+      const { data, error } = await authClient.signIn.social({
         provider: "google",
         callbackURL: "/dashboard",
       });
-    } catch (error) {
-      console.error(error);
+      if (error || !data?.redirect || !data.url) {
+        toast.error("Error al iniciar sesión");
+        return;
+      }
+      // Better Auth inicia la navegación; impedir otro intento mientras sale de esta página.
+      isRedirecting = true;
+    } catch {
       toast.error("Error al iniciar sesión");
-      setIsLoading(false);
+    } finally {
+      if (!isRedirecting) setIsLoading(false);
     }
   };
 

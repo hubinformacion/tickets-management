@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useId } from "react";
+import { useState, useMemo, useId, useRef } from "react";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ export function UserSelector({
 }: UserSelectorProps) {
   const [open, setOpen] = useState(false);
   const listboxId = useId();
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const selectedUsers = useMemo(
     () => users.filter((user) => selectedUserIds.includes(user.id)),
@@ -55,6 +56,7 @@ export function UserSelector({
 
   const removeUser = (userId: string) => {
     onSelectionChange(selectedUserIds.filter((id) => id !== userId));
+    triggerRef.current?.focus();
   };
 
   return (
@@ -62,6 +64,8 @@ export function UserSelector({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
+            ref={triggerRef}
+            type="button"
             variant="outline"
             role="combobox"
             aria-expanded={open}
@@ -128,10 +132,11 @@ export function UserSelector({
               <span className="text-xs truncate flex-1 min-w-0">{user.name}</span>
               <button
                 type="button"
+                aria-label={`Quitar a ${user.name} de la selección`}
                 onClick={() => removeUser(user.id)}
-                className="shrink-0 rounded-full p-0.5 text-muted-foreground hover:bg-muted-foreground/20 hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                className="flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted-foreground/20 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3" aria-hidden="true" />
               </button>
             </div>
           ))}

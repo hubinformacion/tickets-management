@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-La última verificación de producción registrada al preparar esta entrega corresponde a `b6418ae`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
+La última verificación de producción registrada al preparar esta entrega corresponde a `e47e29d`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
 
 La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones, intentos de carga, contadores de frecuencia y formularios de archivos. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
@@ -64,7 +64,11 @@ La [paginación de evaluaciones de proveedores](2026-10-30-paginacion-encuestas-
 
 La [CI de calidad](2026-10-31-ci-calidad.md) está integrada en `b6418ae`. Su [primera ejecución real](https://github.com/hubinformacion/tickets-management/actions/runs/41234157431) aprobó instalación, tipos, ESLint y build con configuración ficticia. Production `7463300339` aprobada y SHA público confirmado, sin Preview ni cambios de datos.
 
-La [corrección de accesibilidad del menú móvil y editor](2026-10-31-accesibilidad-menu-editor.md) está preparada en una rama local, pendiente de merge/despliegue. Incluye control de foco, geometría del panel y nombres/errores del editor, con tipos/lint/build y recorrido Chromium ficticio aprobados. No acredita navegación autenticada ni lector de pantalla real.
+La [corrección de accesibilidad del menú móvil y editor](2026-10-31-accesibilidad-menu-editor.md) está integrada/desplegada en `e47e29d`, Production `7463472478`, con CI y SHA público confirmados. Incluye control de foco, geometría del panel y nombres/errores del editor, con tipos/lint/build y recorrido Chromium ficticio aprobados. No acredita navegación autenticada ni lector de pantalla real.
+
+La [revisión inicial de React Doctor](2026-10-31-react-doctor.md) sobre `e47e29d` terminó con 79 diagnósticos: nueve alertas de autenticación contrastadas como falsos positivos y 70 advertencias por priorizar. Se documentan controles accesibles restantes, semántica de encuestas y verificación del contrato de error del login. Sin supresiones, puntuación externa ni escaneo de dependencias; Doctor no está aprobado.
+
+La [corrección de controles accesibles](2026-10-31-accesibilidad-controles.md) está preparada en rama local: limpieza de fechas sin botones anidados, quitar personas con nombre/foco visible y etiqueta del título. Chromium ficticio aprobado; Doctor baja a 67 advertencias sin supresiones. La [recuperación del login](2026-10-31-login-error-reintentable.md) está corregida en una rama local basada en la de controles: errores devueltos/excepciones vuelven a habilitar el botón y la redirección correcta se conserva. Chromium con cliente real/respuestas ficticias y tipos/lint/build aprobados. Ambas correcciones siguen pendientes de merge/despliegue.
 
 ## Pendientes
 
@@ -77,7 +81,7 @@ La [corrección de accesibilidad del menú móvil y editor](2026-10-31-accesibil
 | Alta | Validación real | Drive/Gmail (sin nuevas gestiones de carpeta o consentimiento por decisión del usuario), permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
 | Media | Métricas y consultas | SLA por ciclo y periodos/tendencias desplegados (5453fd1 y 3c46c0b). Estadísticas personales desplegadas en 28fadb6. Paginación/agregados de encuestas de usuarios desplegados en e8c46e7. Tabla de tickets de proveedores desplegada en d214f41. Selector remoto desplegado en a7bdd2e. Paginación de evaluaciones de proveedores desplegada en 6c3e631. Pendientes otros listados/indicadores, exportaciones grandes y validación autenticada. |
 | Media | Esquema y operación | Catálogo y planes revisados: tres índices creados con autorización específica y verificados; 112 KiB observados. Pendientes observación/volumen, constraints compatibles y respaldo/restauración verificables. |
-| Media | Calidad | CI real aprobada en b6418ae. Corrección local de accesibilidad/foco validada, pendiente de integración. Pendientes lector de pantalla y navegación real, revisión visual/contraste, React Doctor y avisos transitivos registrados. |
+| Media | Calidad | CI real aprobada en b6418ae. Menú/editor desplegados en e47e29d. React Doctor revisado inicialmente: pendientes de integrar controles/login y triaje restante de 67 avisos, sin nuevas supresiones. Continúan lector de pantalla/navegación real, contraste y avisos transitivos. |
 
 Los bloques siguientes de persistencia pueden requerir tablas/columnas nuevas y deben ser aditivos y compatibles. Se crearon únicamente las tablas aditivas autorizadas de recordatorios, cancelaciones pendientes, intentos de carga, contadores de frecuencia y formularios de archivos; no se ejecutaron operaciones destructivas ni backfills. No se certifican los servicios o datos reales por haber aprobado un build.
 

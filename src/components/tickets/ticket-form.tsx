@@ -587,6 +587,7 @@ export function NewTicketForm({
                         name="title"
                         render={({ field }) => (
                           <FormItem className="p-0">
+                            <FormLabel className="sr-only">Título del ticket</FormLabel>
                             <FormControl>
                               <input
                                 {...field}

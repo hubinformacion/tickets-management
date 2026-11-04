@@ -114,3 +114,15 @@ Al iniciar, main/origin estaban limpios en `6c3e631`: no había trabajo anterior
 ## Avance: accesibilidad de menú y editor
 
 CI integrada y desplegada en `b6418ae`, con primera ejecución real aprobada, Production `7463300339` y SHA público confirmado. Se prepara la [corrección de accesibilidad](2026-10-31-accesibilidad-menu-editor.md) en rama local, pendiente de merge/despliegue. Tipos, ESLint, build y recorrido Chromium con datos ficticios aprobados; continúa la validación con sesión/lector real, contraste y React Doctor. Sin cambios de BD o dependencias.
+
+## Avance: despliegue de accesibilidad y diagnóstico de Doctor
+
+Menú/editor integrados y desplegados en `e47e29d`, Production `7463472478`, CI real aprobada y SHA público confirmado. Se eliminó la rama integrada. La [revisión inicial de React Doctor](2026-10-31-react-doctor.md), ejecutada sin red/credenciales con versión fija 0.9.17, deja nueve alertas de autenticación contrastadas como falsos positivos y 70 advertencias por priorizar. Se propone un bloque pequeño de etiquetas/teclado para filtros, selector de usuarios y título, antes de encuestas/login. Doctor no se da por aprobado ni se silencian sus reglas. Este registro se mantiene local para agruparlo con código en la siguiente entrega.
+
+## Avance: controles y reproducción del error de login
+
+Se preparan [filtros, selector de personas y título accesibles](2026-10-31-accesibilidad-controles.md), con Chromium ficticio aprobado. Doctor pasa de 70 a 67 advertencias, sin supresiones ni cambios de BD. Se confirma localmente el bloqueo del login ante error HTTP devuelto por Better Auth y se prepara por separado la recuperación del botón. Producción permanece en `e47e29d`; las nuevas ramas se mantienen locales hasta integrar código y documentación.
+
+## Avance: recuperación del login confirmada
+
+La [corrección del login](2026-10-31-login-error-reintentable.md) está validada localmente sobre la rama de controles: devuelve estado reintentable ante error HTTP/transporte/excepción o respuesta sin redirección y conserva el éxito de Better Auth. Chromium con cliente real y fetch ficticio, tipos, ESLint y build aprobados. Doctor queda en 9 errores heurísticos de auth contrastados y 67 advertencias, sin supresiones. Las ramas locales agrupan documentación y código; pendientes de merge/despliegue. Continúan encuestas/ajuste móvil, etiqueta de adjuntos, validación real y exportaciones grandes.

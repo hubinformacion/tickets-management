@@ -2,7 +2,7 @@
 
 ## Entrega
 
-Corrección aprobada por el usuario tras la revisión de accesibilidad, preparada en `fix/accesibilidad-menu-editor`. El [diseño](../plans/2026-10-31-accesibilidad-menu-editor-design.md) documenta el alcance. La rama es local, pendiente de integración/publicación; no se genera Preview. Producción continúa en `b6418ae`, con CI real aprobada y Production `7463300339` verificada.
+Corrección aprobada por el usuario tras la revisión de accesibilidad, implementada originalmente en `fix/accesibilidad-menu-editor`. El [diseño](../plans/2026-10-31-accesibilidad-menu-editor-design.md) documenta el alcance. Integrada y desplegada en `e47e29d`, Production `7463472478`, con SHA público confirmado y CI real aprobada. La rama integrada se eliminó después de verificar igualdad de contenido. Sin Preview.
 
 ## Cambios
 
