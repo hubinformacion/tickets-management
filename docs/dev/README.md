@@ -2,7 +2,7 @@
 
 ## Integrado y desplegado
 
-La última verificación de producción registrada al preparar esta entrega corresponde a `9e42b8f`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
+La última verificación de producción registrada al preparar esta entrega corresponde a `0ed4583`, integrado en `main` y publicado en [producción](https://requerimientos-hub.vercel.app). Incluye los bloques de dependencias, permisos, integridad de tickets/proveedores, protección de scripts, sesión, fechas, catálogos, validación de adjuntos, integridad de encuestas, recordatorios recuperables de 48 horas, coordinación de adjuntos pendientes y registro de cargas con reintentos.
 
 La entrega más reciente aprobó build local y Production, sin Preview; las anteriores conservan sus registros históricos de validación. Se verificaron login público, sesión anónima, redirección del dashboard y versión/estado autenticado del cron. El recorrido real de Google/Drive y los escenarios con datos reales siguen pendientes. Se aplicaron únicamente las migraciones aditivas autorizadas para tablas independientes de recordatorios, cancelaciones, intentos de carga, contadores de frecuencia y formularios de archivos. No se ejecutaron reset, drop, seed, backfills ni modificaciones de registros históricos.
 
@@ -72,9 +72,11 @@ La [corrección de controles accesibles](2026-10-31-accesibilidad-controles.md) 
 
 La [accesibilidad y ajuste móvil de encuestas](2026-11-04-encuestas-accesibles.md) está integrada/desplegada en `9e42b8f`, Production `7551116445` y SHA público confirmados. Su CI estuvo en cola durante la incidencia de GitHub Actions; el job y todos sus pasos aprobaron, aunque el estado agregado aún figura en progreso. La rama integrada se eliminó.
 
-La [accesibilidad de adjuntos](2026-11-04-adjuntos-accesibles.md) está preparada en rama local: etiqueta de sección correcta, nombres/avisos nativos de FilePond en español y contraste de detalles. Tipos, ESLint, build, Chromium con API ficticia y revisión independiente aprobados; Doctor queda en 64 advertencias sin nuevas supresiones. Pendiente de merge/despliegue.
+La [accesibilidad de adjuntos](2026-11-04-adjuntos-accesibles.md) está integrada/desplegada en `0ed4583`, Production `7552182347` y SHA público confirmado: etiqueta de sección correcta, nombres/avisos nativos de FilePond en español y contraste de detalles. Tipos, ESLint, build, Chromium con API ficticia y revisión independiente aprobados; Doctor queda en 64 advertencias sin nuevas supresiones. La rama integrada se eliminó.
 
-Por petición del usuario, se retira el workflow automático de CI. Las ejecuciones de GitHub no consumen tokens de la conversación, pero su seguimiento aquí sí. Se conservan los comandos locales de tipos, ESLint y build; los registros de CI anteriores son históricos. La retirada se publica junto con los adjuntos ya validados. No se activan servicios de pago.
+Por petición del usuario, se retira el workflow automático de CI. Las ejecuciones de GitHub no consumen tokens de la conversación, pero su seguimiento aquí sí. Se conservan los comandos locales de tipos, ESLint y build; los registros de CI anteriores son históricos. La retirada está publicada en `0ed4583` junto con los adjuntos ya validados. No se activan servicios de pago.
+
+La [exportación progresiva de proveedores](2026-11-05-exportacion-proveedores.md) está validada en rama local: lotes de 500, cursor preciso y XLSX progresivo, sin migraciones o dependencias nuevas. Pendiente de aprobación de merge/despliegue; los límites del escritor y del alojamiento se documentan sin prometer memoria constante.
 
 ## Pendientes
 
@@ -85,7 +87,7 @@ Por petición del usuario, se retira el workflow automático de CI. Las ejecucio
 | Alta | Rate limiting | Integrado y desplegado en 9838afd. Pendientes concurrencia real y observación entre instancias. |
 | Alta | Purga administrativa | Integrada y desplegada en 00d9490. Incluye historial y registros operativos, conserva recursos compartidos y permite reintentar fallos de Drive. Pendientes recorrido autenticado y concurrencia real. |
 | Alta | Validación real | Drive/Gmail (sin nuevas gestiones de carpeta o consentimiento por decisión del usuario), permisos con sesión real, concurrencia de PostgreSQL y observación operativa; [límites y escenarios](2026-10-27-validacion-funcional-pendiente.md). |
-| Media | Métricas y consultas | SLA por ciclo y periodos/tendencias desplegados (5453fd1 y 3c46c0b). Estadísticas personales desplegadas en 28fadb6. Paginación/agregados de encuestas de usuarios desplegados en e8c46e7. Tabla de tickets de proveedores desplegada en d214f41. Selector remoto desplegado en a7bdd2e. Paginación de evaluaciones de proveedores desplegada en 6c3e631. Pendientes otros listados/indicadores, exportaciones grandes y validación autenticada. |
+| Media | Métricas y consultas | SLA por ciclo y periodos/tendencias desplegados (5453fd1 y 3c46c0b). Estadísticas personales desplegadas en 28fadb6. Paginación/agregados de encuestas de usuarios desplegados en e8c46e7. Tabla de tickets de proveedores desplegada en d214f41. Selector remoto desplegado en a7bdd2e. Paginación de evaluaciones de proveedores desplegada en 6c3e631. Excel de proveedores por lotes validado localmente, pendiente de merge/despliegue. Pendientes reportes HTML grandes, otros listados/indicadores y validación autenticada. |
 | Media | Esquema y operación | Catálogo y planes revisados: tres índices creados con autorización específica y verificados; 112 KiB observados. Pendientes observación/volumen, constraints compatibles y respaldo/restauración verificables. |
 | Media | Calidad | CI real aprobada en b6418ae. Menú/editor desplegados en e47e29d. React Doctor revisado inicialmente: controles/login y encuestas desplegados; adjuntos en rama local y triaje restante de 64 avisos, sin nuevas supresiones. Continúan lector de pantalla/navegación real, contraste y avisos transitivos. |
 

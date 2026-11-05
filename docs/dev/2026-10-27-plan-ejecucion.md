@@ -134,3 +134,7 @@ Controles/login y registro de Doctor integrados/publicados en `6c6a5fc`, con rev
 ## Avance del 4 de noviembre: publicación de encuestas y accesibilidad de adjuntos
 
 Encuestas integradas/publicadas en `9e42b8f`, Production `7551116445` y SHA públicos confirmados; rama integrada eliminada. CI 41864442479: job y pasos aprobados tras la espera de runner durante la incidencia oficial de GitHub; estado agregado todavía en progreso. Se prepara la [accesibilidad de adjuntos](2026-11-04-adjuntos-accesibles.md): encabezado sin label huérfano, opciones nativas de idioma y contraste limitado al widget. Tipos, ESLint, build, Chromium con API ficticia y revisión independiente aprobados, Doctor en 9 errores ya contrastados y 64 advertencias. Pendiente de merge/despliegue; continúan integración real y exportaciones grandes.
+
+## Avance del 5 de noviembre: publicación y Excel progresivo
+
+Adjuntos accesibles y retirada de CI integrados/publicados en `0ed4583`, Production `7552182347` aprobada y SHA público confirmado; rama integrada eliminada. No se repite ese despliegue. La [exportación de proveedores](2026-11-05-exportacion-proveedores.md) está preparada en rama local con lotes de 500, cursor preciso y XLSX progresivo. Tipos, ESLint, build y comprobación con ExcelJS/consultas ficticias aprobados; revisión independiente sin bloqueantes. Sin dependencias, migraciones ni escrituras de datos. Pendiente de aprobación de merge/despliegue; continúan reportes HTML, validación real y observación operativa.
