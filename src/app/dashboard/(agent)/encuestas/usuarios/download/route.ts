@@ -1,4 +1,5 @@
-import { readUserSurveyResults } from "@/lib/surveys/results";
+import { writeUserSurveyReport } from "@/lib/surveys/results";
+import { surveyReportResponse } from "@/lib/surveys/report-response";
 import type { NextRequest } from "next/server";
 import { requireAgent } from "@/lib/auth/helpers";
 import { escapeHtml } from "@/lib/email/escape-html";
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
       return new Response("Debes tener un área asignada para exportar", { status: 403 });
     }
   } catch {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response("No autorizado", { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -29,16 +30,6 @@ export async function GET(request: NextRequest) {
 
   const areaId = session.user.role === "admin"
     ? filters.areaId ? Number(filters.areaId) : undefined : session.user.attentionAreaId!;
-  let result: Awaited<ReturnType<typeof readUserSurveyResults>>;
-  try {
-    result = await readUserSurveyResults(areaId, filters);
-  } catch {
-    console.error("No se pudieron obtener los resultados de encuestas para exportar");
-    return new Response("Error al obtener los resultados de encuestas", { status: 500 });
-  }
-
-  const { surveys, kpis } = result;
-
   const filterLabel = [
     filters.agentId ? `Agente filtrado` : "",
     filters.areaId ? "Área seleccionada" : "",
@@ -46,20 +37,11 @@ export async function GET(request: NextRequest) {
     filters.dateTo ? `Hasta: ${filters.dateTo}` : "",
   ].filter(Boolean).join(" · ");
 
-  const rows = surveys.map((s) => `
-    <tr>
-      <td>${escapeHtml(String(s.ticket.ticketCode))}</td>
-      <td>${escapeHtml(String(s.user?.name ?? "—"))}</td>
-      <td>${escapeHtml(String(s.attentionArea?.name ?? "—"))}</td>
-      <td>${escapeHtml(formatDateShort(s.createdAt))}</td>
-      <td class="center">${escapeHtml(String(s.responseTimeRating))}</td>
-      <td class="center">${escapeHtml(String(s.communicationRating))}</td>
-      <td class="center">${escapeHtml(String(s.solutionRating))}</td>
-      <td class="center">${escapeHtml(String(s.overallRating))}</td>
-      <td>${escapeHtml(String(s.improvementSuggestion ?? "—"))}</td>
-    </tr>`).join("");
-
-  const html = `<!DOCTYPE html>
+  return surveyReportResponse(request, async (write, signal) => {
+    let hasRows = false;
+    await writeUserSurveyReport(areaId, filters, {
+      start: async kpis => {
+        await write(`<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -89,6 +71,7 @@ export async function GET(request: NextRequest) {
   </style>
 </head>
 <body>
+  <p id="report-progress" role="status">Generando reporte; espera a que termine antes de imprimir.</p>
   <h1>Reporte: Encuestas de satisfacción de usuarios</h1>
   <p class="subtitle">Generado el ${new Date().toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric", timeZone: PERU_TIMEZONE })}${filterLabel ? ` · ${escapeHtml(filterLabel)}` : ""}</p>
 
@@ -123,16 +106,33 @@ export async function GET(request: NextRequest) {
         <th>Comentario</th>
       </tr>
     </thead>
-    <tbody>${rows || '<tr><td colspan="9" style="text-align:center;padding:20px;color:#888;">Sin encuestas con los filtros aplicados</td></tr>'}</tbody>
+    <tbody>`);
+      },
+      rows: async surveys => {
+        if (surveys.length === 0) return;
+        hasRows = true;
+        await write(surveys.map((s) => `
+    <tr>
+      <td>${escapeHtml(String(s.ticket.ticketCode))}</td>
+      <td>${escapeHtml(String(s.user?.name ?? "—"))}</td>
+      <td>${escapeHtml(String(s.attentionArea?.name ?? "—"))}</td>
+      <td>${escapeHtml(formatDateShort(s.createdAt))}</td>
+      <td class="center">${escapeHtml(String(s.responseTimeRating))}</td>
+      <td class="center">${escapeHtml(String(s.communicationRating))}</td>
+      <td class="center">${escapeHtml(String(s.solutionRating))}</td>
+      <td class="center">${escapeHtml(String(s.overallRating))}</td>
+      <td>${escapeHtml(String(s.improvementSuggestion ?? "—"))}</td>
+    </tr>`).join(""));
+      },
+    }, signal);
+    if (!hasRows) await write('<tr><td colspan="9" style="text-align:center;padding:20px;color:#888;">Sin encuestas con los filtros aplicados</td></tr>');
+    await write(`</tbody>
   </table>
 
   <div class="footer">Sistema de Gestión de Tickets · ${new Date().toLocaleDateString("es-PE", { year: "numeric", timeZone: PERU_TIMEZONE })}</div>
 
-  <script>window.onload = () => window.print();</script>
+  <script>window.onload = () => { document.getElementById("report-progress")?.remove(); window.print(); };</script>
 </body>
-</html>`;
-
-  return new Response(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" },
+</html>`);
   });
 }

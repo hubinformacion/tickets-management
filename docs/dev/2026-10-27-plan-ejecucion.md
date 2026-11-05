@@ -138,3 +138,7 @@ Encuestas integradas/publicadas en `9e42b8f`, Production `7551116445` y SHA púb
 ## Avance del 5 de noviembre: publicación y Excel progresivo
 
 Adjuntos accesibles y retirada de CI integrados/publicados en `0ed4583`, Production `7552182347` aprobada y SHA público confirmado; rama integrada eliminada. No se repite ese despliegue. La [exportación de proveedores](2026-11-05-exportacion-proveedores.md) está preparada en rama local con lotes de 500, cursor preciso y XLSX progresivo. Tipos, ESLint, build y comprobación con ExcelJS/consultas ficticias aprobados; revisión independiente sin bloqueantes. Sin dependencias, migraciones ni escrituras de datos. Pendiente de aprobación de merge/despliegue; continúan reportes HTML, validación real y observación operativa.
+
+## Avance: publicación del Excel y reportes en paralelo con acceso
+
+Excel integrado/desplegado en `761d67f`, Production `7575233636` y SHA público confirmados; rama integrada eliminada. El responsable confirmó acceso en producción y ticket propio. Se preparan los [reportes de encuestas por lotes y el bloqueo de sesiones inactivas en el panel](2026-11-05-reportes-encuestas.md): validaciones ficticias, tipos, ESLint, build y revisión independiente aprobados. Pendientes de aprobación de merge/despliegue, sin Preview/CI, migraciones ni escrituras de datos. Continúan otros roles/sesiones reales, exportaciones reales y operación/concurrencia/respaldo.

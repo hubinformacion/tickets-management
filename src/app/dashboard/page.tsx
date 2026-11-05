@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { getSession } from "@/lib/auth/helpers";
-import { redirect } from "next/navigation";
+import { requireAuth } from "@/lib/auth/helpers";
 import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
 import { AgentDashboard } from "@/components/dashboard/agent-dashboard";
 import { UserDashboard } from "@/components/dashboard/user-dashboard";
@@ -36,11 +35,7 @@ function DashboardSkeleton() {
 }
 
 export default async function DashboardRootPage() {
-  const session = await getSession();
-
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await requireAuth();
 
   // Direct render based on role - NO redirects for instant loading
   if (session.user.role === "admin") {

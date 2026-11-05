@@ -4,7 +4,7 @@
 
 Producción verificada en `0ed4583ec6f60493e7f59dc05c51c74718eebf01`: deployment 7552182347 aprobado, versión pública coincidente y estado de recordatorios 200 con cola disponible y corte fijo `2026-10-28T17:00:00.000Z`. Adjuntos accesibles y retirada de CI publicados; no se repite un despliegue del mismo código ni se consulta Actions.
 
-Esta mejora queda en `fix/exportacion-proveedores`, rama local pendiente de aprobación de merge/despliegue. [Plan](../plans/2026-11-05-exportacion-proveedores-plan.md).
+Esta mejora se integró/publicó como `761d67f3229cd7b1149b4eb470fb39635e729c16`, Production `7575233636` aprobada y SHA público confirmado. La rama integrada se eliminó. [Plan](../plans/2026-11-05-exportacion-proveedores-plan.md).
 
 ## Cambio
 

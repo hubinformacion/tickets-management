@@ -1,8 +1,11 @@
-import { readProviderSurveyResults } from "@/lib/surveys/provider-results";
+import { writeProviderSurveyReport } from "@/lib/surveys/provider-results";
+import { surveyReportResponse } from "@/lib/surveys/report-response";
 import type { NextRequest } from "next/server";
 import { requireAgent } from "@/lib/auth/helpers";
 import { escapeHtml } from "@/lib/email/escape-html";
 import { surveyFiltersSchema } from "@/lib/validation/schemas";
+import { formatDateShort } from "@/lib/utils/format";
+import { PERU_TIMEZONE } from "@/lib/utils/date";
 
 export async function GET(request: NextRequest) {
   let session: Awaited<ReturnType<typeof requireAgent>>;
@@ -12,7 +15,7 @@ export async function GET(request: NextRequest) {
       return new Response("Debes tener un área asignada para exportar", { status: 403 });
     }
   } catch {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response("No autorizado", { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -24,39 +27,18 @@ export async function GET(request: NextRequest) {
   if (!parsedFilters.success) return new Response("Filtros de encuesta inválidos", { status: 400 });
   const filters = parsedFilters.data;
 
-  let result: Awaited<ReturnType<typeof readProviderSurveyResults>>;
-  try {
-    result = await readProviderSurveyResults(session.user.role === "admin" ? undefined : session.user.attentionAreaId!, filters);
-  } catch {
-    console.error("No se pudieron exportar las evaluaciones de proveedores");
-    return new Response("Error al obtener las evaluaciones de proveedores", { status: 500 });
-  }
-
-  const { surveys, kpis } = result;
-
   const filterLabel = [
     filters.agentId ? `Agente filtrado` : "",
     filters.dateFrom ? `Desde: ${filters.dateFrom}` : "",
     filters.dateTo ? `Hasta: ${filters.dateTo}` : "",
   ].filter(Boolean).join(" · ");
 
-  const rows = surveys.map((s) => `
-    <tr>
-      <td><span class="mono">${escapeHtml(String(s.providerTicket.externalCode))}</span><br/><small>${escapeHtml(String(s.providerTicket.title))}</small></td>
-      <td>${escapeHtml(String(s.providerTicket.provider.name))}</td>
-      <td>${escapeHtml(String(s.attentionArea?.name ?? "—"))}</td>
-      <td>${escapeHtml(String(s.submittedBy?.name ?? "—"))}</td>
-      <td>${new Date(s.createdAt).toLocaleDateString("es-PE")}</td>
-      <td class="center">${escapeHtml(String(s.responseTimeRating))}</td>
-      <td class="center">${escapeHtml(String(s.deadlineRating))}</td>
-      <td class="center">${escapeHtml(String(s.qualityRating))}</td>
-      <td class="center">${escapeHtml(String(s.requirementUnderstandingRating))}</td>
-      <td class="center">${escapeHtml(String(s.attentionRating))}</td>
-    </tr>`).join("");
-
-  const invalidNotice = kpis.invalidRatingCount > 0 ? "<p>Algunas calificaciones históricas no son válidas y se excluyen de los promedios; se conservan en el detalle.</p>" : "";
-
-  const html = `<!DOCTYPE html>
+  return surveyReportResponse(request, async (write, signal) => {
+    let hasRows = false;
+    await writeProviderSurveyReport(session.user.role === "admin" ? undefined : session.user.attentionAreaId!, filters, {
+      start: async kpis => {
+        const invalidNotice = kpis.invalidRatingCount > 0 ? "<p>Algunas calificaciones históricas no son válidas y se excluyen de los promedios; se conservan en el detalle.</p>" : "";
+        await write(`<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -87,9 +69,10 @@ export async function GET(request: NextRequest) {
   </style>
 </head>
 <body>
+  <p id="report-progress" role="status">Generando reporte; espera a que termine antes de imprimir.</p>
   ${invalidNotice}
   <h1>Reporte: Evaluaciones de proveedores</h1>
-  <p class="subtitle">Generado el ${new Date().toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" })}${filterLabel ? ` · ${escapeHtml(filterLabel)}` : ""}</p>
+  <p class="subtitle">Generado el ${new Date().toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric", timeZone: PERU_TIMEZONE })}${filterLabel ? ` · ${escapeHtml(filterLabel)}` : ""}</p>
 
   <div class="kpi-grid">
     <div class="kpi">
@@ -125,16 +108,34 @@ export async function GET(request: NextRequest) {
         <th>T.Resp</th><th>Plazos</th><th>Calidad</th><th>Comprensión</th><th>Atención</th>
       </tr>
     </thead>
-    <tbody>${rows || '<tr><td colspan="10" style="text-align:center;padding:20px;color:#888;">Sin evaluaciones con los filtros aplicados</td></tr>'}</tbody>
+    <tbody>`);
+      },
+      rows: async surveys => {
+        if (surveys.length === 0) return;
+        hasRows = true;
+        await write(surveys.map((s) => `
+    <tr>
+      <td><span class="mono">${escapeHtml(String(s.providerTicket.externalCode))}</span><br/><small>${escapeHtml(String(s.providerTicket.title))}</small></td>
+      <td>${escapeHtml(String(s.providerTicket.provider.name))}</td>
+      <td>${escapeHtml(String(s.attentionArea?.name ?? "—"))}</td>
+      <td>${escapeHtml(String(s.submittedBy?.name ?? "—"))}</td>
+      <td>${escapeHtml(formatDateShort(s.createdAt))}</td>
+      <td class="center">${escapeHtml(String(s.responseTimeRating))}</td>
+      <td class="center">${escapeHtml(String(s.deadlineRating))}</td>
+      <td class="center">${escapeHtml(String(s.qualityRating))}</td>
+      <td class="center">${escapeHtml(String(s.requirementUnderstandingRating))}</td>
+      <td class="center">${escapeHtml(String(s.attentionRating))}</td>
+    </tr>`).join(""));
+      },
+    }, signal);
+    if (!hasRows) await write('<tr><td colspan="10" style="text-align:center;padding:20px;color:#888;">Sin evaluaciones con los filtros aplicados</td></tr>');
+    await write(`</tbody>
   </table>
 
-  <div class="footer">Sistema de Gestión de Tickets · ${new Date().getFullYear()}</div>
+  <div class="footer">Sistema de Gestión de Tickets · ${new Date().toLocaleDateString("es-PE", { year: "numeric", timeZone: PERU_TIMEZONE })}</div>
 
-  <script>window.onload = () => window.print();</script>
+  <script>window.onload = () => { document.getElementById("report-progress")?.remove(); window.print(); };</script>
 </body>
-</html>`;
-
-  return new Response(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" },
+</html>`);
   });
 }
