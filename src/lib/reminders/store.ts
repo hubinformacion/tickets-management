@@ -1,15 +1,16 @@
 import { randomUUID } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
+import { getWeekdayCutoff } from "@/lib/reminders/schedule";
 import { surveyReminderDeliveries } from "@/db/schema";
 import type { SendSurveyReminderEmailParams } from "@/lib/email/send-emails";
 import type { ReminderStore } from "@/lib/reminders/worker";
 
-// Los timestamps históricos sin zona contienen UTC. La comparación ocurre íntegramente en PG.
+// Los timestamps históricos contienen UTC: comparar el límite de Lima como parámetro UTC en PG.
 function eligibility(startAt: Date) {
   return sql`t.status = 'resolved'
     AND t.closed_at >= timezone('UTC', ${startAt.toISOString()}::timestamptz)
-    AND t.closed_at <= timezone('UTC', now() - interval '48 hours')
+    AND t.closed_at <= timezone('UTC', ${getWeekdayCutoff(new Date()).toISOString()}::timestamptz)
     AND t.survey_reminder_sent_at IS NULL
     AND t.attention_area_id IS NOT NULL AND u.is_active = true
     AND NOT EXISTS (SELECT 1 FROM satisfaction_survey s WHERE s.ticket_id = t.id)`;

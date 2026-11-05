@@ -142,3 +142,7 @@ Adjuntos accesibles y retirada de CI integrados/publicados en `0ed4583`, Product
 ## Avance: publicación del Excel y reportes en paralelo con acceso
 
 Excel integrado/desplegado en `761d67f`, Production `7575233636` y SHA público confirmados; rama integrada eliminada. El responsable confirmó acceso en producción y ticket propio. Se preparan los [reportes de encuestas por lotes y el bloqueo de sesiones inactivas en el panel](2026-11-05-reportes-encuestas.md): validaciones ficticias, tipos, ESLint, build y revisión independiente aprobados. Pendientes de aprobación de merge/despliegue, sin Preview/CI, migraciones ni escrituras de datos. Continúan otros roles/sesiones reales, exportaciones reales y operación/concurrencia/respaldo.
+
+## Avance: calendario de cierre y recordatorios
+
+Reportes y protección del panel integrados/desplegados en `972e73d`, Production `7575926580` y SHA público confirmados; rama integrada eliminada. El usuario decidió omitir los recorridos reales de aceptación y atender incidencias. Se prepara la [regla sin fines de semana](2026-11-05-recordatorios-dias-laborables.md): 48 horas completas por etapa, lunes–viernes en Lima, recordatorios desde las 09:00 y cierre automático en su franja habitual de tarde. Sin migraciones, servicios de pago ni cambios de datos históricos. Rama local pendiente de merge/despliegue.

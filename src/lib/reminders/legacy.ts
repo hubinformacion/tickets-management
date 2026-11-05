@@ -1,13 +1,15 @@
 import { db } from "@/db";
 import { tickets, users, satisfactionSurveys, attentionAreas } from "@/db/schema";
-import { lt, and, eq, gte, isNull } from "drizzle-orm";
+import { lte, and, eq, gte, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { getWeekdayCutoff, canSendSurveyReminder } from "@/lib/reminders/schedule";
+import { PRODUCTION_REMINDER_START_AT } from "@/lib/reminders/production-rollout";
 import { sendSurveyReminderEmail } from "@/lib/email/send-emails";
 
 
 /**
  * Flujo anterior conservado hasta activar explícitamente la cola y su tabla adicional.
- * Ventana heredada de 23–25 horas; cron diario a las 08:00 de Lima.
+ * Comparte el plazo sin fines de semana y el corte fijo para no recuperar cierres históricos.
  */
 export async function runLegacySurveyReminders(request: Request) {
   try {
@@ -19,11 +21,13 @@ export async function runLegacySurveyReminders(request: Request) {
     }
 
     const now = new Date();
-    // Ventana heredada: cierres entre 23 y 25 horas atrás.
-    const lowerBound = new Date(now.getTime() - 25 * 60 * 60 * 1000);
-    const upperBound = new Date(now.getTime() - 23 * 60 * 60 * 1000);
+    if (!canSendSurveyReminder(now)) {
+      return NextResponse.json({ success: true, count: 0 });
+    }
+    const lowerBound = new Date(PRODUCTION_REMINDER_START_AT);
+    const upperBound = getWeekdayCutoff(now);
 
-    // Tickets resueltos en la ventana, sin encuesta ni recordatorio anterior.
+    // Tickets vencidos desde la activación, sin encuesta ni recordatorio anterior.
     const candidates = await db
       .select({
         id: tickets.id,
@@ -41,7 +45,7 @@ export async function runLegacySurveyReminders(request: Request) {
         and(
           eq(tickets.status, 'resolved'),
           gte(tickets.closedAt, lowerBound),
-          lt(tickets.closedAt, upperBound),
+          lte(tickets.closedAt, upperBound),
           isNull(satisfactionSurveys.id),
           isNull(tickets.surveyReminderSentAt)
         )
@@ -58,12 +62,13 @@ export async function runLegacySurveyReminders(request: Request) {
     let sentCount = 0;
 
     for (const ticket of candidates) {
+      if (!canSendSurveyReminder(new Date())) break;
       try {
         // Consultar creador, agentes y área en paralelo.
         const [creator, agents, attentionArea] = await Promise.all([
           db.query.users.findFirst({
             where: eq(users.id, ticket.createdById),
-            columns: { name: true, email: true },
+            columns: { name: true, email: true, isActive: true },
           }),
           db.select({ email: users.email })
             .from(users)
@@ -79,10 +84,11 @@ export async function runLegacySurveyReminders(request: Request) {
           }),
         ]);
 
-        if (!creator) continue;
+        if (!creator?.isActive) continue;
 
         const agentEmails = agents.map(a => a.email);
 
+        if (!canSendSurveyReminder(new Date())) break;
         const emailResult = await sendSurveyReminderEmail({
           ticketId: ticket.id,
           ticketCode: ticket.ticketCode,

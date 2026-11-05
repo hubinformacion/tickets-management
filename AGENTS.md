@@ -267,6 +267,8 @@ if (!result.success) {
 - Configuración en `src/lib/email/gmail-client.ts`
 - Plantillas de correo en `src/lib/email/templates/`
 - El envío de correos usa `after()` para no bloquear respuestas
+- Cierre automático y recordatorios de encuesta: cada etapa exige 48 horas completas excluyendo sábados y domingos de `America/Lima`; las noches de lunes a viernes cuentan. No aplicar horarios personales, feriados ni la jornada SLA del agente a esos plazos.
+- Recordatorios únicamente de lunes a viernes desde las 09:00 de Lima, en la primera ejecución después de vencer las 48 horas desde el cierre efectivo (manual o automático). No anticiparlos a la mañana del segundo día. El cierre automático conserva su cron de tarde y el recordatorio su corte fijo de activación; ver `src/lib/reminders/schedule.ts`.
 
 ## 🏛️ Decisiones de Arquitectura
 

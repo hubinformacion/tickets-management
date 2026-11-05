@@ -2,11 +2,11 @@
   "crons": [
     {
       "path": "/api/cron/auto-close-tickets",
-      "schedule": "0 0 * * *"
+      "schedule": "0 0 * * 2-6"
     },
     {
       "path": "/api/cron/survey-reminder",
-      "schedule": "0 13 * * *"
+      "schedule": "0 14 * * 1-5"
     }
   ]
 }

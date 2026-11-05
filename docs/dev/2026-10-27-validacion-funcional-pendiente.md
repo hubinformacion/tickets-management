@@ -1,5 +1,9 @@
 # Validación funcional pendiente
 
+## Decisión del usuario del 5 de noviembre
+
+Se omiten los recorridos de aceptación real pendientes y se atenderán problemas reportados. No se consideran ejecutados o aprobados por esa decisión. Los escenarios siguientes quedan como referencia para diagnosticar incidencias; no son un bloqueo ni una solicitud de nuevas validaciones al usuario. Se mantienen las comprobaciones técnicas locales obligatorias y la prohibición de usar datos productivos como prueba destructiva.
+
 ## Qué está comprobado
 
 El despliegue `e089be3` tiene build aprobado y comprobaciones anónimas registradas en [Integridad](2026-10-27-integridad.md). Las matrices de permisos e integridad usan dobles de BD; no certifican OAuth ni concurrencia del motor PostgreSQL.

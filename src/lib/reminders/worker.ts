@@ -1,3 +1,4 @@
+import { canSendSurveyReminder } from "@/lib/reminders/schedule";
 import type { SendSurveyReminderEmailParams } from "@/lib/email/send-emails";
 
 export interface ReminderClaim {
@@ -32,9 +33,10 @@ export async function runReminderQueue(
 ) {
   const startedAt = clock();
   const counts = { sent: 0, failed: 0, cancelled: 0, claimed: 0 };
+  if (!canSendSurveyReminder(new Date(startedAt))) return counts;
   await store.enqueue(startAt);
   // Una reserva por vez; nunca se reserva un lote que quedaría sin procesar al agotar el tiempo.
-  while (counts.claimed < 20 && clock() - startedAt < 25_000) {
+  while (counts.claimed < 20 && clock() - startedAt < 25_000 && canSendSurveyReminder(new Date(clock()))) {
     const claim = await store.claim(startAt);
     if (!claim) break;
     counts.claimed++;
@@ -43,6 +45,10 @@ export async function runReminderQueue(
       await store.cancel(claim);
       counts.cancelled++;
       continue;
+    }
+    if (!canSendSurveyReminder(new Date(clock()))) {
+      await store.retry(claim, 0);
+      break;
     }
     let result: Awaited<ReturnType<Sender>>;
     try {

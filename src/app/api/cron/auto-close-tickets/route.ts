@@ -1,12 +1,14 @@
 import { db } from "@/db";
 import { tickets, ticketStatusHistory } from "@/db/schema";
-import { lt, and, eq } from "drizzle-orm";
+import { lte, and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { TICKET_STATUS, CLOSURE_TYPE, VALIDATION_TIMEOUT_HOURS } from "@/lib/constants/tickets";
+import { TICKET_STATUS, CLOSURE_TYPE } from "@/lib/constants/tickets";
+
+import { getWeekdayCutoff, isWeekday } from "@/lib/reminders/schedule";
 
 export const dynamic = "force-dynamic";
 
-/** Cierra tickets que continúan pendientes de validación después de 48 horas. */
+/** Cierra tickets que continúan pendientes de validación después de 48 horas sin contar sábados ni domingos. */
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get("authorization");
@@ -16,7 +18,10 @@ export async function GET(request: Request) {
     }
 
     const now = new Date();
-    const cutoffTime = new Date(now.getTime() - VALIDATION_TIMEOUT_HOURS * 60 * 60 * 1000);
+    if (!isWeekday(now)) {
+      return NextResponse.json({ success: true, count: 0, message: "Cierre automático pausado durante el fin de semana" });
+    }
+    const cutoffTime = getWeekdayCutoff(now);
     const closedTickets = await db.transaction(async tx => {
       // PostgreSQL reevalúa la condición si otra transición ganó el bloqueo de la fila.
       const updated = await tx.update(tickets).set({
@@ -27,7 +32,7 @@ export async function GET(request: Request) {
         updatedAt: now,
       }).where(and(
         eq(tickets.status, TICKET_STATUS.PENDING_VALIDATION),
-        lt(tickets.validationRequestedAt, cutoffTime),
+        lte(tickets.validationRequestedAt, cutoffTime),
       )).returning({
         id: tickets.id, ticketCode: tickets.ticketCode,
         validationRequestedAt: tickets.validationRequestedAt,

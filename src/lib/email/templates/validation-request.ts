@@ -31,7 +31,7 @@ export function getValidationRequestTemplate(params: ValidationRequestTemplatePa
 
         <div style="background-color: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0; border-radius: 4px;">
             <strong>⚠️ Acción Requerida:</strong> Debes revisar el ticket y validar si la 
-            atención fue satisfactoria.<br>Si no se valida en <strong>48 horas</strong>, el ticket se cerrará automáticamente.
+            atención fue satisfactoria.<br>Si no se valida en <strong>48 horas, sin contar sábados ni domingos</strong>, el ticket se cerrará automáticamente.
         </div>
         
         <div style="text-align: center; margin: 20px 0;">
