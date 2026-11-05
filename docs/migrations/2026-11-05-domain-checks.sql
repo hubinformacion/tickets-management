@@ -1,0 +1,83 @@
+-- REGISTRO APLICADO: cinco CHECK autorizados expresamente y validados en producción.
+-- Finalización: 2026-11-05 20:48:49 UTC. Cero filas reescritas u objetos eliminados.
+-- Todo el archivo sigue comentado; ejecutarlo no cambia la BD ni repite la operación.
+-- Alcance: cinco CHECK de dominios y calificaciones, sin modificar datos existentes.
+-- La aplicación fue una operación separada del despliegue y del diagnóstico.
+-- Cada ADD NOT VALID y VALIDATE se confirmó en su propia transacción,
+-- con lock_timeout 2s y statement_timeout 15s. No volver a aplicar este registro.
+--
+-- Evidencia del diagnóstico de solo lectura: 2026-11-05 20:40:57 UTC, esquema public.
+-- ticket: 407 filas, estados/prioridades inválidos 0; prioridades NULL 0.
+-- ticket_status_history: 1146 filas, estados inválidos 0; from_status NULL 407
+-- (estado anterior ausente en la creación), to_status NULL 0.
+-- provider_ticket: 58 filas, estados/prioridades inválidos 0; prioridades NULL 2.
+-- satisfaction_survey: 238 filas, calificaciones inválidas/NULL 0.
+-- provider_satisfaction_survey: 14 filas, calificaciones inválidas/NULL 0.
+-- Antes de la operación no había CHECK en estas cinco tablas. Las 15 columnas tienen la nulabilidad
+-- declarada: solo ticket.priority, history.from_status y provider.priority admiten NULL.
+-- Los CHECK de colas, cargas, lotes y rate limiting ya existentes quedan fuera.
+--
+-- Escritores revisados: creación y transiciones de tickets, asignación, cierre
+-- automático, historial, acciones de proveedor y envío de ambas encuestas.
+-- Los escritores actuales validan estos dominios; crear historial permite from_status NULL.
+-- Las importaciones de mantenimiento migrate-data y los backfills de historial
+-- copian valores antiguos sin validar: podrían ser rechazados; no se ejecutaron.
+-- No se añaden NOT NULL, claves foráneas, cascadas ni conversiones a enum.
+-- No se exige correspondencia entre estado y fechas, ni se cambian las transiciones.
+--
+-- NOT VALID evita el escaneo inicial, pero aplica desde el alta a INSERT y UPDATE.
+-- Una fila histórica inválida impediría incluso actualizar otros campos; los conteos
+-- actuales muestran cero incumplimientos. Repetir el diagnóstico antes de una aplicación
+-- autorizada y detenerla si aparecen incompatibilidades, sin corregir históricos.
+-- ADD CHECK necesita ACCESS EXCLUSIVE; confirmar cada alta por separado permite
+-- liberar ese bloqueo antes de VALIDATE, que escanea con SHARE UPDATE EXCLUSIVE.
+-- No agrupar las altas y las validaciones en una misma transacción larga.
+-- Referencia oficial:
+-- https://www.postgresql.org/docs/current/sql-altertable.html
+--
+-- SENTENCIAS APLICADAS, CONSERVADAS COMO REFERENCIA; NINGUNA SENTENCIA ACTIVA:
+--
+-- ALTER TABLE public.ticket
+--   ADD CONSTRAINT ticket_domain_check CHECK (
+--     status IN ('open', 'in_progress', 'pending_validation', 'resolved', 'voided')
+--     AND (priority IS NULL OR priority IN ('low', 'medium', 'high', 'critical'))
+--   ) NOT VALID;
+--
+-- ALTER TABLE public.ticket_status_history
+--   ADD CONSTRAINT ticket_status_history_domain_check CHECK (
+--     (from_status IS NULL OR from_status IN ('open', 'in_progress', 'pending_validation', 'resolved', 'voided'))
+--     AND to_status IN ('open', 'in_progress', 'pending_validation', 'resolved', 'voided')
+--   ) NOT VALID;
+--
+-- ALTER TABLE public.provider_ticket
+--   ADD CONSTRAINT provider_ticket_domain_check CHECK (
+--     status IN ('en_proceso', 'cerrado')
+--     AND (priority IS NULL OR priority IN ('baja', 'media', 'alta', 'critica'))
+--   ) NOT VALID;
+--
+-- ALTER TABLE public.satisfaction_survey
+--   ADD CONSTRAINT satisfaction_survey_ratings_check CHECK (
+--     response_time_rating BETWEEN 1 AND 5
+--     AND communication_rating BETWEEN 1 AND 5
+--     AND solution_rating BETWEEN 1 AND 5
+--     AND overall_rating BETWEEN 1 AND 5
+--   ) NOT VALID;
+--
+-- ALTER TABLE public.provider_satisfaction_survey
+--   ADD CONSTRAINT provider_satisfaction_survey_ratings_check CHECK (
+--     response_time_rating BETWEEN 1 AND 5
+--     AND deadline_rating BETWEEN 1 AND 5
+--     AND quality_rating BETWEEN 1 AND 5
+--     AND requirement_understanding_rating BETWEEN 1 AND 5
+--     AND attention_rating BETWEEN 1 AND 5
+--   ) NOT VALID;
+--
+-- Cada VALIDATE se ejecutaría después de confirmar el alta correspondiente:
+-- ALTER TABLE public.ticket VALIDATE CONSTRAINT ticket_domain_check;
+-- ALTER TABLE public.ticket_status_history VALIDATE CONSTRAINT ticket_status_history_domain_check;
+-- ALTER TABLE public.provider_ticket VALIDATE CONSTRAINT provider_ticket_domain_check;
+-- ALTER TABLE public.satisfaction_survey VALIDATE CONSTRAINT satisfaction_survey_ratings_check;
+-- ALTER TABLE public.provider_satisfaction_survey VALIDATE CONSTRAINT provider_satisfaction_survey_ratings_check;
+--
+-- Tras una eventual aplicación autorizada, comprobar convalidated en el catálogo
+-- y entonces sincronizar schema.ts; hoy no se declara como un cambio aplicado.

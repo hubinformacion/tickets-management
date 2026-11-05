@@ -37,3 +37,7 @@ TypeScript estricto sin incremental, ESLint completo sin advertencias y build Ne
 La comprobación MIME final se ejecutó también con TypeScript 6 y el árbol nuevo dentro del aislamiento, sin credenciales/red: 11/11. Se comprobó además resolvers 7/RHF 7/Zod 4 con el schema real del formulario: coerción de IDs y errores para entradas inválidas correctos. El import Gmail/OAuth2 de Googleapis 189 y la API config de Dotenv 18 se comprobaron localmente sin hacer peticiones. La revisión independiente contrastó MIME, controles, peers/engines y política de instalación; sin bloqueantes pendientes. Los artefactos temporales se retiran al finalizar y se conserva solo evidencia resumida.
 
 No se realizaron recorridos de aceptación autenticada ni comprobaciones reales de Google/Drive/PostgreSQL como parte de este bloque, conforme a la decisión del usuario. Los resultados técnicos no garantizan cualquier integración o carga de producción. No se crea framework/suite de pruebas, CI, Preview, servicio de pago, tabla, índice o migración; no se reescriben cierres, encuestas, recordatorios o datos históricos.
+
+## Publicación confirmada
+
+Integrado en main y publicado como `6455c6b`, Production `7584759821` aprobada. El dominio público confirmó ese SHA mediante la ruta autenticada de estado del cron (HTTP 200, queueReady true, mode queue), sin ejecutar el worker. Rama integrada eliminada; sin Preview, cambios de BD ni envío de correos por esta publicación.

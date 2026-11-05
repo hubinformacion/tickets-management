@@ -1,0 +1,13 @@
+# Reconciliación de adjuntos e integridad de dominios
+
+Alcance autorizado: continuar puntos 4 y 5 en paralelo después de integrar/publicar 6455c6b. El usuario omitió el punto 6 de respaldos/recuperación; no se incorporan esas tareas ni validaciones de aceptación real nuevas.
+
+- Leer estados/referencias de uploads, adjuntos, lotes y cancelaciones mediante un reporte agregado. Separar actividad normal, legado y cancelaciones intencionales de inconsistencias; un ID reservado no prueba existencia remota ni la edad convierte un formulario abierto en huérfano.
+- Contrastar cinco candidatos CHECK mínimos: dominios de tickets/historial/proveedor y ratings de las dos encuestas, preservando nullable existentes. Revisar escritores, catálogo efectivo, nullability y conteos históricos antes de proponer DDL. NOT VALID también bloquea actualizaciones de filas antiguas inválidas, por lo que no se asume inocuo.
+- Añadir un CLI explícito de diagnóstico que solo abra transacción repeatable read/read only con TLS verificado y timeouts. Sin cliente global @/db, sin Drive/Gmail, escrituras, reparación automática, migraciones aplicadas o cambios de cuotas. Salida agregada sin datos personales.
+- Consultar únicamente agregados/catálogo sobre el destino existente para conocer el estado real, no como una prueba de fallo o carga. Preparar acciones concretas según resultado. Conservar todos los registros/archivos históricos y no corregir fechas o valores por inferencia.
+- Tipos/ESLint y comprobación técnica focalizada con respuestas ficticias. Revisión independiente, documentación y commit local; agrupar código y docs para evitar despliegues solo documentales. No suites/frameworks nuevos, CI, Preview o servicios.
+
+Propiedad: agente adjuntos solo src/lib/uploads/reconciliation-report.ts; agente dominios solo src/lib/validation/integrity-report.ts y propuesta SQL comentada cuando haya conteos; coordinador script compartido, integración, operaciones READ ONLY y docs. El esquema declarativo no presentará como aplicadas restricciones meramente propuestas.
+
+Resultado: producción 6455c6b confirmada. Diagnóstico agregado de solo lectura completado: 109 adjuntos, 14 pendientes de legado sin lote/intento, sin inconsistencias detectadas en las cargas registradas. Conservados todos los archivos y registros; inventario remoto no consultado. Tras autorización expresa «Aplicar las cinco restricciones compatibles», se añadieron y validaron las cinco restricciones el 5 de noviembre de 2026, con pre/postcomprobación de catálogo, conteos y nulabilidad. Esquema Drizzle sincronizado con el estado efectivo; SQL histórico permanece comentado. Ver el [registro de resultados](../dev/2026-11-05-diagnostico-adjuntos-integridad.md).

@@ -172,6 +172,7 @@ export const tickets = pgTable("ticket", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("ticket_area_status_closed_idx").on(table.attentionAreaId, table.status, table.closedAt).concurrently(),
+  check("ticket_domain_check", sql`${table.status} IN ('open', 'in_progress', 'pending_validation', 'resolved', 'voided') AND (${table.priority} IS NULL OR ${table.priority} IN ('low', 'medium', 'high', 'critical'))`),
 ]);
 
 export const comments = pgTable("comment", {
@@ -397,6 +398,7 @@ export const providerTickets = pgTable("provider_ticket", {
     sql`(CASE WHEN ${table.status} = 'cerrado' THEN 1 ELSE 0 END)`,
     table.createdAt.desc(), table.id.desc(),
   ).concurrently(),
+  check("provider_ticket_domain_check", sql`${table.status} IN ('en_proceso', 'cerrado') AND (${table.priority} IS NULL OR ${table.priority} IN ('baja', 'media', 'alta', 'critica'))`),
 ]);
 
 // --- SATISFACTION SURVEYS ---
@@ -412,7 +414,9 @@ export const satisfactionSurveys = pgTable("satisfaction_survey", {
   overallRating: smallint("overall_rating").notNull(), // 1-5
   improvementSuggestion: text("improvement_suggestion"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  check("satisfaction_survey_ratings_check", sql`${table.responseTimeRating} BETWEEN 1 AND 5 AND ${table.communicationRating} BETWEEN 1 AND 5 AND ${table.solutionRating} BETWEEN 1 AND 5 AND ${table.overallRating} BETWEEN 1 AND 5`),
+]);
 
 export const satisfactionSurveysRelations = relations(satisfactionSurveys, ({ one }) => ({
   ticket: one(tickets, {
@@ -465,6 +469,7 @@ export const ticketStatusHistory = pgTable("ticket_status_history", {
   changedAt: timestamp("changed_at").defaultNow().notNull(),
 }, (table) => [
   index("ticket_status_history_ticket_time_idx").on(table.ticketId, table.changedAt, table.id).concurrently(),
+  check("ticket_status_history_domain_check", sql`(${table.fromStatus} IS NULL OR ${table.fromStatus} IN ('open', 'in_progress', 'pending_validation', 'resolved', 'voided')) AND ${table.toStatus} IN ('open', 'in_progress', 'pending_validation', 'resolved', 'voided')`),
 ]);
 
 export const ticketStatusHistoryRelations = relations(ticketStatusHistory, ({ one }) => ({
@@ -492,7 +497,9 @@ export const providerSatisfactionSurveys = pgTable("provider_satisfaction_survey
   requirementUnderstandingRating: smallint("requirement_understanding_rating").notNull(),  // Comprensión del requerimiento
   attentionRating: smallint("attention_rating").notNull(),                                 // Atención del proveedor
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  check("provider_satisfaction_survey_ratings_check", sql`${table.responseTimeRating} BETWEEN 1 AND 5 AND ${table.deadlineRating} BETWEEN 1 AND 5 AND ${table.qualityRating} BETWEEN 1 AND 5 AND ${table.requirementUnderstandingRating} BETWEEN 1 AND 5 AND ${table.attentionRating} BETWEEN 1 AND 5`),
+]);
 
 export const providerSatisfactionSurveysRelations = relations(providerSatisfactionSurveys, ({ one }) => ({
   providerTicket: one(providerTickets, {
