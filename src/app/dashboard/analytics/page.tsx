@@ -79,13 +79,12 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
     const areaId = session.user.attentionAreaId;
     if (!areaId) redirect("/dashboard");
 
-    const [kpis, priorityData, satisfactionData, topCategories, agentWorkload, slaData] = await Promise.all([
+    const [kpis, priorityData, satisfactionData, topCategories, agentWorkload] = await Promise.all([
       getDashboardKPIs(areaId, undefined, period),
       getTicketsByPriority(areaId, period),
       getSatisfactionTrend(areaId, period),
       getTopCategories(areaId, 5, period),
       getAgentWorkload(areaId),
-      getSLACompliance(areaId, period),
     ]);
 
     return (
@@ -104,7 +103,6 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
             satisfactionData={satisfactionData}
             topCategories={topCategories}
             agentWorkload={agentWorkload}
-            slaData={slaData}
             currentRange={range}
           />
         </Suspense>

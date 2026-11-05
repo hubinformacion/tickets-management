@@ -257,6 +257,7 @@ export function AgentCategoriesManagement({ categories }: AgentCategoriesManagem
                     <TableCell>
                       <Switch
                         checked={category.isActive}
+                        aria-label={`${category.isActive ? "Desactivar" : "Activar"} categoría ${category.name}`}
                         onCheckedChange={() => handleToggleActive(category.id, category.isActive)}
                         disabled={isPending}
                       />
@@ -267,6 +268,7 @@ export function AgentCategoriesManagement({ categories }: AgentCategoriesManagem
                           variant="ghost"
                           size="sm"
                           onClick={() => handleEdit(category)}
+                          aria-label={`Editar ${category.name}`}
                           disabled={isPending}
                         >
                           <Pencil className="h-4 w-4" />
@@ -275,6 +277,7 @@ export function AgentCategoriesManagement({ categories }: AgentCategoriesManagem
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeleteId(category.id)}
+                          aria-label={`Eliminar ${category.name}`}
                           disabled={isPending}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />

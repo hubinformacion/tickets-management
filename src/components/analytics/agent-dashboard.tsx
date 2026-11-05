@@ -8,7 +8,7 @@ import { TopCategoriesChart } from "@/components/analytics/top-categories-chart"
 import { AgentWorkloadTable } from "@/components/analytics/agent-workload-table";
 import { DashboardFilters } from "@/components/analytics/dashboard-filters";
 import { LayoutList, UserCheck, ShieldCheck, Star } from "lucide-react";
-import type { StatusCount, PriorityCount, SatisfactionTrend, CategoryCount, AgentWorkload, SLACompliance } from "@/db/queries/analytics";
+import type { StatusCount, PriorityCount, SatisfactionTrend, CategoryCount, AgentWorkload } from "@/db/queries/analytics";
 
 interface AgentDashboardProps {
   kpis: {
@@ -22,7 +22,6 @@ interface AgentDashboardProps {
   satisfactionData: SatisfactionTrend[];
   topCategories: CategoryCount[];
   agentWorkload: AgentWorkload[];
-  slaData: SLACompliance[];
   currentRange: string;
 }
 

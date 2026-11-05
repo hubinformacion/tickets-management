@@ -6,3 +6,8 @@ allowBuilds:
 ignoredOptionalDependencies:
   - "@biomejs/biome"
   - "fsevents"
+
+overrides:
+  "@tailwindcss/typography>postcss-selector-parser": "6.1.5"
+  "gaxios@7.1.3": "7.3.1"
+  "drizzle-kit>tsx": "4.23.15"

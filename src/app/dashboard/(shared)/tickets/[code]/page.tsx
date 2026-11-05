@@ -76,18 +76,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
   const canAddAttachments = areTicketAttachmentsAllowed(ticket.attentionArea?.slug, ticket.subcategory?.name);
   const visibleComments = canManageTicket(session.user, ticket)
     ? ticket.comments : ticket.comments.filter(comment => !comment.isInternal);
-  const [statusHistory, allUsers] = await Promise.all([
-    db.query.ticketStatusHistory.findMany({
-      where: eq(ticketStatusHistory.ticketId, ticket.id),
-      with: { changedBy: { columns: { name: true, image: true } } },
-      orderBy: [desc(ticketStatusHistory.changedAt)],
-    }),
-    db.select({
-      id: users.id, name: users.name, email: users.email, image: users.image, isActive: users.isActive,
-    }).from(users).where(canManageWatchers
-      ? or(eq(users.isActive, true), inArray(users.id, ticket.watchers ?? []))
-      : inArray(users.id, ticket.watchers ?? [])),
-  ]);
 
   let slaInfo: { slaHours: number; description: string } | null = null as { slaHours: number; description: string } | null;
   let hasSurvey = false;
@@ -133,7 +121,19 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ c
     );
   }
 
-  await Promise.all(dependentPromises);
+  const [statusHistory, allUsers] = await Promise.all([
+    db.query.ticketStatusHistory.findMany({
+      where: eq(ticketStatusHistory.ticketId, ticket.id),
+      with: { changedBy: { columns: { name: true, image: true } } },
+      orderBy: [desc(ticketStatusHistory.changedAt)],
+    }),
+    db.select({
+      id: users.id, name: users.name, email: users.email, image: users.image, isActive: users.isActive,
+    }).from(users).where(canManageWatchers
+      ? or(eq(users.isActive, true), inArray(users.id, ticket.watchers ?? []))
+      : inArray(users.id, ticket.watchers ?? [])),
+    ...dependentPromises,
+  ]);
 
   const watchersList = ticket.watchers?.length
     ? allUsers.filter(u => ticket.watchers!.includes(u.id))

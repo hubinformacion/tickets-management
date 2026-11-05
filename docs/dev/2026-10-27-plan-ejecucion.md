@@ -146,3 +146,7 @@ Excel integrado/desplegado en `761d67f`, Production `7575233636` y SHA público 
 ## Avance: calendario de cierre y recordatorios
 
 Reportes y protección del panel integrados/desplegados en `972e73d`, Production `7575926580` y SHA público confirmados; rama integrada eliminada. El usuario decidió omitir los recorridos reales de aceptación y atender incidencias. Se prepara la [regla sin fines de semana](2026-11-05-recordatorios-dias-laborables.md): 48 horas completas por etapa, lunes–viernes en Lima, recordatorios desde las 09:00 y cierre automático en su franja habitual de tarde. Sin migraciones, servicios de pago ni cambios de datos históricos. Rama local pendiente de merge/despliegue.
+
+## Avance: dependencias, calidad y rendimiento en paralelo
+
+Regla de calendario integrada/desplegada en `27ac4ea`, Production `7576879841` y SHA público confirmados; rama integrada eliminada. Se prepara la [revisión paralela](2026-11-05-dependencias-calidad-rendimiento.md): parches transitivos compatibles (6→3 avisos), formulario/SLA/controles corregidos y consultas innecesarias/esperas retiradas. Recordatorios consultados con agregados READ ONLY: ocho enviados y cero elegibles pendientes/reintentos/reservas caducadas en esa observación. No hay evidencia para elevar límites o añadir servicios. Rama local pendiente de aprobación de merge/despliegue; se conserva la decisión de omitir aceptación real y atender incidencias.

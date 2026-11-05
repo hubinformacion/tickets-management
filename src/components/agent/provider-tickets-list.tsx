@@ -138,6 +138,7 @@ export function ProviderTicketsList({ providerTickets, providers, providerOption
   const [isPending, startTransition] = useTransition();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<ProviderTicketRow | null>(null);
+  const [newTicketSession, setNewTicketSession] = useState(0);
 
   // Close dialog state
   const [closingTicket, setClosingTicket] = useState<ProviderTicketRow | null>(null);
@@ -376,11 +377,12 @@ export function ProviderTicketsList({ providerTickets, providers, providerOption
 
       {/* Create/Edit Dialog — key forces re-mount so state resets properly */}
       <ProviderTicketDialog
-        key={editingTicket?.id ?? "new"}
+        key={editingTicket?.id ?? `new-${newTicketSession}`}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         ticket={editingTicket}
         providers={providers}
+        onCreated={() => setNewTicketSession(session => session + 1)}
       />
 
       {/* Close Dialog */}
@@ -627,11 +629,13 @@ function ProviderTicketDialog({
   onOpenChange,
   ticket,
   providers,
+  onCreated,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   ticket: ProviderTicketRow | null;
   providers: Provider[];
+  onCreated: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -684,6 +688,7 @@ function ProviderTicketDialog({
         } else {
           toast.success("Ticket de proveedor creado");
           onOpenChange(false);
+          onCreated();
         }
       }
     });

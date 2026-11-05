@@ -26,7 +26,7 @@ interface AgentPriorityConfigProps {
 }
 
 function formatSla(hours: number): string {
-  if (hours < 24) return `${hours} hora${hours !== 1 ? "s" : ""}`;
+  if (hours < 24 || hours % 24 !== 0) return `${hours} hora${hours !== 1 ? "s" : ""}`;
   const days = Math.floor(hours / 24);
   return `${days} día${days !== 1 ? "s" : ""}`;
 }

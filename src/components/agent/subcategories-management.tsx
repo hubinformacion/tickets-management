@@ -231,7 +231,7 @@ export function AgentSubcategoriesManagement({
                       setFormData(prev => ({ ...prev, categoryId: value }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger id="category">
                       <SelectValue placeholder="Seleccionar categoría..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -321,6 +321,7 @@ export function AgentSubcategoriesManagement({
                     <TableCell>
                       <Switch
                         checked={subcategory.isActive}
+                        aria-label={`${subcategory.isActive ? "Desactivar" : "Activar"} subcategoría ${subcategory.name}`}
                         onCheckedChange={() => handleToggleActive(subcategory.id, subcategory.isActive)}
                         disabled={isPending}
                       />
@@ -331,6 +332,7 @@ export function AgentSubcategoriesManagement({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleEdit(subcategory)}
+                          aria-label={`Editar ${subcategory.name}`}
                           disabled={isPending}
                         >
                           <Pencil className="h-4 w-4" />
@@ -339,6 +341,7 @@ export function AgentSubcategoriesManagement({
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeleteId(subcategory.id)}
+                          aria-label={`Eliminar ${subcategory.name}`}
                           disabled={isPending}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
