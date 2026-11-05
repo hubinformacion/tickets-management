@@ -84,7 +84,9 @@ La [regla de cierre y recordatorios sin fines de semana](2026-11-05-recordatorio
 
 El usuario decidió omitir los recorridos de aceptación real pendientes y atender incidencias reportadas. Se conservan las comprobaciones técnicas locales; la tabla distingue los escenarios no ejecutados de los riesgos y mejoras de operación. No se solicitan nuevas gestiones de Drive.
 
-La [revisión paralela de dependencias, calidad y rendimiento](2026-11-05-dependencias-calidad-rendimiento.md) queda en rama local pendiente de merge/despliegue. Auditoría de dependencias 6→3 avisos moderados sin saltos major; correcciones concretas de formulario, formato SLA y controles; una consulta histórica descartada retirada y una ronda de lectura del detalle paralelizada. Recordatorios observados mediante agregados de solo lectura: ocho entregas enviadas, cero pendientes elegibles/reintentos/reservas caducadas; no se eleva capacidad ni se ejecuta el cron como prueba.
+La [revisión paralela de dependencias, calidad y rendimiento](2026-11-05-dependencias-calidad-rendimiento.md) está integrada/publicada en main como `5d972be`; su despliegue todavía no figura en GitHub/Vercel y el SHA público continúa en `27ac4ea`. No se declara Production actualizado; rama integrada eliminada. Auditoría de dependencias 6→3 avisos moderados sin saltos major; correcciones concretas de formulario, formato SLA y controles; una consulta histórica descartada retirada y una ronda de lectura del detalle paralelizada. Recordatorios observados mediante agregados de solo lectura: ocho entregas enviadas, cero pendientes elegibles/reintentos/reservas caducadas; no se eleva capacidad ni se ejecuta el cron como prueba.
+
+La [campaña puntual de recordatorios históricos agrupados](2026-11-05-recordatorio-historico-agrupado.md) está preparada en rama local: 30 borradores privados para 158 tickets con plazo comprobado, sin envíos o escrituras de BD. Se excluyen siete cierres sin fecha y un cierre reciente por decisión del usuario. Plantilla y script de preparación independientes de los automáticos; envío real pendiente de aprobación y ejecución con revalidación/registro por destinatario.
 
 ## Pendientes
 

@@ -150,3 +150,7 @@ Reportes y protección del panel integrados/desplegados en `972e73d`, Production
 ## Avance: dependencias, calidad y rendimiento en paralelo
 
 Regla de calendario integrada/desplegada en `27ac4ea`, Production `7576879841` y SHA público confirmados; rama integrada eliminada. Se prepara la [revisión paralela](2026-11-05-dependencias-calidad-rendimiento.md): parches transitivos compatibles (6→3 avisos), formulario/SLA/controles corregidos y consultas innecesarias/esperas retiradas. Recordatorios consultados con agregados READ ONLY: ocho enviados y cero elegibles pendientes/reintentos/reservas caducadas en esa observación. No hay evidencia para elevar límites o añadir servicios. Rama local pendiente de aprobación de merge/despliegue; se conserva la decisión de omitir aceptación real y atender incidencias.
+
+## Avance: integración y preparación de campaña histórica
+
+Dependencias/calidad/rendimiento integrados y publicados en main como `5d972be`, con tipos/ESLint aprobados. Aún sin despliegue registrado en GitHub/Vercel; producción devuelve `27ac4ea`. No se presenta el push como despliegue. Se prepara la [campaña puntual agrupada](2026-11-05-recordatorio-historico-agrupado.md), confirmada por el usuario: 30 borradores para 158 tickets, sin modificar los automáticos. Lectura READ ONLY y archivos privados, ningún envío ni escritura de BD. Usuario excluyó siete cierres sin fecha y uno reciente; enviar queda fuera de la preparación actual y exige revalidar pendientes y registrar resultados por persona.
