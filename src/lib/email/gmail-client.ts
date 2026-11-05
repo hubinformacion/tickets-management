@@ -102,21 +102,15 @@ function createEmailMessage(params: SendEmailParams): string {
   // HTML Body
   emailLines.push(`--${boundary}`);
   emailLines.push("Content-Type: text/html; charset=UTF-8");
-  emailLines.push("Content-Transfer-Encoding: quoted-printable");
+  emailLines.push("Content-Transfer-Encoding: base64");
   emailLines.push("");
-  emailLines.push(quotedPrintableEncode(htmlContent));
+  emailLines.push(Buffer.from(htmlContent, 'utf8').toString('base64').match(/.{1,76}/g)?.join("\r\n") ?? "");
   emailLines.push("");
 
   emailLines.push(`--${boundary}--`);
 
   return emailLines.join("\r\n");
 }
-
-function quotedPrintableEncode(str: string): string {
-  return str.replace(/[=\x80-\xFF]/g, (c) => '=' + c.charCodeAt(0).toString(16).toUpperCase())
-    .replace(/\r\n/g, '\n').replace(/\n/g, '\r\n'); // Normalize line endings
-}
-
 
 /**
  * Fetch thread details to get references for threading

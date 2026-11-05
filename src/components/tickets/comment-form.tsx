@@ -42,6 +42,7 @@ export function CommentForm({ ticketId }: CommentFormProps) {
         aria-label="Comentario o actualización del ticket"
         value={content}
         onChange={setContent}
+        disabled={isPending}
         placeholder="Escribe un comentario o actualización sobre este ticket..."
         className="min-h-[120px] border-0 focus-visible:ring-0 px-4 py-3 bg-transparent text-sm shadow-none"
       />

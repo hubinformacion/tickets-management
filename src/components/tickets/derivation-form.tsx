@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +45,8 @@ interface DerivationFormProps {
 }
 
 export function DerivationForm({ ticketId, providers, customTrigger }: DerivationFormProps) {
+  const providerId = useId();
+  const estimatedDateId = useId();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [providerName, setProviderName] = useState("");
@@ -105,10 +107,10 @@ export function DerivationForm({ ticketId, providers, customTrigger }: Derivatio
         <div className="space-y-4 py-4">
           {/* Proveedor */}
           <div className="space-y-2">
-            <Label htmlFor="provider">Proveedor</Label>
+            <Label htmlFor={providerId}>Proveedor</Label>
             {providers.length > 0 ? (
               <Select value={providerName} onValueChange={setProviderName}>
-                <SelectTrigger>
+                <SelectTrigger id={providerId}>
                   <SelectValue placeholder="Selecciona un proveedor" />
                 </SelectTrigger>
                 <SelectContent>
@@ -121,7 +123,7 @@ export function DerivationForm({ ticketId, providers, customTrigger }: Derivatio
               </Select>
             ) : (
               <Input
-                id="provider"
+                id={providerId}
                 placeholder="Nombre del proveedor"
                 value={providerName}
                 onChange={(e) => setProviderName(e.target.value)}
@@ -131,10 +133,11 @@ export function DerivationForm({ ticketId, providers, customTrigger }: Derivatio
 
           {/* Fecha estimada */}
           <div className="space-y-2">
-            <Label>Fecha estimada de atención (opcional)</Label>
+            <Label htmlFor={estimatedDateId}>Fecha estimada de atención (opcional)</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
+                  id={estimatedDateId}
                   type="button"
                   variant="outline"
                   className={cn(

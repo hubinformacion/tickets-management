@@ -52,3 +52,11 @@ Los borradores reales no son una simulación de carga o envío de correo; se pre
 El envío real **no está implementado ni ejecutado en esta entrega**: la solicitud actual es preparar y revisar. Antes de enviarlos habrá que obtener la aprobación concreta, volver a comprobar las encuestas/estado/cierre de cada ticket y la cuenta activa, evitar destinatarios sin tickets pendientes y registrar el resultado por persona para no repetir un grupo ya enviado al reintentar. Si una lista cambia, se vuelve a generar su cuerpo con los pendientes efectivos. Esa ejecución deberá respetar lunes–viernes desde las 09:00 de Lima y mantener intactos los automáticos y el historial.
 
 El directorio de borradores temporales se conserva para revisión y contiene datos personales: no publicarlo ni adjuntarlo a git. Puede desaparecer por limpieza de temporales; el script permite regenerarlo. El material ficticio de comprobación se elimina al cerrar este bloque.
+
+## Ejecución posterior aprobada y completada
+
+Después de preparar esta nota, el usuario autorizó expresamente merge, push y envío, y pidió continuar sin configurar Vercel. Se integró/publicó `abb8bf2`; Production `7582780847` y SHA público confirmados, rama integrada eliminada. Gmail confirmó **30 correos para 158 tickets**, sin grupos omitidos, fallidos o inciertos. Antes de cada correo se revalidó titular activo/mismo correo, estado resuelto/mismo cierre, plazo aprobado y ausencia de encuesta. Registro privado persistido antes/después del HTTP y 30 identificadores Gmail únicos; ningún cambio de BD o de los automáticos.
+
+La preparación descrita arriba no enviaba; la operación posterior autorizada se ejecutó una sola vez y guardó el resultado fuera del repositorio. Los borradores originales conservan sent:false porque son inmutables; el resultado efectivo está en el registro de ejecución, no en esa marca inicial. No repetir la campaña ni volver a crear borradores para reintentar sin consultar ese registro. No se publican destinatarios, títulos o contenido del manifiesto.
+
+Durante el envío se detectó el encoder quoted-printable defectuoso: se mitigó solo en esa operación convirtiendo Unicode a entidades HTML. La [corrección compartida UTF-8/base64](2026-11-05-utf8-paquetes-calidad.md) se prepara después para los demás emisores, sin reenviar mensajes anteriores.
